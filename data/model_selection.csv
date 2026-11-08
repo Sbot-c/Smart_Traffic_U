@@ -1,0 +1,15 @@
+policy,scenario,validation_general_s,validation_adapted_s,chosen,test_general_s,test_adapted_s
+Q-learning,normal,30.763,30.387,adapted,30.383,30.422
+Q-learning,rush_hour,66.24,68.935,general,64.839,69.08
+Q-learning,incident,33.323,33.173,adapted,32.756,32.64
+Q-learning,rain,30.409,30.515,general,30.274,30.247
+Q-learning,sandstorm,28.711,28.488,adapted,28.632,28.719
+Q-learning,event_surge,50.264,48.744,adapted,47.946,46.646
+Q-learning,bus_corridor,31.919,32.579,general,32.087,32.343
+SARSA,normal,30.78,30.445,adapted,30.64,30.149
+SARSA,rush_hour,74.687,75.492,general,71.374,78.992
+SARSA,incident,33.442,33.157,adapted,32.973,32.392
+SARSA,rain,30.295,30.395,general,30.669,30.027
+SARSA,sandstorm,28.883,28.708,adapted,28.716,28.786
+SARSA,event_surge,47.322,48.213,general,47.442,47.666
+SARSA,bus_corridor,32.122,32.184,general,32.149,32.267
