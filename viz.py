@@ -14,24 +14,27 @@ import plotly.graph_objects as go
 
 import config as C
 
-POLICY_COLORS = {"Fixed-time": "#eda100", "Actuated": "#1baf7a",
-                 "Q-learning": "#2a78d6", "SARSA": "#eb6834"}
+POLICY_COLORS = {"Fixed-time": "#f5b301", "Actuated": "#21c98b",
+                 "Q-learning": "#3d8bff", "SARSA": "#ff7a45"}
 POLICY_SYMBOLS = {"Fixed-time": "square", "Actuated": "diamond", "Q-learning": "circle",
                   "SARSA": "triangle-up"}
-SURFACE = "#fcfcfb"
-GRID = "#e8e6df"
-INK = "#0b0b0b"
-INK2 = "#52514e"
-MUTED = "#8a887f"
-SEQ_BLUE = ["#cde2fb", "#9ec5f4", "#6da7ec", "#3987e5", "#256abf", "#184f95", "#0d366b"]
-DIVERGING = [[0.0, "#2a78d6"], [0.5, "#f0efec"], [1.0, "#e34948"]]
-NODE_COLORS = {"chance": "#cde2fb", "decision": "#fde3c8", "utility": "#d7f0e3"}
-NODE_EDGES = {"chance": "#256abf", "decision": "#c2591f", "utility": "#16865f"}
+SURFACE = "rgba(0,0,0,0)"     # charts sit on the card background
+PANEL = "#0e1524"
+GRID = "rgba(148,163,184,0.12)"
+INK = "#e8eef8"
+INK2 = "#a9b4c7"
+MUTED = "#6c7a92"
+LINE = "#7d8aa3"
+SEQ_BLUE = ["#14233d", "#1b3a66", "#21508f", "#2b6bc0", "#3d8bff", "#7ab0ff", "#bcd6ff"]
+DIVERGING = [[0.0, "#3d8bff"], [0.5, "#1a2233"], [1.0, "#ff4d5e"]]
+NODE_COLORS = {"chance": "rgba(61,139,255,0.16)", "decision": "rgba(245,179,1,0.16)",
+               "utility": "rgba(33,201,139,0.16)"}
+NODE_EDGES = {"chance": "#3d8bff", "decision": "#f5b301", "utility": "#21c98b"}
 
 
 def base_layout(fig, height=360, title=None, legend=True, margin=None):
     fig.update_layout(
-        height=height, paper_bgcolor=SURFACE, plot_bgcolor=SURFACE,
+        height=height, paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
         font=dict(family="Inter, -apple-system, Segoe UI, Roboto, sans-serif", size=15,
                   color=INK),
         title=dict(text=title, font=dict(size=18, color=INK), x=0.0, xanchor="left", y=0.98, yanchor="top")
@@ -40,8 +43,9 @@ def base_layout(fig, height=360, title=None, legend=True, margin=None):
         showlegend=legend,
         legend=dict(orientation="h", yanchor="bottom", y=1.0, xanchor="left", x=0.0,
                     font=dict(color=INK2, size=14), bgcolor="rgba(0,0,0,0)"),
-        hoverlabel=dict(bgcolor="#ffffff", bordercolor=GRID, font=dict(color=INK)),
+        hoverlabel=dict(bgcolor="#0b1220", bordercolor="#2b3a55", font=dict(color=INK)),
         bargap=0.35, bargroupgap=0.08,
+        modebar=dict(bgcolor="rgba(0,0,0,0)", color=MUTED, activecolor=INK),
     )
     try:
         fig.update_layout(barcornerradius=4)
@@ -69,11 +73,11 @@ def network_map(queues_step, phases_step, title=None, incident=None, show_values
     # roads
     for r in range(3):
         fig.add_trace(go.Scatter(x=[-0.6, 2.6], y=[-r, -r], mode="lines",
-                                 line=dict(color="#c9c6bc", width=16 if r == 1 else 11),
+                                 line=dict(color="#1f2a3d", width=16 if r == 1 else 11),
                                  hoverinfo="skip", showlegend=False))
     for c in range(3):
         fig.add_trace(go.Scatter(x=[c, c], y=[0.6, -2.6], mode="lines",
-                                 line=dict(color="#c9c6bc", width=11), hoverinfo="skip",
+                                 line=dict(color="#1f2a3d", width=11), hoverinfo="skip",
                                  showlegend=False))
     # approach queues as short coloured stubs
     vmax = 30.0
@@ -93,8 +97,8 @@ def network_map(queues_step, phases_step, title=None, incident=None, show_values
     fig.add_trace(go.Scatter(
         x=xs, y=ys, mode="markers", hovertext=txt, hoverinfo="text", showlegend=False,
         marker=dict(size=[10 + min(q, vmax) * 0.9 for q in cols], color=cols,
-                    colorscale=[[0, SEQ_BLUE[0]], [0.5, SEQ_BLUE[3]], [1, SEQ_BLUE[6]]],
-                    cmin=0, cmax=vmax, line=dict(color=SURFACE, width=2),
+                    colorscale=[[0, "#21c98b"], [0.35, "#f5b301"], [1, "#ff4d5e"]],
+                    cmin=0, cmax=vmax, line=dict(color=PANEL, width=2), opacity=0.92,
                     colorbar=dict(title=dict(text="queue<br>(veh)", font=dict(size=11)),
                                   thickness=10, len=0.6, tickfont=dict(size=10)))))
     # junction phase badges
@@ -103,7 +107,7 @@ def network_map(queues_step, phases_step, title=None, incident=None, show_values
         ph = phases_step[i]
         fig.add_trace(go.Scatter(
             x=[x0], y=[y0], mode="markers+text",
-            marker=dict(size=26, color="#ffffff", line=dict(color="#4a4d52", width=1.5),
+            marker=dict(size=28, color="#0b1220", line=dict(color="#22d3ee" if ph == 1 else "#a78bfa", width=2),
                         symbol="square"),
             text=["NS" if ph == 0 else "EW"], textfont=dict(size=10, color=INK),
             hovertext=f"{C.JUNCTION_NAMES[i]}: {C.PHASE_NAMES[ph]}", hoverinfo="text",
@@ -114,7 +118,7 @@ def network_map(queues_step, phases_step, title=None, incident=None, show_values
         i = incident["junction"]
         x0, y0 = _jxy(i)
         fig.add_trace(go.Scatter(x=[x0 - 0.5], y=[y0 - 0.06], mode="markers+text",
-                                 marker=dict(symbol="triangle-up", size=16, color="#d03b3b"),
+                                 marker=dict(symbol="triangle-up", size=16, color="#ff4d5e"),
                                  text=["incident"], textposition="bottom center",
                                  textfont=dict(size=11, color=INK2),
                                  hoverinfo="skip", showlegend=False))
@@ -142,8 +146,8 @@ def policy_bars(df, metric, label, policies=None, title=None, height=330, fmt=".
         sub = g[g.policy == p].set_index("scenario").reindex(order)
         fig.add_trace(go.Bar(
             name=p, x=[C.SCENARIOS[s]["label"] for s in order], y=sub["mean"],
-            marker=dict(color=POLICY_COLORS[p], line=dict(color=SURFACE, width=2)),
-            error_y=dict(type="data", array=sub["std"], color="#b9b7ae", thickness=1,
+            marker=dict(color=POLICY_COLORS[p], line=dict(color=PANEL, width=1)),
+            error_y=dict(type="data", array=sub["std"], color=LINE, thickness=1,
                          width=3),
             hovertemplate=f"%{{x}}<br>{p}: %{{y:{fmt}}} {label}<extra></extra>"))
     base_layout(fig, height=height, title=title)
@@ -171,7 +175,7 @@ def improvement_heatmap(df, metric, higher_is_better=False, title=None, height=3
     fig = go.Figure(go.Heatmap(
         z=z, x=pols, y=[C.SCENARIOS[s]["label"] for s in order], text=text,
         texttemplate="%{text}", textfont=dict(size=12, color=INK),
-        colorscale=[[0.0, "#e34948"], [0.5, "#f0efec"], [1.0, "#2a78d6"]],
+        colorscale=[[0.0, "#ff4d5e"], [0.5, "#1a2233"], [1.0, "#3d8bff"]],
         zmin=-lim, zmax=lim, xgap=2, ygap=2,
         colorbar=dict(title=dict(text="better →", font=dict(size=11)), thickness=10,
                       tickfont=dict(size=10)),
@@ -200,15 +204,15 @@ def tradeoff_scatter(df, scenario=None, height=420, title=None):
     if scenario:
         t = t[t.scenario == scenario]
     fig = go.Figure()
-    fig.add_hline(y=0, line=dict(color="#b9b7ae", width=1))
-    fig.add_vline(x=0, line=dict(color="#b9b7ae", width=1))
+    fig.add_hline(y=0, line=dict(color=LINE, width=1))
+    fig.add_vline(x=0, line=dict(color=LINE, width=1))
     for p in ["Actuated", "Q-learning", "SARSA"]:
         sub = t[t.policy == p]
         fig.add_trace(go.Scatter(
             x=sub.d_delay, y=sub.d_conf, mode="markers", name=p,
             marker=dict(color=POLICY_COLORS[p], symbol=POLICY_SYMBOLS[p],
                         size=np.clip(12 + (-sub.d_co2) * 1.5, 9, 30),
-                        line=dict(color=SURFACE, width=2)),
+                        line=dict(color=PANEL, width=1)),
             customdata=np.stack([sub.scenario.map(lambda s: C.SCENARIOS[s]["label"]),
                                  sub.d_co2], axis=-1) if len(sub) else None,
             hovertemplate=(f"<b>{p}</b> · %{{customdata[0]}}<br>delay %{{x:+.1f}}%<br>"
@@ -301,7 +305,7 @@ def radar(utilities: pd.DataFrame, height=380, title=None):
                                       fill="toself", fillcolor="rgba(0,0,0,0)",
                                       hovertemplate=f"{p} · %{{theta}}: %{{r:.0f}}<extra></extra>"))
     base_layout(fig, height=height, title=title)
-    fig.update_layout(polar=dict(bgcolor=SURFACE,
+    fig.update_layout(polar=dict(bgcolor="rgba(0,0,0,0)",
                                  radialaxis=dict(range=[0, 100], gridcolor=GRID,
                                                  tickfont=dict(size=12, color=MUTED)),
                                  angularaxis=dict(gridcolor=GRID,
@@ -344,7 +348,7 @@ def influence_diagram(dn, posteriors=None, decision=None, utilities=None, height
         x1, y1, _ = DN_LAYOUT[b]
         fig.add_annotation(x=x1, y=y1, ax=x0, ay=y0, xref="x", yref="y", axref="x",
                            ayref="y", showarrow=True, arrowhead=3, arrowsize=1.1,
-                           arrowwidth=1.2, arrowcolor="#a19f96", standoff=34,
+                           arrowwidth=1.2, arrowcolor="#4b5a78", standoff=34,
                            startstandoff=30, text="")
     for n, (x, y, kind) in DN_LAYOUT.items():
         if kind == "chance":
@@ -409,7 +413,7 @@ def posterior_bars(dn, posteriors, nodes, height=300, title=None):
             states = dn.states(n)
             vals.append(float(posteriors[n][states.index(st)]) if st in states else 0.0)
         fig.add_trace(go.Bar(y=labels, x=vals, name=st, orientation="h",
-                             marker=dict(color=shades[st], line=dict(color=SURFACE, width=2)),
+                             marker=dict(color=shades[st], line=dict(color=PANEL, width=1)),
                              hovertemplate="%{y}: P(" + st + ") = %{x:.2f}<extra></extra>"))
     base_layout(fig, height=height, title=title)
     fig.update_layout(barmode="stack", bargap=0.45)
@@ -425,7 +429,7 @@ def eu_bars(table, height=340, title=None):
     fig = go.Figure(go.Bar(
         y=t["label"], x=t["EU"], orientation="h",
         marker=dict(color=[POLICY_COLORS[s] for s in t["Signal timing"]],
-                    line=dict(color=SURFACE, width=2)),
+                    line=dict(color=PANEL, width=1)),
         text=[f"{v:.1f}" for v in t["EU"]], textposition="outside",
         textfont=dict(color=INK2, size=11),
         hovertemplate="%{y}<br>expected utility %{x:.2f}<extra></extra>"))
@@ -446,12 +450,12 @@ def ternary_map(ws: pd.DataFrame, height=420, title=None):
         fig.add_trace(go.Scatterternary(
             a=sub.w_efficiency, b=sub.w_safety, c=sub.w_environment, mode="markers",
             name=p, marker=dict(color=POLICY_COLORS[p], symbol=POLICY_SYMBOLS[p], size=9,
-                                line=dict(color=SURFACE, width=1.5)),
+                                line=dict(color=PANEL, width=1)),
             hovertemplate=(f"best: {p}<br>efficiency %{{a:.2f}}<br>safety %{{b:.2f}}"
                            "<br>environment %{c:.2f}<extra></extra>")))
     base_layout(fig, height=height, title=title, margin=dict(l=40, r=40, t=70, b=40))
     fig.update_layout(ternary=dict(
-        bgcolor=SURFACE, sum=1,
+        bgcolor="rgba(0,0,0,0)", sum=1,
         aaxis=dict(title=dict(text="Efficiency weight", font=dict(size=14)), gridcolor=GRID,
                    linecolor=GRID, tickfont=dict(size=12, color=MUTED)),
         baxis=dict(title=dict(text="Safety weight", font=dict(size=14)), gridcolor=GRID,
@@ -464,7 +468,7 @@ def ternary_map(ws: pd.DataFrame, height=420, title=None):
 def policy_heatmap(prob_switch, x_labels, y_labels, title=None, height=300):
     fig = go.Figure(go.Heatmap(
         z=prob_switch, x=x_labels, y=y_labels, zmin=0, zmax=1, xgap=2, ygap=2,
-        colorscale=[[0, "#f0efec"], [1, "#2a78d6"]],
+        colorscale=[[0, "#1a2233"], [1, "#3d8bff"]],
         text=[["–" if np.isnan(v) else ("switch" if v >= 0.5 else "keep") for v in row]
               for row in prob_switch],
         texttemplate="%{text}", textfont=dict(size=11, color=INK),
@@ -488,8 +492,8 @@ def combo_bars(df, metric="avg_delay_s", label="Average delay (s/veh)", height=3
     fig = go.Figure(go.Bar(
         y=g.variant, x=g["mean"], orientation="h",
         marker=dict(color=[POLICY_COLORS[s] for s in g.signal],
-                    line=dict(color=SURFACE, width=2)),
-        error_x=dict(type="data", array=g["std"], color="#b9b7ae", thickness=1, width=3),
+                    line=dict(color=PANEL, width=1)),
+        error_x=dict(type="data", array=g["std"], color=LINE, thickness=1, width=3),
         text=[f"{v:.1f}" for v in g["mean"]], textposition="outside",
         textfont=dict(color=INK2, size=11),
         hovertemplate="%{y}<br>%{x:.1f} " + label + "<extra></extra>"))
@@ -521,10 +525,10 @@ def ped_tradeoff_chart(summary, height=430, title=None, highlight=0.5):
             line=dict(color=col, width=1.5, dash="dot"),
             marker=dict(color=col, symbol=sym, size=[17 if w == highlight else 11
                                                       for w in s.ped_weight],
-                        line=dict(color=SURFACE, width=2)),
-            error_x=dict(type="data", array=s.ped_wait_sd.fillna(0), color="#b9b7ae",
+                        line=dict(color=PANEL, width=1)),
+            error_x=dict(type="data", array=s.ped_wait_sd.fillna(0), color=LINE,
                          thickness=1, width=3),
-            error_y=dict(type="data", array=s.delay_sd.fillna(0), color="#b9b7ae",
+            error_y=dict(type="data", array=s.delay_sd.fillna(0), color=LINE,
                          thickness=1, width=3),
             customdata=np.stack([s.ped_weight, s.runs, s.ped_over30, s.jaywalks], axis=-1),
             hovertemplate=("W_PED = %{customdata[0]:g}<br>vehicle delay %{y:.1f} s<br>"
@@ -539,7 +543,7 @@ def ped_tradeoff_chart(summary, height=430, title=None, highlight=0.5):
         if r:
             fig.add_trace(go.Scatter(
                 x=[r["ped_wait"]], y=[r["delay"]], mode="markers", name=f"{name} (same routing)",
-                marker=dict(color=color, symbol=sym, size=14, line=dict(color=SURFACE, width=2)),
+                marker=dict(color=color, symbol=sym, size=14, line=dict(color=PANEL, width=1)),
                 hovertemplate=f"<b>{name}</b> + cooperative routing<br>vehicle delay %{{y:.1f}} s"
                               "<br>pedestrian wait %{x:.1f} s<extra></extra>"))
     base_layout(fig, height=height, title=title)
@@ -559,14 +563,14 @@ def net_benefit_bars(summary, policy="Q-learning", height=330, title=None):
     col = POLICY_COLORS.get(policy, "#2a78d6")
     fig = go.Figure(go.Bar(
         x=[f"{w:g}" for w in s.ped_weight], y=s.net_aed,
-        marker=dict(color=[col if w != 0.5 else "#184f95" for w in s.ped_weight],
-                    line=dict(color=SURFACE, width=2)),
-        error_y=dict(type="data", array=s.net_aed_sd.fillna(0), color="#b9b7ae", thickness=1,
+        marker=dict(color=[col if w != 0.5 else "#22d3ee" for w in s.ped_weight],
+                    line=dict(color=PANEL, width=1)),
+        error_y=dict(type="data", array=s.net_aed_sd.fillna(0), color=LINE, thickness=1,
                      width=3),
         text=[f"{v:,.0f}" for v in s.net_aed], textposition="outside",
         textfont=dict(color=INK2, size=11),
         hovertemplate="W_PED = %{x}<br>%{y:,.0f} AED per peak window<extra></extra>"))
-    fig.add_hline(y=0, line=dict(color="#b9b7ae", width=1))
+    fig.add_hline(y=0, line=dict(color=LINE, width=1))
     base_layout(fig, height=height, title=title, legend=False)
     fig.update_xaxes(title_text="Pedestrian weight W_PED in the reward")
     fig.update_yaxes(title_text="Net benefit vs actuated signals (AED per peak window)",
@@ -581,8 +585,8 @@ def money_bars(df, label_col, value_col, sd_col=None, height=330, title=None, co
     fig = go.Figure(go.Bar(
         y=d[label_col], x=d[value_col], orientation="h",
         marker=dict(color=[(colors or {}).get(v, "#2a78d6") for v in d[label_col]],
-                    line=dict(color=SURFACE, width=2)),
-        error_x=dict(type="data", array=d[sd_col].fillna(0), color="#b9b7ae", thickness=1,
+                    line=dict(color=PANEL, width=1)),
+        error_x=dict(type="data", array=d[sd_col].fillna(0), color=LINE, thickness=1,
                      width=3) if sd_col else None,
         text=[f"{v:,.0f}" for v in d[value_col]], textposition="outside",
         textfont=dict(color=INK2, size=11),
@@ -594,4 +598,115 @@ def money_bars(df, label_col, value_col, sd_col=None, height=330, title=None, co
     fig.update_xaxes(title_text=unit, showgrid=True, gridcolor=GRID,
                      range=[min(0.0, bot * 1.18), max(top, 1) * 1.18])
     fig.update_yaxes(showgrid=False)
+    return fig
+
+
+# ======================================================================================
+# Simulation Lab (lab.py)
+# ======================================================================================
+def sweep_lines(df, x_label, metric, label, current=None, height=330, title=None,
+                fmt=".1f"):
+    """Mean (line) and min-max over seeds (band) of one KPI along a swept condition."""
+    g = df.groupby(["policy", "x"])[metric].agg(["mean", "min", "max"]).reset_index()
+    fig = go.Figure()
+    for p, col in POLICY_COLORS.items():
+        s_ = g[g.policy == p].sort_values("x")
+        if s_.empty:
+            continue
+        r, gg, b = int(col[1:3], 16), int(col[3:5], 16), int(col[5:7], 16)
+        fig.add_trace(go.Scatter(x=list(s_.x) + list(s_.x[::-1]),
+                                 y=list(s_["max"]) + list(s_["min"][::-1]), fill="toself",
+                                 fillcolor=f"rgba({r},{gg},{b},0.12)", line=dict(width=0),
+                                 hoverinfo="skip", showlegend=False))
+        fig.add_trace(go.Scatter(
+            x=s_.x, y=s_["mean"], mode="lines+markers", name=p,
+            line=dict(color=col, width=2.6, shape="spline", smoothing=0.6),
+            marker=dict(size=7, color=col, line=dict(color=PANEL, width=1.5)),
+            hovertemplate=f"{p}<br>{x_label} %{{x}}<br>{label}: %{{y:{fmt}}}<extra></extra>"))
+    if current is not None:
+        fig.add_vline(x=current, line=dict(color="#22d3ee", width=1.5, dash="dot"))
+        fig.add_annotation(x=current, y=0.98, yref="paper", text="your setting", showarrow=False,
+                           xanchor="left", yanchor="top", xshift=4,
+                           font=dict(size=11, color="#22d3ee"))
+    base_layout(fig, height=height, title=title)
+    fig.update_xaxes(title_text=x_label, showgrid=True, gridcolor=GRID)
+    fig.update_yaxes(title_text=label)
+    return fig
+
+
+def lab_bars(g, metrics, height=300):
+    """Small multiples: one bar panel per KPI for the four policies."""
+    from plotly.subplots import make_subplots
+    fig = make_subplots(rows=1, cols=len(metrics), subplot_titles=[m[1] for m in metrics],
+                        horizontal_spacing=0.06)
+    pols = [p for p in POLICY_COLORS if p in g.index]
+    for k, (col, lab, better_low) in enumerate(metrics, start=1):
+        vals = g.loc[pols, col]
+        best = vals.idxmin() if better_low else vals.idxmax()
+        fig.add_trace(go.Bar(
+            x=pols, y=vals, showlegend=False,
+            marker=dict(color=[POLICY_COLORS[p] for p in pols],
+                        opacity=[1.0 if p == best else 0.55 for p in pols],
+                        line=dict(color=["#e8eef8" if p == best else PANEL for p in pols],
+                                  width=[2 if p == best else 1 for p in pols])),
+            text=[f"{v:,.1f}" if abs(v) < 1000 else f"{v:,.0f}" for v in vals],
+            textposition="outside", textfont=dict(size=11, color=INK2), cliponaxis=False,
+            hovertemplate="%{x}: %{y:,.2f}<extra>" + lab + "</extra>"), row=1, col=k)
+        top = float(vals.max()) if len(vals) else 1.0
+        fig.update_yaxes(range=[0, top * 1.22 if top > 0 else 1], row=1, col=k,
+                         showticklabels=False)
+    for p in pols:                     # legend entries (the x labels are hidden)
+        fig.add_trace(go.Bar(x=[None], y=[None], name=p, marker=dict(color=POLICY_COLORS[p]),
+                             showlegend=True), row=1, col=1)
+    base_layout(fig, height=height, legend=True, margin=dict(l=6, r=6, t=70, b=6))
+    fig.update_layout(legend=dict(y=1.16))
+    fig.update_xaxes(showticklabels=False)
+    fig.update_annotations(font=dict(size=13, color=INK2))
+    return fig
+
+
+def correlation_graph(links, active=True, height=360):
+    """Driver -> follower map of the linked what-if conditions."""
+    drivers = list(dict.fromkeys(a for a, _, _ in links))
+    followers = list(dict.fromkeys(b for _, b, _ in links))
+    yd = {d: 1 - k / max(1, len(drivers) - 1) for k, d in enumerate(drivers)}
+    yf = {f: 1 - k / max(1, len(followers) - 1) for k, f in enumerate(followers)}
+    fig = go.Figure()
+    col = "#22d3ee" if active else "#4b5770"
+    for a, b, rule in links:
+        xs = np.linspace(0, 1, 30)
+        w = 3 * xs ** 2 - 2 * xs ** 3                     # smooth S-curve between columns
+        fig.add_trace(go.Scatter(
+            x=xs, y=yd[a] + (yf[b] - yd[a]) * w, mode="lines",
+            line=dict(color=col, width=2), opacity=0.8 if active else 0.35,
+            hovertext=f"{a} → {b}: {rule}", hoverinfo="text", showlegend=False))
+    fig.add_trace(go.Scatter(
+        x=[0] * len(drivers), y=[yd[d] for d in drivers], mode="markers",
+        marker=dict(size=16, color="#f5b301", line=dict(color=PANEL, width=2)),
+        hoverinfo="skip", showlegend=False))
+    fig.add_trace(go.Scatter(
+        x=[1] * len(followers), y=[yf[f] for f in followers], mode="markers",
+        marker=dict(size=16, color=col, line=dict(color=PANEL, width=2)),
+        hoverinfo="skip", showlegend=False))
+    for d in drivers:
+        fig.add_annotation(x=0, y=yd[d], text=d, xanchor="right", xshift=-14, showarrow=False,
+                           font=dict(size=13, color=INK))
+    for f in followers:
+        fig.add_annotation(x=1, y=yf[f], text=f, xanchor="left", xshift=14, showarrow=False,
+                           font=dict(size=13, color=INK))
+    fig.add_annotation(x=0, y=1.13, text="DRIVER", showarrow=False, font=dict(size=11, color=MUTED))
+    fig.add_annotation(x=1, y=1.13, text="FOLLOWS", showarrow=False, font=dict(size=11, color=MUTED))
+    base_layout(fig, height=height, legend=False, margin=dict(l=10, r=10, t=10, b=10))
+    fig.update_xaxes(visible=False, range=[-0.75, 1.75])
+    fig.update_yaxes(visible=False, range=[-0.1, 1.2])
+    return fig
+
+
+def spark(values, color="#22d3ee", height=70):
+    fig = go.Figure(go.Scatter(y=values, mode="lines", line=dict(color=color, width=2),
+                               fill="tozeroy", fillcolor="rgba(34,211,238,0.10)",
+                               hoverinfo="skip"))
+    base_layout(fig, height=height, legend=False, margin=dict(l=0, r=0, t=0, b=0))
+    fig.update_xaxes(visible=False)
+    fig.update_yaxes(visible=False)
     return fig

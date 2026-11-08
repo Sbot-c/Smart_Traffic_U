@@ -1,0 +1,16 @@
+[theme]
+base = "dark"
+primaryColor = "#22d3ee"
+backgroundColor = "#070b14"
+secondaryBackgroundColor = "#0f1626"
+textColor = "#e6edf7"
+baseFontSize = 16
+
+[server]
+headless = true
+
+[client]
+toolbarMode = "minimal"      # hides the Deploy button and the main menu
+
+[browser]
+gatherUsageStats = false

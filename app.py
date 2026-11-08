@@ -1,5 +1,5 @@
 """
-Smart Traffic Management Dashboard - Streamlit prototype.
+Smart Traffic Command Centre - Streamlit dashboard.
 
 Multi-agent reinforcement learning (Q-learning, SARSA) for traffic lights, autonomous
 vehicles and buses on a 3 x 3 Downtown-Dubai-style grid, evaluated across six scenario
@@ -23,11 +23,12 @@ import config as C
 import course_methods as M
 import decision_network as D
 import experiments as X
+import lab as LB
 import sim_view
 import value_of_time as V
 import viz
 
-st.set_page_config(page_title="Smart Traffic Management Dashboard", page_icon="🚦",
+st.set_page_config(page_title="Smart Traffic Command Centre", page_icon="🚦",
                    layout="wide", initial_sidebar_state="expanded")
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -35,32 +36,148 @@ DATA = os.path.join(HERE, "data")
 
 CSS = """
 <style>
-  .block-container {padding-top: 0.8rem; padding-bottom: 2rem; max-width: 1600px;}
-  h1, h2, h3, h4 {letter-spacing: -0.01em;}
-  h2 {font-size: 1.7rem; margin-bottom: 0;} h4 {font-size: 1.3rem;}
-  [data-testid="stMetricValue"] {font-size: 2.0rem;}
-  [data-testid="stMetricLabel"] p {font-size: 1.0rem; color: #52514e;}
-  [data-testid="stMetricDelta"] {font-size: 0.95rem;}
-  [data-testid="stCaptionContainer"], .stCaption {font-size: 0.98rem;}
-  /* hide the Deploy button and the hamburger menu for the demo */
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@500;700&display=swap');
+  :root { --bg:#070b14; --panel:#0e1524; --panel2:#121b2e; --line:rgba(148,163,184,0.14);
+          --ink:#e8eef8; --muted:#8693a8; --cyan:#22d3ee; --blue:#3d8bff; --amber:#f5b301;
+          --green:#21c98b; --red:#ff4d5e; --violet:#a78bfa; }
+  html, body, [class*="css"] { font-family: Inter, -apple-system, Segoe UI, Roboto, sans-serif; }
+  .stApp { background:
+      radial-gradient(1200px 600px at 85% -10%, rgba(61,139,255,0.13), transparent 60%),
+      radial-gradient(900px 500px at -10% 10%, rgba(34,211,238,0.08), transparent 60%),
+      linear-gradient(rgba(148,163,184,0.035) 1px, transparent 1px) 0 0 / 100% 42px,
+      linear-gradient(90deg, rgba(148,163,184,0.035) 1px, transparent 1px) 0 0 / 42px 100%,
+      #070b14; }
+  .block-container {padding-top: 1.0rem; padding-bottom: 3rem; max-width: 1640px;}
+  header[data-testid="stHeader"] {background: transparent;}
+  h1, h2, h3, h4 {font-family: 'Space Grotesk', Inter, sans-serif; letter-spacing: -0.01em;}
+  /* section headings: accent bar */
+  h4 {font-size: 1.22rem !important; font-weight: 600 !important; margin-top: .6rem !important;
+      padding-left: 16px !important; position: relative;}
+  h4::before {content:""; position:absolute; left:0; top:.28em; bottom:.28em; width:4px;
+              border-radius:4px; background:linear-gradient(180deg, var(--cyan), var(--blue));
+              box-shadow:0 0 12px rgba(34,211,238,.6);}
+  /* metric tiles: glass cards */
+  [data-testid="stMetric"] {background: linear-gradient(160deg, rgba(23,33,54,.92), rgba(12,18,31,.92));
+      border:1px solid var(--line); border-radius:16px; padding:14px 16px 12px 16px;
+      position:relative; overflow:hidden; box-shadow: 0 10px 30px rgba(0,0,0,.25);}
+  [data-testid="stMetric"]::after {content:""; position:absolute; inset:0 0 auto 0; height:2px;
+      background:linear-gradient(90deg, var(--cyan), rgba(61,139,255,0.0));}
+  [data-testid="stMetricValue"] {font-family:'JetBrains Mono', monospace; font-size:1.85rem;
+      font-weight:700; color:#f4f8ff;}
+  [data-testid="stMetricLabel"] p {font-size:.80rem; color:var(--muted); text-transform:uppercase;
+      letter-spacing:.07em; font-weight:600;}
+  [data-testid="stMetricDelta"] {font-size:.88rem; font-weight:600;}
+  [data-testid="stCaptionContainer"], .stCaption {font-size:.9rem; color:#8a97ad !important;}
+  /* charts and tables on cards */
+  [data-testid="stPlotlyChart"] {background: linear-gradient(180deg, rgba(18,27,46,.85), rgba(11,17,29,.85));
+      border:1px solid var(--line); border-radius:16px; padding:8px 10px 6px 10px;
+      box-sizing: content-box;}
+  [data-testid="stDataFrame"] {border:1px solid var(--line); border-radius:12px; overflow:hidden;}
+  iframe {border-radius:16px;}
+  /* hide the Deploy button and the hamburger menu */
   .stAppDeployButton, [data-testid="stAppDeployButton"], #MainMenu,
   [data-testid="stMainMenu"] {display: none !important;}
-  /* view selector (replaces st.tabs so that only the open view is drawn) */
-  div[data-testid="stRadio"] [role="radiogroup"] {gap: 6px; flex-wrap: wrap;}
-  div[data-testid="stRadio"] [role="radiogroup"] > label {
-      border: 1px solid #d9d7cf; border-radius: 999px; padding: 4px 16px; background: #ffffff;
-      cursor: pointer;}
-  div[data-testid="stRadio"] [role="radiogroup"] > label:has(input:checked) {
-      background: #2a78d6; border-color: #2a78d6;}
-  div[data-testid="stRadio"] [role="radiogroup"] > label:has(input:checked) p {color: #ffffff;}
-  div[data-testid="stRadio"] [role="radiogroup"] > label > div:first-child {display: none;}
-  div[data-testid="stRadio"] [role="radiogroup"] p {font-size: 1.05rem; font-weight: 600;}
-  .muted {color:#52514e; font-size:1.0rem;}
-  .pill {display:inline-block; padding:3px 12px; border-radius:999px; background:#f2f1ec;
-         color:#33312c; font-size:0.95rem; margin-right:6px;}
-  .card {border:1px solid #e8e6df; border-radius:10px; padding:12px 14px; background:#ffffff;}
-  .card h4 {margin:0 0 4px 0; font-size:1.1rem;}
-  .card p {margin:0; color:#52514e; font-size:0.98rem;}
+  /* navigation: the view radio drawn as a segmented control */
+  div[data-testid="stRadio"]:has([aria-label="View"]) [role="radiogroup"] {gap: 6px; flex-wrap: wrap;
+      background: rgba(14,21,36,.8); border:1px solid var(--line); border-radius:16px; padding:6px;
+      backdrop-filter: blur(8px);}
+  div[data-testid="stRadio"]:has([aria-label="View"]) [data-testid="stRadioOption"] {
+      border-radius: 11px; padding: 7px 16px; cursor: pointer; margin:0;
+      transition: background .15s, box-shadow .15s;}
+  div[data-testid="stRadio"]:has([aria-label="View"]) [data-testid="stRadioOption"]:hover {
+      background: rgba(61,139,255,.10);}
+  div[data-testid="stRadio"]:has([aria-label="View"]) [data-testid="stRadioOption"][data-selected="true"] {
+      background: linear-gradient(135deg, #0891b2, #2563eb);
+      box-shadow: 0 0 22px rgba(34,211,238,.35), inset 0 0 0 1px rgba(255,255,255,.12);}
+  div[data-testid="stRadio"]:has([aria-label="View"]) [data-testid="stRadioOption"] > div > div:first-child {display:none;}
+  div[data-testid="stRadio"]:has([aria-label="View"]) [data-testid="stRadioOption"] p {
+      font-size: .98rem; font-weight: 600; color: #b9c4d6;}
+  div[data-testid="stRadio"]:has([aria-label="View"]) [data-testid="stRadioOption"][data-selected="true"] p {color:#fff;}
+  /* inner tabs */
+  .stTabs [data-baseweb="tab-list"] {gap: 4px;}
+  .stTabs [data-baseweb="tab"] {background: rgba(14,21,36,.7); border:1px solid var(--line);
+      border-radius:10px 10px 0 0; padding:6px 14px;}
+  /* sidebar */
+  section[data-testid="stSidebar"] {background: linear-gradient(180deg, #0b1220, #070b14);
+      border-right: 1px solid var(--line);}
+  .muted {color:var(--muted); font-size:.95rem;}
+  .pill {display:inline-block; padding:4px 12px; border-radius:999px; background:rgba(61,139,255,.10);
+         color:#cfe0ff; font-size:.86rem; margin:0 6px 6px 0; border:1px solid rgba(61,139,255,.28);
+         font-weight:600;}
+  .card {border:1px solid var(--line); border-radius:16px; padding:14px 16px; height:100%;
+         background: linear-gradient(160deg, rgba(23,33,54,.9), rgba(12,18,31,.9)); margin-bottom:10px;}
+  .card h4 {margin:0 0 6px 0 !important; font-size:1.05rem !important; padding-left:0 !important;}
+  .card.sel {border-color: rgba(34,211,238,.6); box-shadow: 0 0 0 1px rgba(34,211,238,.25),
+             0 0 28px rgba(34,211,238,.15);}
+  .card .tag {float:right; font-size:.7rem; font-weight:700; letter-spacing:.1em; color:#22d3ee;}
+  .rules {border:1px solid var(--line); border-radius:12px; overflow:hidden; margin-bottom:12px;}
+  .rules div {display:grid; grid-template-columns: 1.1fr 1.1fr 2fr; gap:10px; padding:7px 12px;
+              border-top:1px solid var(--line); font-size:.86rem; color:#cbd5e1;}
+  .rules div:first-child {border-top:none; background:rgba(61,139,255,.08); color:#8693a8;
+              font-size:.74rem; letter-spacing:.08em; text-transform:uppercase; font-weight:700;}
+  .rules b {color:#f4f8ff; font-weight:600;}
+  .card h4::before {display:none;}
+  .card p {margin:0; color:#a9b4c7; font-size:.92rem;}
+  /* hero */
+  .hero {position:relative; overflow:hidden; border-radius:22px; padding:22px 28px 20px 28px;
+         border:1px solid rgba(61,139,255,.25); margin-bottom:14px;
+         background:
+           radial-gradient(600px 220px at 85% 0%, rgba(34,211,238,.20), transparent 70%),
+           radial-gradient(500px 240px at 0% 100%, rgba(61,139,255,.18), transparent 70%),
+           linear-gradient(135deg, #0d1730 0%, #0a1222 60%, #0b1020 100%);
+         box-shadow: 0 20px 60px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.05);}
+  .hero::after {content:""; position:absolute; inset:0; pointer-events:none;
+         background: repeating-linear-gradient(90deg, rgba(34,211,238,.05) 0 1px, transparent 1px 60px);
+         mask-image: linear-gradient(90deg, transparent, #000 40%, #000 60%, transparent);}
+  .hero-grid {display:flex; gap:28px; align-items:flex-end; justify-content:space-between; flex-wrap:wrap;
+              position:relative; z-index:1;}
+  .eyebrow {font-family:'JetBrains Mono', monospace; font-size:.76rem; letter-spacing:.16em;
+            color:var(--cyan); display:flex; align-items:center; gap:10px; text-transform:uppercase;}
+  .live {width:9px; height:9px; border-radius:50%; background:#ff4d5e; box-shadow:0 0 0 0 rgba(255,77,94,.7);
+         animation: pulse 1.6s infinite;}
+  @keyframes pulse {0% {box-shadow:0 0 0 0 rgba(255,77,94,.6);} 70% {box-shadow:0 0 0 12px rgba(255,77,94,0);}
+                    100% {box-shadow:0 0 0 0 rgba(255,77,94,0);}}
+  .hero h1 {font-size:2.55rem; line-height:1.05; margin:.35rem 0 .35rem 0; padding:0; color:#f4f8ff;
+            font-weight:700;}
+  .hero h1 .g {background: linear-gradient(90deg, #22d3ee, #3d8bff 55%, #a78bfa);
+               -webkit-background-clip:text; background-clip:text; color:transparent;}
+  .hero .sub {color:#a9b4c7; font-size:1.0rem; margin:0;}
+  .hstats {display:flex; gap:12px; flex-wrap:wrap;}
+  .hstat {min-width:140px; padding:10px 14px; border-radius:14px; background:rgba(7,11,20,.55);
+          border:1px solid var(--line);}
+  .hstat .k {font-size:.70rem; color:var(--muted); letter-spacing:.1em; text-transform:uppercase;
+             font-weight:600;}
+  .hstat .v {font-family:'JetBrains Mono', monospace; font-size:1.45rem; font-weight:700; color:#f4f8ff;}
+  .hstat .v small {font-size:.8rem; color:var(--muted); font-weight:500;}
+  .hstat .v.good {color:#34d399;} .hstat .v.bad {color:#ff6b7a;}
+  .ctx {margin-top:12px; position:relative; z-index:1;}
+  .ctx .desc {color:#8a97ad; font-size:.9rem;}
+  /* ticker */
+  .ticker {overflow:hidden; white-space:nowrap; border:1px solid var(--line); border-radius:12px;
+           background:rgba(10,16,28,.8); margin:0 0 12px 0; position:relative;}
+  .ticker::before, .ticker::after {content:""; position:absolute; top:0; bottom:0; width:60px; z-index:2;}
+  .ticker::before {left:0; background:linear-gradient(90deg,#0a101c,transparent);}
+  .ticker::after {right:0; background:linear-gradient(-90deg,#0a101c,transparent);}
+  .ticker .track {display:inline-block; padding:8px 0; animation: scroll 60s linear infinite;}
+  .ticker:hover .track {animation-play-state: paused;}
+  .ticker .it {display:inline-block; margin:0 26px; font-family:'JetBrains Mono', monospace;
+               font-size:.84rem; color:#b9c4d6;}
+  .ticker .it b {color:#e8eef8; font-weight:700;}
+  .ticker .up {color:#34d399;} .ticker .dn {color:#ff6b7a;}
+  .ticker .sep {color:#3d8bff; margin-right:8px;}
+  @keyframes scroll {from {transform:translateX(0);} to {transform:translateX(-50%);}}
+  /* lab */
+  .chip {display:inline-flex; align-items:center; gap:6px; padding:5px 11px; border-radius:999px;
+         font-size:.82rem; margin:0 6px 6px 0; border:1px solid var(--line); background:rgba(14,21,36,.8);
+         color:#cbd5e1;}
+  .chip b {font-family:'JetBrains Mono', monospace; color:#f4f8ff;}
+  .chip.link {border-color:rgba(34,211,238,.45); color:#a5f3fc;}
+  .verdict {border-radius:16px; padding:14px 18px; border:1px solid rgba(34,211,238,.35);
+            background: linear-gradient(135deg, rgba(8,145,178,.18), rgba(37,99,235,.14));}
+  .verdict .big {font-family:'Space Grotesk', sans-serif; font-size:1.35rem; font-weight:700; color:#f4f8ff;}
+  .verdict .small {color:#a9b4c7; font-size:.9rem;}
+  .sbh {font-family:'Space Grotesk', sans-serif; font-weight:700; font-size:1.15rem; color:#f4f8ff;}
+  .sbh span {color:var(--cyan);}
 </style>
 """
 st.markdown(CSS, unsafe_allow_html=True)
@@ -203,25 +320,69 @@ MEASURE = {"avg_delay_s": "Average delay (s/veh)", "throughput_vph": "Throughput
            "bus_avg_delay_s": "Bus delay (s)", "switches": "Phase changes per episode",
            "vehicle_delay_s": "Vehicle delay (veh-s)", "queue_total": "Vehicles queued",
            "ped_waiting": "Pedestrians waiting", "expected_conflicts": "Expected conflicts",
-           "co2_g": "CO₂ (g)", "departures": "Vehicles discharged", "jaywalks_w": "Jaywalks"}
+           "co2_g": "CO₂ (g)", "departures": "Vehicles discharged", "jaywalks_w": "Jaywalks",
+           "nox_g": "NOx emitted (g)", "idle_hours": "Idle time (veh-h)",
+           "avg_stops": "Stops per vehicle", "ev_avg_delay_s": "Emergency-vehicle delay (s)",
+           "ped_over30_pct": "Pedestrians waiting > 30 s (%)"}
 POL = A.POLICY_ORDER
 
 # ======================================================================================
 # Sidebar
 # ======================================================================================
+# linked stakeholder weights: the three weights are shares of one budget, so moving one
+# rescales the other two in proportion and the total stays at 100.
+W_KEYS = ["w-e", "w-s", "w-v"]
+for _k, _v in zip(W_KEYS, (40, 35, 25)):         # = decision_network.DEFAULT_WEIGHTS
+    st.session_state.setdefault(_k, _v)
+st.session_state.setdefault("w-link", True)
+
+
+def _rebalance(changed):
+    if not st.session_state.get("w-link"):
+        return
+    new = int(st.session_state[changed])
+    others = [k for k in W_KEYS if k != changed]
+    rest = 100 - new
+    cur = sum(int(st.session_state[k]) for k in others)
+    if cur <= 0:
+        vals = [rest / 2, rest / 2]
+    else:
+        vals = [rest * int(st.session_state[k]) / cur for k in others]
+    vals = [int(5 * round(v / 5)) for v in vals]
+    vals[int(np.argmax(vals))] += rest - sum(vals)            # keep the total at exactly 100
+    for k, v in zip(others, vals):
+        st.session_state[k] = int(min(100, max(0, v)))
+
+
+def _link_toggled():
+    if st.session_state.get("w-link"):
+        tot = sum(int(st.session_state[k]) for k in W_KEYS) or 1
+        vals = [int(5 * round(100 * int(st.session_state[k]) / tot / 5)) for k in W_KEYS]
+        if sum(vals) == 0:
+            vals = [40, 35, 25]
+        vals[int(np.argmax(vals))] += 100 - sum(vals)
+        for k, v in zip(W_KEYS, vals):
+            st.session_state[k] = v
+
+
 with st.sidebar:
-    st.markdown("### 🚦 Smart Traffic Management")
+    st.markdown('<div class="sbh">🚦 Traffic <span>Command</span> Centre</div>', unsafe_allow_html=True)
     st.markdown('<span class="muted">Multi-agent Q-learning & SARSA with decision-network '
                 'evaluation · 3 × 3 Downtown-Dubai-style grid</span>', unsafe_allow_html=True)
     scenario = st.selectbox("Scenario", C.SCENARIO_ORDER, format_func=lambda s: LABEL[s],
                             index=1)
     policy = st.selectbox("Control policy", POL, index=2)
     st.markdown("**Stakeholder weights** (multi-attribute utility)")
-    # defaults = decision_network.DEFAULT_WEIGHTS (0.40 / 0.35 / 0.25)
-    w_e = st.slider("Efficiency", 0, 100, 40, step=5)
-    w_s = st.slider("Safety", 0, 100, 35, step=5)
-    w_v = st.slider("Environment", 0, 100, 25, step=5)
-    tot = max(1, w_e + w_s + w_v)
+    st.toggle("Link weights (always sum to 100)", key="w-link", on_change=_link_toggled,
+              help="The weights are shares of one budget: raising one lowers the other two "
+                   "in proportion. Switch off to set them freely (they are then normalised).")
+    w_e = st.slider("Efficiency", 0, 100, step=5, key="w-e", on_change=_rebalance, args=("w-e",))
+    w_s = st.slider("Safety", 0, 100, step=5, key="w-s", on_change=_rebalance, args=("w-s",))
+    w_v = st.slider("Environment", 0, 100, step=5, key="w-v", on_change=_rebalance, args=("w-v",))
+    if w_e + w_s + w_v == 0:
+        st.warning("All weights are zero; using the defaults 40 / 35 / 25.")
+        w_e, w_s, w_v = 40, 35, 25
+    tot = w_e + w_s + w_v
     WEIGHTS = {"U_efficiency": w_e / tot, "U_safety": w_s / tot, "U_environment": w_v / tot}
     st.caption(f"Normalised: efficiency {WEIGHTS['U_efficiency']:.2f} · safety "
                f"{WEIGHTS['U_safety']:.2f} · environment {WEIGHTS['U_environment']:.2f}")
@@ -243,15 +404,69 @@ SC = C.SCENARIOS[scenario]
 k_sel = KPI[(KPI.scenario == scenario) & (KPI.policy == policy)]
 k_base = KPI[(KPI.scenario == scenario) & (KPI.policy == "Fixed-time")]
 
-st.markdown(f"## Smart Traffic Management Dashboard")
-st.markdown(f'<span class="pill">{SC["label"]}</span><span class="pill">{policy}</span>'
-            f'<span class="pill">Weather: {SC["weather"]}</span>'
-            f'<span class="muted">{SC["description"]}</span>', unsafe_allow_html=True)
+
+def _hstat(label, value, unit="", cls=""):
+    return (f'<div class="hstat"><div class="k">{label}</div>'
+            f'<div class="v {cls}">{value}<small> {unit}</small></div></div>')
+
+
+_d, _db = k_sel.avg_delay_s.mean(), k_base.avg_delay_s.mean()
+_c, _cb = k_sel.co2_kg.mean(), k_base.co2_kg.mean()
+_chg = 100 * (_d - _db) / _db if _db else 0.0
+_co2chg = 100 * (_c - _cb) / _cb if _cb else 0.0
+_wx = {"Clear": "☀ Clear", "Rain": "🌧 Rain", "Sandstorm": "🌪 Sandstorm"}[SC["weather"]]
+st.markdown(
+    '<div class="hero"><div class="hero-grid"><div>'
+    '<div class="eyebrow"><span class="live"></span>Live · adaptive signal control · '
+    '9 junctions · 36 approaches</div>'
+    '<h1>Smart Traffic <span class="g">Command Centre</span></h1>'
+    '<p class="sub">Traffic lights, autonomous vehicles and buses learning together with '
+    'Q-learning & SARSA, judged by a decision network on efficiency, safety and emissions.</p>'
+    '</div><div class="hstats">'
+    + _hstat("Avg delay", f"{_d:.1f}", "s/veh")
+    + ("" if policy == "Fixed-time" else
+       _hstat("vs fixed-time", f"{_chg:+.0f}%", "delay", "good" if _chg < 0 else "bad"))
+    + _hstat("Throughput", f"{k_sel.throughput_vph.mean():,.0f}", "veh/h")
+    + ("" if policy == "Fixed-time" else
+       _hstat("CO₂ change", f"{_co2chg:+.0f}%", "", "good" if _co2chg < 0 else "bad"))
+    + '</div></div>'
+    f'<div class="ctx"><span class="pill">{SC["label"]}</span><span class="pill">{policy}</span>'
+    f'<span class="pill">{_wx}</span><span class="desc">{SC["description"]}</span></div></div>',
+    unsafe_allow_html=True)
+
+# ticker: every scenario, best package against the fixed-time plan (delay)
+_g = KPI.groupby(["scenario", "policy"]).avg_delay_s.mean().unstack()
+_items = []
+for _s in C.SCENARIO_ORDER:
+    _row = _g.loc[_s]
+    _best = _row.drop("Fixed-time").idxmin()
+    _v = 100 * (_row[_best] - _row["Fixed-time"]) / _row["Fixed-time"]
+    _items.append(f'<span class="it"><span class="sep">▍</span>{LABEL[_s].upper()} · best package '
+                  f'<b>{_best}</b> {_row[_best]:.1f} s/veh '
+                  f'<span class="{"up" if _v < 0 else "dn"}">{_v:+.0f}% delay</span> vs fixed-time</span>')
+_sx0 = T["abl"][T["abl"].study == "Signal x routing"]
+for _s, _nm in (("rush_hour", "RUSH HOUR"), ("event_surge", "EVENT SURGE")):
+    _q = _sx0[(_sx0.scenario == _s) & (_sx0.variant == "Q-learning + Cooperative RL")].avg_delay_s
+    _a = _sx0[(_sx0.scenario == _s) & (_sx0.variant == "Actuated + Cooperative RL")].avg_delay_s
+    if len(_q) and len(_a):
+        _v = 100 * (_q.mean() - _a.mean()) / _a.mean()
+        _items.append(f'<span class="it"><span class="sep">▍</span>SAME ROUTING, {_nm} · '
+                      f'Q-learning vs actuated signals <b>{_q.mean():.1f} vs {_a.mean():.1f} s</b> '
+                      f'<span class="{"up" if _v < 0 else "dn"}">{_v:+.0f}%</span></span>')
+_track = "".join(_items)
+st.markdown(f'<div class="ticker"><div class="track">{_track}{_track}</div></div>',
+            unsafe_allow_html=True)
 
 VIEWS = ["City Overview", "RL Simulation", "Decision Network Visualizer",
-         "Scenario Explorer", "KPI & Trade-off Analysis", "Policy Comparison", "Live What-If"]
+         "Scenario Explorer", "KPI & Trade-off Analysis", "Policy Comparison", "Simulation Lab"]
+ICONS = {"City Overview": "◉", "RL Simulation": "⟳", "Decision Network Visualizer": "◇",
+         "Scenario Explorer": "☰", "KPI & Trade-off Analysis": "◆",
+         "Policy Comparison": "⇄", "Simulation Lab": "⚡"}
+if st.session_state.get("view") == "Live What-If":          # old name in a saved session
+    st.session_state["view"] = "Simulation Lab"
 # Only the open view is drawn (st.tabs would build all seven on every click).
-view = st.radio("View", VIEWS, horizontal=True, label_visibility="collapsed", key="view")
+view = st.radio("View", VIEWS, horizontal=True, label_visibility="collapsed", key="view",
+                format_func=lambda v: f"{ICONS[v]}  {v}")
 
 MINUTE_HELP = ("Moves the replay to this minute and sets the network snapshot. The animated "
                "replay holds the first 15 minutes; later minutes park it at 14:30.")
@@ -284,7 +499,7 @@ def pct(v, b):
 # ======================================================================================
 if view == VIEWS[0]:
     cols = st.columns(6)
-    tiles = [("Average delay", "avg_delay_s", "s/veh", True, "{:.1f}"),
+    tiles = [("Avg delay", "avg_delay_s", "s/veh", True, "{:.1f}"),
              ("Throughput", "throughput_vph", "veh/h", False, "{:,.0f}"),
              ("CO₂ emitted", "co2_kg", "kg", True, "{:,.0f}"),
              ("Safety score", "safety_score", "/100", False, "{:.1f}"),
@@ -292,7 +507,7 @@ if view == VIEWS[0]:
              ("Pedestrian wait", "ped_avg_wait_s", "s", True, "{:.1f}")]
     for c, (lab, col, unit, lower_better, fmt) in zip(cols, tiles):
         v, b = mean(k_sel, col), mean(k_base, col)
-        delta = None if policy == "Fixed-time" else f"{pct(v, b):+.1f}% vs fixed-time"
+        delta = None if policy == "Fixed-time" else f"{pct(v, b):+.1f}% vs fixed"
         c.metric(f"{lab} ({unit})", fmt.format(v), delta,
                  delta_color="inverse" if lower_better else "normal")
     st.caption("Policies are packages: *Actuated* = actuated signals with fixed routes; "
@@ -309,7 +524,7 @@ if view == VIEWS[0]:
                    "by queue per lane (green = free, red = long queue); counters accumulate "
                    "from 00:00. Press space to play or pause.")
         embed(sim_view.render_html([anim_payload(scenario, policy)], [policy],
-                                   start=min(minute * 60, 870)), height=700)
+                                   start=min(minute * 60, 870), autoplay=True), height=780)
     with right:
         sim = T["sim"]
         sim_sc = sim[(sim.scenario == scenario) & (sim.policy == policy)]
@@ -351,7 +566,7 @@ if view == VIEWS[1]:
         minute = minute_slider()
     embed(sim_view.render_html([anim_payload(scenario, left_pol),
                                 anim_payload(scenario, right_pol)],
-                               [left_pol, right_pol], start=min(minute * 60, 870)), height=660)
+                               [left_pol, right_pol], start=min(minute * 60, 870)), height=740)
     st.caption("Same arrivals, same seed, one clock: only the control policy differs. Counters "
                "accumulate from 00:00 (cars queued now, queue delay, CO₂); the right-hand tiles "
                "show the change against the left view. Space = play/pause.")
@@ -610,7 +825,9 @@ if view == VIEWS[3]:
     for k, key in enumerate(C.SCENARIO_ORDER):
         r = scen[scen.scenario == key].iloc[0]
         cols[k % 4].markdown(
-            f'<div class="card"><h4>{r.label}</h4><p>{r.description}</p>'
+            f'<div class="card{" sel" if key == scenario else ""}">'
+            f'{"<span class=tag>SELECTED</span>" if key == scenario else ""}'
+            f'<h4>{r.label}</h4><p>{r.description}</p>'
             f'<p style="margin-top:6px"><span class="pill">{r.weather}</span>'
             f'<span class="pill">demand ×{r.demand_multiplier:g}</span>'
             f'<span class="pill">bus every {int(r.bus_headway_s // 60)} min</span></p></div>',
@@ -682,6 +899,15 @@ if view == VIEWS[4]:
     with h5:
         show(viz.improvement_heatmap(KPI, "bus_on_time_pct", higher_is_better=True,
                                      title="Bus on-time performance", height=330), key="hm5")
+    with h6:
+        show(viz.improvement_heatmap(KPI, "nox_g", title="NOx emissions", height=330), key="hm6")
+    h7, h8 = st.columns(2)
+    with h7:
+        show(viz.improvement_heatmap(KPI, "idle_hours", title="Idle time (engine running, "
+                                     "stationary)", height=330), key="hm7")
+    with h8:
+        show(viz.improvement_heatmap(KPI, "throughput_vph", higher_is_better=True,
+                                     title="Throughput", height=330), key="hm8")
     st.caption("Blue = better than fixed-time, red = worse; labels give the raw % change. "
                "Each row is a package (signals + routing), so a gap between policies mixes a "
                "signal effect and a routing effect - see Policy Comparison. \"Safety\" is a "
@@ -744,9 +970,11 @@ if view == VIEWS[4]:
         picks_t = picks.rename(columns={"criterion": "Criterion", "picks": "Picks",
                                         "value": "Criterion value"})
         table(picks_t.round(1))
-        st.caption("Pessimist (maximin), minimax regret, Laplace and Hurwicz all pick Q-learning; "
-                   "only the maximax optimist picks Actuated, whose best case is the mildest "
-                   "scenario. Hurwicz uses alpha = 0.5.")
+        _pk = picks.groupby("picks").criterion.apply(list)
+        st.caption(" · ".join(f"**{p_}**: {', '.join(c_)}" for p_, c_ in _pk.items())
+                   + ". The optimist (maximax) looks only at each policy's best case, the mildest "
+                   "scenario; the other criteria guard against bad scenarios. Hurwicz uses "
+                   "alpha = 0.5.")
     with k2:
         rho = st.slider("Risk aversion rho (per second of delay)", 0.0, 0.5, 0.10, 0.05,
                         key="rho")
@@ -982,7 +1210,9 @@ if view == VIEWS[5]:
     metric = st.selectbox("Measure", ["avg_delay_s", "throughput_vph", "co2_kg",
                                       "conflicts_per_1000", "safety_score", "ped_avg_wait_s",
                                       "jaywalks", "bus_on_time_pct", "bus_avg_delay_s",
-                                      "switches"], format_func=lambda m: MEASURE.get(m, m),
+                                      "nox_g", "idle_hours", "avg_stops", "ev_avg_delay_s",
+                                      "ped_over30_pct", "switches"],
+                          format_func=lambda m: MEASURE.get(m, m),
                           key="pc-m")
     show(viz.policy_bars(KPI, metric, MEASURE.get(metric, metric), height=380,
                          title=f"{MEASURE.get(metric, metric)}: mean ± sd over 8 seeds"),
@@ -1039,37 +1269,280 @@ if view == VIEWS[5]:
 
 
 # ======================================================================================
-# 7. Live what-if
+# 7. Simulation Lab (live what-if with correlated conditions)
 # ======================================================================================
-@st.cache_data(show_spinner=False)
-def _whatif(demand, ped, weather, peak, n_seeds):
-    return X.whatif(load_models(), demand, ped, weather, n_seeds=n_seeds, peak=peak)
+LAB_KEYS = dict(demand="lab-d", ped="lab-p", pax="lab-pax", weather="lab-w", peak="lab-peak",
+                av_share="lab-av", incident="lab-inc", inc_loss="lab-loss", evs="lab-ev",
+                bus_lane="lab-lane", headway_min="lab-hw", event="lab-evt")
+for _f, _k in LAB_KEYS.items():
+    st.session_state.setdefault(_k, LB.DEFAULTS[_f])
+st.session_state.setdefault("lab-link", True)
+st.session_state.setdefault("lab-preset", "Custom")
+st.session_state.setdefault("lab-moved", [])
+
+
+def _ss(f):
+    return st.session_state[LAB_KEYS[f]]
+
+
+def _set(f, v, moved):
+    if st.session_state[LAB_KEYS[f]] != v:
+        st.session_state[LAB_KEYS[f]] = v
+        moved.append(f)
+
+
+def _lab_couple(driver):
+    """Move the followers of `driver` (linked mode only)."""
+    st.session_state["lab-preset"] = "Custom"
+    if not st.session_state.get("lab-link"):
+        st.session_state["lab-moved"] = []
+        return
+    moved = []
+    if driver == "peak":
+        _set("demand", LB.PEAK["demand"] if _ss("peak") else 1.0, moved)
+        driver = "demand"
+    if driver in ("demand", "all"):
+        _set("ped", LB.linked_ped(_ss("demand")), moved)
+        _set("pax", LB.linked_pax(_ss("demand"), _ss("event")), moved)
+    if driver in ("event", "all"):
+        _set("pax", LB.linked_pax(_ss("demand"), _ss("event")), moved)
+    if driver in ("weather", "incident", "all"):
+        _set("evs", LB.linked_evs(_ss("weather"), _ss("incident")), moved)
+    if driver in ("bus_lane", "all"):
+        _set("headway_min", LB.BUS_LANE_HEADWAY_MIN if _ss("bus_lane") else 6, moved)
+    st.session_state["lab-moved"] = moved
+    st.session_state["lab-preset"] = "Custom"
+
+
+def _lab_custom():
+    st.session_state["lab-preset"] = "Custom"
+    st.session_state["lab-moved"] = []
+
+
+def _lab_preset():
+    key = st.session_state["lab-preset"]
+    if key == "Custom":
+        return
+    sc = C.SCENARIOS[key]
+    vals = dict(demand=sc["demand_mult"], ped=sc["ped_mult"], pax=sc["pax_mult"],
+                weather=sc["weather"], peak=sc["profile"] == "peak", av_share=C.AV_SHARE,
+                incident=bool(sc.get("incident")), inc_loss=75, evs=int(sc["ev_per_episode"]),
+                bus_lane=bool(sc.get("bus_lane")), headway_min=int(sc["bus_headway_s"] // 60),
+                event=bool(sc.get("event")))
+    for f, v in vals.items():
+        st.session_state[LAB_KEYS[f]] = v
+    st.session_state["lab-moved"] = []
+
+
+def _lab_link():
+    if st.session_state.get("lab-link"):
+        _lab_couple("all")
+
+
+@st.cache_data(show_spinner=False, max_entries=64)
+def _lab_run(cond_items, n_seeds):
+    return LB.run(load_models(), dict(cond_items), n_seeds=n_seeds)
+
+
+@st.cache_data(show_spinner=False, max_entries=16)
+def _lab_record(cond_items, pols):
+    return LB.record(load_models(), dict(cond_items), list(pols))
+
+
+@st.cache_data(show_spinner=False, max_entries=16)
+def _lab_sweep(cond_items, var, linked):
+    return LB.sweep(load_models(), dict(cond_items), var, linked)
 
 
 if view == VIEWS[6]:
-    st.markdown("#### Live what-if: change the conditions, all four policies re-run")
-    st.caption("Each click simulates 30 minutes for every policy (identical arrivals). RL "
-               "policies use the general tables, which were trained on all scenarios.")
-    w1, w2, w3, w4 = st.columns(4)
-    wi_d = w1.slider("Demand (x normal)", 0.5, 1.8, 1.0, 0.05, key="wi-d")
-    wi_p = w2.slider("Pedestrians (x normal)", 0.25, 4.0, 1.0, 0.25, key="wi-p")
-    wi_w = w3.selectbox("Weather", C.WEATHER_NAMES, key="wi-w")
-    wi_k = w4.checkbox("Rush-hour ramp", value=False, key="wi-k")
-    wi = _whatif(wi_d, wi_p, wi_w, wi_k, 2)
-    g = wi.groupby("policy")[["avg_delay_s", "ped_avg_wait_s", "conflicts_per_1000",
-                              "co2_kg", "throughput_vph"]].mean().reindex(POL)
+    st.markdown("#### Simulation Lab: set the city's conditions, every controller re-runs live")
+    st.caption("Each change simulates 30 minutes for all four policies on identical arrivals "
+               "(common random numbers). RL policies use the general tables, pre-trained on "
+               "every scenario, because custom conditions match no single scenario.")
+    top = st.columns([1.3, 1.3, 1, 1])
+    top[0].selectbox("Start from a scenario", ["Custom"] + C.SCENARIO_ORDER, key="lab-preset",
+                     format_func=lambda k: "Custom conditions" if k == "Custom" else LABEL[k],
+                     on_change=_lab_preset,
+                     help="Loads that scenario's exact settings into the controls below.")
+    with top[1]:
+        st.toggle("Link correlated conditions", key="lab-link", on_change=_lab_link,
+                  help="Conditions move together as they do in the city: demand pulls "
+                       "pedestrians and bus passengers with it, bad weather and crashes bring "
+                       "more emergency calls, a bus lane comes with a 3-minute service. See the "
+                       "correlation map at the bottom.")
+    n_seeds = top[2].select_slider("Seeds per policy", [2, 3, 4, 6, 8], value=3, key="lab-seeds",
+                                   help="More seeds = less noise, slower (≈0.06 s per episode).")
+    with top[3]:
+        st.write("")
+        if st.button("↺ Reset to normal flow", width="stretch"):
+            for _f, _k in LAB_KEYS.items():
+                st.session_state[_k] = LB.DEFAULTS[_f]
+            st.session_state["lab-moved"] = []
+            st.rerun()
+
+    g1, g2, g3 = st.columns(3)
+    with g1.container(border=True):
+        st.markdown("**🚗 Demand & people**")
+        st.slider("Vehicle demand (× normal)", 0.5, 1.8, step=0.05, key="lab-d",
+                  on_change=_lab_couple, args=("demand",))
+        st.toggle("Rush-hour ramp (peaks mid-episode)", key="lab-peak", on_change=_lab_couple,
+                  args=("peak",))
+        st.slider("Pedestrians (× normal)", 0.25, 4.0, step=0.05, key="lab-p", on_change=_lab_custom)
+        st.slider("Bus passengers (× normal)", 0.5, 3.0, step=0.1, key="lab-pax", on_change=_lab_custom)
+    with g2.container(border=True):
+        st.markdown("**🌪 Environment & disruptions**")
+        st.selectbox("Weather", C.WEATHER_NAMES, key="lab-w", on_change=_lab_couple,
+                     args=("weather",))
+        st.toggle("Crash blocks Street 2 eastbound at J5 (min 5-25)", key="lab-inc",
+                  on_change=_lab_couple, args=("incident",))
+        st.slider("Capacity lost to the crash (%)", 25, 95, step=5, key="lab-loss",
+                  on_change=_lab_custom, disabled=not st.session_state["lab-inc"])
+        st.toggle("Arena event lets out (minute 8)", key="lab-evt", on_change=_lab_couple,
+                  args=("event",))
+        st.slider("Emergency calls per 30 min", 0, 10, step=1, key="lab-ev", on_change=_lab_custom)
+    with g3.container(border=True):
+        st.markdown("**🚌 Fleet & transit**")
+        st.slider("Autonomous-vehicle share", 0.0, 0.8, step=0.05, key="lab-av", on_change=_lab_custom,
+                  help="Share of vehicles that are connected AVs: they route cooperatively "
+                       "under the RL packages and platoon at 0.85 of a car's headway.")
+        st.toggle("Dedicated bus lane on Street 2", key="lab-lane", on_change=_lab_couple,
+                  args=("bus_lane",))
+        st.slider("Bus headway (minutes)", 2, 10, step=1, key="lab-hw", on_change=_lab_custom)
+
+    cond = {f: st.session_state[k] for f, k in LAB_KEYS.items()}
+    cond["av_share"] = float(cond["av_share"])
+    items = tuple(sorted(cond.items()))
+    eff = LB.effective(cond)
+    names = dict(demand="demand", ped="pedestrians", pax="bus passengers", evs="emergency calls",
+                 headway_min="bus headway")
+    chips = [f'<span class="chip">Effective demand <b>{eff["demand"]:.2f}×</b>'
+             + (f' → peak <b>{eff["demand_peak"]:.2f}×</b>' if cond["peak"] else "") + '</span>',
+             f'<span class="chip">Effective pedestrians <b>{eff["ped"]:.2f}×</b></span>',
+             f'<span class="chip">Road capacity (weather) <b>{100 * eff["capacity"]:.0f}%</b></span>',
+             f'<span class="chip">Crash risk <b>×{eff["risk"]:.2f}</b></span>']
+    if st.session_state.get("lab-link") and st.session_state.get("lab-moved"):
+        chips.append('<span class="chip link">🔗 linked: moved '
+                     + ", ".join(names.get(f, f) for f in st.session_state["lab-moved"]) + '</span>')
+    st.markdown("".join(chips), unsafe_allow_html=True)
+
+    with st.spinner("Simulating 4 policies × %d seeds ..." % n_seeds):
+        wi = _lab_run(items, n_seeds)
+    g = wi.groupby("policy").mean(numeric_only=True).reindex(POL)
+    sc_ = LB.scores(g, WEIGHTS)
     cols = st.columns(4)
     for c, pol_ in zip(cols, POL):
         d_ = g.loc[pol_]
-        c.metric(pol_, f"{d_.avg_delay_s:.1f} s",
-                 None if pol_ == "Fixed-time" else
-                 f"{pct(d_.avg_delay_s, g.loc['Fixed-time'].avg_delay_s):+.0f}% vs fixed-time",
-                 delta_color="inverse")
-    show(viz.policy_bars(wi.assign(scenario="normal"), "avg_delay_s", "Average delay (s/veh)",
-                         height=320, title="Average delay under these conditions"), key="wi-bar")
-    out = g.rename(columns={"avg_delay_s": "Delay (s)", "ped_avg_wait_s": "Pedestrian wait (s)",
-                            "conflicts_per_1000": "Expected conflicts / 1,000 veh",
-                            "co2_kg": "CO2 (kg)", "throughput_vph": "Throughput (veh/h)"})
-    table(out.round(1).reset_index().rename(columns={"policy": "Policy"}))
-    st.caption("Packages: Actuated = actuated signals + static routes; RL = RL signals + "
-               "cooperative routing. Means over 2 seeds, so small gaps are noise.")
+        c.metric(f"{pol_} · score {sc_[pol_]:.0f}/100", f"{d_.avg_delay_s:.1f} s",
+                 "baseline" if pol_ == "Fixed-time" else
+                 f"{pct(d_.avg_delay_s, g.loc['Fixed-time'].avg_delay_s):+.0f}% delay vs fixed-time",
+                 delta_color="off" if pol_ == "Fixed-time" else "inverse",
+                 delta_arrow="off" if pol_ == "Fixed-time" else "auto")
+
+    win = sc_.idxmax()
+    ev_lab = LB.dn_evidence(cond)
+    dn_best, _ = DN.best(ev_lab, WEIGHTS)
+    agree = dn_best["Signal timing"] == win
+    v1, v2 = st.columns([1, 1])
+    v1.markdown(
+        f'<div class="verdict"><div class="small">SIMULATION WINNER UNDER YOUR WEIGHTS</div>'
+        f'<div class="big">{win} package · score {sc_[win]:.0f}/100</div>'
+        f'<div class="small">Weighted sum of delay, safety score and CO₂ (min-max across the four '
+        f'packages; weights from the sidebar).</div></div>', unsafe_allow_html=True)
+    v2.markdown(
+        f'<div class="verdict"><div class="small">DECISION NETWORK RECOMMENDS '
+        f'({", ".join(f"{k} = {v}" for k, v in ev_lab.items())})</div>'
+        f'<div class="big">{dn_best["Signal timing"]} signals + {dn_best["Routing"]} routing · '
+        f'EU {dn_best["EU"]:.1f}</div><div class="small">'
+        + ("Same signal controller as the simulation winner." if agree else
+           "A different signal controller from the simulation winner: the network averages over "
+           "uncertain outcomes learned from all scenarios, the simulation scores these exact "
+           "conditions, and the packages also differ in routing.")
+        + '</div></div>', unsafe_allow_html=True)
+
+    st.markdown("#### Every criterion at a glance")
+    show(viz.lab_bars(g, [("avg_delay_s", "Delay (s/veh)", True),
+                          ("safety_score", "Safety score", False),
+                          ("co2_kg", "CO₂ (kg)", True),
+                          ("nox_g", "NOx (g)", True),
+                          ("ped_avg_wait_s", "Pedestrian wait (s)", True),
+                          ("bus_on_time_pct", "Bus on time (%)", False),
+                          ("throughput_vph", "Veh/h served", False)], height=320),
+         key="lab-bars")
+    _evt = wi.groupby("policy")[["ev_trips", "ev_avg_delay_s"]].mean().reindex(POL)
+    st.markdown("".join(
+        f'<span class="chip">🚑 {p_}: <b>{r_.ev_trips:.1f}</b> emergency trips, '
+        f'<b>{r_.ev_avg_delay_s:.1f} s</b> delay each</span>' for p_, r_ in _evt.iterrows()),
+        unsafe_allow_html=True)
+    st.caption(f"Means over {n_seeds} seeds; the outlined bar is the best package on each "
+               "criterion. Packages: Actuated = actuated signals + static routes; RL = RL signals "
+               "+ cooperative AV routing. With few seeds, gaps of a few percent are noise.")
+
+    st.markdown("#### Watch it: replay of these exact conditions")
+    rc = st.columns([1, 1, 2])
+    lp = rc[0].selectbox("Left", POL, index=0, key="lab-left")
+    rp = rc[1].selectbox("Right", POL, index=2, key="lab-right")
+    rc[2].caption("Seed 1 of the run above, first 20 minutes, one clock for both views. "
+                  "Press play or space; the badge lights up while an emergency vehicle is "
+                  "pre-empting signals.")
+    with st.spinner("Recording replays ..."):
+        pls = _lab_record(items, (lp, rp))
+    embed(sim_view.render_html(pls, [lp, rp], start=0, autoplay=True), height=760)
+
+    st.markdown("#### Stress test: where does each controller break?")
+    sv = st.columns([1.2, 2.8])
+    var = sv[0].selectbox("Sweep", list(LB.SWEEPS), format_func=lambda k: LB.SWEEPS[k][0],
+                          key="lab-sweep-var")
+    run_sweep = sv[0].toggle("Run the sweep", key="lab-sweep-on",
+                             help="About 3-5 seconds: every policy × every level × 2 seeds.")
+    sv[1].caption("Re-runs all four policies along one condition with everything else held at the "
+                  "settings above (2 seeds each; bands = range over seeds). In linked mode a "
+                  "demand sweep also moves pedestrians and bus passengers, as the sliders do.")
+    if run_sweep:
+        with st.spinner("Sweeping ..."):
+            sw = _lab_sweep(items, var, bool(st.session_state.get("lab-link")))
+        cur = {"demand": cond["demand"], "ped": cond["ped"], "av_share": cond["av_share"],
+               "inc_loss": cond["inc_loss"] if cond["incident"] else 0}[var]
+        s1, s2 = st.columns(2)
+        with s1:
+            show(viz.sweep_lines(sw, LB.SWEEPS[var][0], "avg_delay_s", "Average delay (s/veh)",
+                                 current=cur, title="Delay"), key="sw1")
+        with s2:
+            show(viz.sweep_lines(sw, LB.SWEEPS[var][0], "conflicts_per_1000",
+                                 "Expected conflicts per 1,000 veh", current=cur,
+                                 title="Safety (expected conflicts)", fmt=".2f"), key="sw2")
+        s3, s4 = st.columns(2)
+        with s3:
+            show(viz.sweep_lines(sw, LB.SWEEPS[var][0], "co2_kg", "CO₂ (kg)", current=cur,
+                                 title="Emissions", fmt=",.0f"), key="sw3")
+        with s4:
+            show(viz.sweep_lines(sw, LB.SWEEPS[var][0], "ped_avg_wait_s", "Pedestrian wait (s)",
+                                 current=cur, title="Pedestrian wait"), key="sw4")
+
+    st.markdown("#### Correlation map: which conditions move together")
+    cm1, cm2 = st.columns([1.25, 1])
+    with cm1:
+        show(viz.correlation_graph(LB.LINKS, active=bool(st.session_state.get("lab-link")),
+                                   height=380), key="lab-corr")
+    with cm2:
+        st.markdown("**Linked by the controls** (" +
+                    ("on" if st.session_state.get("lab-link") else "off: sliders move freely")
+                    + ")")
+        _rows = lambda rs, h: '<div class="rules"><div><span>Driver</span><span>' + h + \
+            '</span><span>Rule</span></div>' + "".join(
+                f"<div><b>{a_}</b><span>{b_}</span><span>{c_}</span></div>" for a_, b_, c_ in rs) \
+            + "</div>"
+        st.markdown(_rows(LB.LINKS, "Moves"), unsafe_allow_html=True)
+        st.markdown("**Always applied inside the simulator**")
+        st.markdown(_rows(LB.INTERNAL, "Effect on"), unsafe_allow_html=True)
+    st.caption("Coefficients come from the evaluated scenarios in config.py, so setting a driver "
+               "to a scenario's value reproduces that scenario (e.g. the rush-hour ramp gives "
+               f"demand 1.30, pedestrians 1.30, bus passengers {LB.linked_pax(1.3):.1f}). The "
+               "linked moves are planning assumptions, not measured elasticities; switch linking "
+               "off to explore each condition on its own.")
+
+    with st.expander("Full KPI table for these conditions"):
+        out = g[["avg_delay_s", "throughput_vph", "avg_stops", "idle_hours", "co2_kg", "nox_g",
+                 "conflicts_per_1000", "safety_score", "jaywalks", "ped_avg_wait_s",
+                 "bus_on_time_pct", "bus_avg_delay_s", "ev_avg_delay_s", "av_avg_delay_s",
+                 "human_avg_delay_s"]]
+        table(out.reset_index().rename(columns={"policy": "Policy"}))

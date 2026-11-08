@@ -285,8 +285,9 @@ class TrafficEnv:
             exits, probs = OD[L]
             k = np.searchsorted(np.cumsum(probs), rng.random(m) * 0.999999)
             u = rng.random(m)
-            vtype = np.where(u < C.AV_SHARE, C.VT_AV,
-                             np.where(u < C.AV_SHARE + C.TRUCK_SHARE, C.VT_TRUCK, C.VT_CAR))
+            av_share = float(sc.get("av_share", C.AV_SHARE))   # what-if override
+            vtype = np.where(u < av_share, C.VT_AV,
+                             np.where(u < av_share + C.TRUCK_SHARE, C.VT_TRUCK, C.VT_CAR))
             xf = rng.random(m) < 0.5
             for j in range(m):
                 di, dh = exits[k[j]]

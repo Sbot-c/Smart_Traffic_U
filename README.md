@@ -42,9 +42,12 @@ The four dashboard "policies" are **packages**: *Actuated* = actuated signals + 
 ## Files
 
 ```
-app.py                  Streamlit dashboard (6 tabs)
+app.py                  Streamlit dashboard (6 brief tabs + Simulation Lab), dark command-centre theme
 viz.py                  Plotly figures
-sim_view.py             animated canvas replay (Play / Pause / speed / scrubber, side-by-side)
+sim_view.py             animated night-mode canvas replay (Play / Pause / speed / scrubber, side-by-side,
+                        queue sparkline, emergency-preemption badge)
+lab.py                  Simulation Lab: conditions -> simulator overrides, live runs, replays, sweeps,
+                        correlated-condition rules, decision-network evidence mapping
 config.py               every parameter, scenario definition and source
 traffic_env.py          the simulator (vehicles, queues, signals, pedestrians, buses, EVs, weather)
 agents.py               tabular Q-learning / SARSA, the three agent types, Webster and actuated baselines
@@ -107,3 +110,47 @@ share it with *Anyone with the link → Viewer*. *Runtime → Run all* reproduce
 Slide wording for these additions is in `CORRECTIONS_FOR_SPEC_AND_SLIDES.md`.
 
 Not done: the SARSA sweep (run `python ped_tradeoff.py --sarsa` to add it) and the Colab notebook, which was not rebuilt because that would erase its saved outputs. Note that retraining at the default pedestrian weight 0.5 gives about 69 s rush-hour delay (three runs: 64.8, 72.4, 70.1 s), not the headline 64.8 s: the difference is training randomness.
+
+## Added: dashboard upgrade (8 Nov 2026)
+
+**Look.** Dark "traffic command centre" theme (`.streamlit/config.toml`, CSS in `app.py`, palette in
+`viz.py`): hero header with live headline figures, a ticker of every scenario's best package, a
+segmented view switcher, glass KPI cards, and a night-mode city replay with lit towers, glowing signal
+heads, headlights, a cars-queued sparkline with playhead and an *EV PREEMPTION* badge.
+
+**Simulation Lab** (replaces *Live What-If*). Eleven conditions in three groups: demand, rush-hour ramp,
+pedestrians, bus passengers; weather, crash on Street 2 with capacity loss, arena event, emergency calls;
+AV share, bus lane, bus headway. Every change re-runs all four policies on identical arrivals
+(2-8 seeds, ~0.06 s per episode). It shows:
+* score per package under the sidebar weights, next to the decision network's recommendation for the
+  same conditions (conditions mapped to Weather / Traffic density / Pedestrian flow evidence);
+* seven criteria side by side (delay, safety, CO2, NOx, pedestrian wait, bus on time, throughput) and
+  emergency-vehicle trips and delay;
+* a side-by-side replay of these exact conditions;
+* a stress test that sweeps demand, pedestrians, AV share or crash severity for every policy;
+* a correlation map of the linked conditions.
+
+**Linked (correlated) sliders.** On by default; switch off to move each condition freely.
+| Driver | Moves | Rule (from the scenario definitions in `config.py`) |
+|---|---|---|
+| Rush-hour ramp | demand, pedestrians | 1.30 × normal |
+| Demand | pedestrians | 1 : 1 |
+| Demand | bus passengers | demand ^ 2.24 (rush hour 1.30 → 1.8) |
+| Event surge | bus passengers | × 1.5 |
+| Weather | emergency calls | rain / sandstorm 4 per 30 min instead of 3 |
+| Crash | emergency calls | + 3 |
+| Bus lane | bus headway | 3 minutes |
+
+Weather's effect on demand, pedestrians, capacity, speed and crash risk is applied inside the simulator
+in both modes and shown as "effective" chips. The stakeholder weights in the sidebar are linked too:
+they are shares of one budget, so raising one lowers the other two in proportion (toggle to unlink).
+These links are planning assumptions taken from the scenario settings, not measured elasticities.
+
+**Fixes.** What-if chart no longer labels custom conditions "Normal flow"; navigation styling works on
+Streamlit 1.67; all-zero weights fall back to the defaults with a warning; the empty slot in *KPI &
+Trade-off Analysis* now holds NOx, plus idle-time and throughput heatmaps; *Policy Comparison* adds NOx,
+idle time, stops, emergency-vehicle delay and share of pedestrians waiting > 30 s; the
+uncertainty-criteria caption is computed from the data; replay labels no longer wrap.
+
+**Simulator change.** `traffic_env.py` reads an optional `av_share` override (default `config.AV_SHARE`),
+so every published result is unchanged (checked: identical what-if KPIs before and after).
