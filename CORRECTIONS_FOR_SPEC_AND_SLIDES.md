@@ -42,3 +42,19 @@ The specification is a Claude doc that I could not open, so these are replacemen
 **Retraining caveat (Q&A).** Retraining at the default pedestrian weight 0.5 gives about 69 s rush-hour delay (spread across three runs about 4 s), not the headline 64.8 s. The headline is the deployed model from the main pipeline. The gap is training randomness from retraining from scratch, so say so if asked. The three retraining runs at weight 0.5 gave 64.8 s (training seed 0, the same as the headline), 72.4 s and 70.1 s, so the headline is the best of three. That is another reason not to present the rush-hour Q-learning vs actuated result (64.8 vs 66.9 s) as a win.
 
 **Not done in this version:** the SARSA sweep (an unfinished sweep would show a misleading half-curve, so only the complete Q-learning sweep ships) and a rebuilt Colab notebook (rebuilding would erase its saved outputs).
+
+---
+
+## Added 8 Nov 2026: research extensions (replace the event-surge claim)
+
+**Replace** "In the event surge Q-learning wins clearly: 46.6 vs 62.9 s (−26 %)" **with:**
+> Against the actuated rule as first written, Q-learning signals win the event surge (46.6 vs 62.9 s). To make the comparison fair we tuned the actuated controller's four parameters per scenario on validation runs. With the same cooperative routing, tuned actuated ties Q-learning in the event surge (46.9 vs 46.6 s) and beats it in rush hour (57.7 vs 64.8 s). RL signals therefore learn tuned-expert performance on their own, without manual tuning, but do not beat a well-tuned actuated plan. Cooperative AV routing is the gain that survives a fair comparison.
+
+**New one-line story for the slides:** Cooperative AV routing is the big, robust lever. RL signals reach the performance of a hand-tuned controller without hand-tuning. A safety supervisor makes RL as safe as actuated control at extreme demand. The decision network tells the operator which combination to run.
+
+**Five extensions, one sentence each:**
+1. AV speed advisory and lane selection: lane selection cuts AV delay 2 %; the speed advisory trades 7 % more AV delay for fewer stops, conflicts and CO2 (small at 25 % AVs).
+2. Bus load balancing: in rush hour the busiest buses are full whatever the holding strategy; capacity is the binding constraint, and a 3-minute service removes almost all left-behind passengers.
+3. Safety proxy: halving or doubling each conflict mechanism leaves the safest policy unchanged in 90 % of cases.
+4. Fair baseline: see above; Q-learning re-trained three times averages 72.5 ± 2.1 s in rush hour.
+5. High-demand safety: a pedestrian max-wait guard cuts RL's conflicts from 18.6 to 10.7 per 1,000 vehicles at 1.6 × demand, matching actuated safety at 13 % less delay; it costs delay in ordinary rush hour and should not run during an event surge.

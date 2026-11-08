@@ -1,0 +1,50 @@
+scenario,variant,safest,same_safest,same_ranking,ranking
+bus_corridor,Base model,Actuated,True,True,Actuated < Q-learning < SARSA < Fixed-time
+bus_corridor,Jaywalking × 0.5,Actuated,True,True,Actuated < Q-learning < SARSA < Fixed-time
+bus_corridor,Jaywalking × 2,Actuated,True,True,Actuated < Q-learning < SARSA < Fixed-time
+bus_corridor,Rear-end (stops) × 0.5,Actuated,True,True,Actuated < Q-learning < SARSA < Fixed-time
+bus_corridor,Rear-end (stops) × 2,Actuated,True,True,Actuated < Q-learning < SARSA < Fixed-time
+bus_corridor,Red-light running × 0.5,Actuated,True,True,Actuated < Q-learning < SARSA < Fixed-time
+bus_corridor,Red-light running × 2,Actuated,True,True,Actuated < Q-learning < SARSA < Fixed-time
+event_surge,Base model,Fixed-time,True,True,Fixed-time < Actuated < Q-learning < SARSA
+event_surge,Jaywalking × 0.5,Actuated,False,False,Actuated < Fixed-time < Q-learning < SARSA
+event_surge,Jaywalking × 2,Fixed-time,True,True,Fixed-time < Actuated < Q-learning < SARSA
+event_surge,Rear-end (stops) × 0.5,Fixed-time,True,True,Fixed-time < Actuated < Q-learning < SARSA
+event_surge,Rear-end (stops) × 2,Fixed-time,True,True,Fixed-time < Actuated < Q-learning < SARSA
+event_surge,Red-light running × 0.5,Fixed-time,True,True,Fixed-time < Actuated < Q-learning < SARSA
+event_surge,Red-light running × 2,Actuated,False,False,Actuated < Fixed-time < Q-learning < SARSA
+incident,Base model,Actuated,True,True,Actuated < SARSA < Q-learning < Fixed-time
+incident,Jaywalking × 0.5,Actuated,True,False,Actuated < Q-learning < SARSA < Fixed-time
+incident,Jaywalking × 2,Actuated,True,True,Actuated < SARSA < Q-learning < Fixed-time
+incident,Rear-end (stops) × 0.5,Actuated,True,True,Actuated < SARSA < Q-learning < Fixed-time
+incident,Rear-end (stops) × 2,Actuated,True,True,Actuated < SARSA < Q-learning < Fixed-time
+incident,Red-light running × 0.5,Actuated,True,True,Actuated < SARSA < Q-learning < Fixed-time
+incident,Red-light running × 2,Actuated,True,True,Actuated < SARSA < Q-learning < Fixed-time
+normal,Base model,Actuated,True,True,Actuated < Q-learning < SARSA < Fixed-time
+normal,Jaywalking × 0.5,Actuated,True,True,Actuated < Q-learning < SARSA < Fixed-time
+normal,Jaywalking × 2,Actuated,True,True,Actuated < Q-learning < SARSA < Fixed-time
+normal,Rear-end (stops) × 0.5,Actuated,True,True,Actuated < Q-learning < SARSA < Fixed-time
+normal,Rear-end (stops) × 2,Actuated,True,True,Actuated < Q-learning < SARSA < Fixed-time
+normal,Red-light running × 0.5,Actuated,True,True,Actuated < Q-learning < SARSA < Fixed-time
+normal,Red-light running × 2,Actuated,True,True,Actuated < Q-learning < SARSA < Fixed-time
+rain,Base model,Actuated,True,True,Actuated < Q-learning < SARSA < Fixed-time
+rain,Jaywalking × 0.5,Actuated,True,True,Actuated < Q-learning < SARSA < Fixed-time
+rain,Jaywalking × 2,Actuated,True,True,Actuated < Q-learning < SARSA < Fixed-time
+rain,Rear-end (stops) × 0.5,Actuated,True,True,Actuated < Q-learning < SARSA < Fixed-time
+rain,Rear-end (stops) × 2,Actuated,True,True,Actuated < Q-learning < SARSA < Fixed-time
+rain,Red-light running × 0.5,Actuated,True,True,Actuated < Q-learning < SARSA < Fixed-time
+rain,Red-light running × 2,Actuated,True,True,Actuated < Q-learning < SARSA < Fixed-time
+rush_hour,Base model,Actuated,True,True,Actuated < Fixed-time < Q-learning < SARSA
+rush_hour,Jaywalking × 0.5,Actuated,True,True,Actuated < Fixed-time < Q-learning < SARSA
+rush_hour,Jaywalking × 2,Fixed-time,False,False,Fixed-time < Actuated < Q-learning < SARSA
+rush_hour,Rear-end (stops) × 0.5,Actuated,True,True,Actuated < Fixed-time < Q-learning < SARSA
+rush_hour,Rear-end (stops) × 2,Actuated,True,True,Actuated < Fixed-time < Q-learning < SARSA
+rush_hour,Red-light running × 0.5,Fixed-time,False,False,Fixed-time < Actuated < Q-learning < SARSA
+rush_hour,Red-light running × 2,Actuated,True,True,Actuated < Fixed-time < Q-learning < SARSA
+sandstorm,Base model,Actuated,True,True,Actuated < Q-learning < SARSA < Fixed-time
+sandstorm,Jaywalking × 0.5,Actuated,True,True,Actuated < Q-learning < SARSA < Fixed-time
+sandstorm,Jaywalking × 2,Actuated,True,True,Actuated < Q-learning < SARSA < Fixed-time
+sandstorm,Rear-end (stops) × 0.5,Actuated,True,True,Actuated < Q-learning < SARSA < Fixed-time
+sandstorm,Rear-end (stops) × 2,Actuated,True,True,Actuated < Q-learning < SARSA < Fixed-time
+sandstorm,Red-light running × 0.5,Actuated,True,True,Actuated < Q-learning < SARSA < Fixed-time
+sandstorm,Red-light running × 2,Actuated,True,True,Actuated < Q-learning < SARSA < Fixed-time

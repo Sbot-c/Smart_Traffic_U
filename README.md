@@ -48,6 +48,7 @@ sim_view.py             animated night-mode canvas replay (Play / Pause / speed 
                         queue sparkline, emergency-preemption badge); top-down car, autonomous-car, truck,
                         bus and ambulance sprites with headlights / brake lights (sizes exaggerated for
                         visibility, queues squeeze when they exceed the link)
+extensions.py           research extensions closing five review gaps -> data/ext_*.csv (~4 min)
 lab.py                  Simulation Lab: conditions -> simulator overrides, live runs, replays, sweeps,
                         correlated-condition rules, decision-network evidence mapping
 config.py               every parameter, scenario definition and source
@@ -156,3 +157,25 @@ uncertainty-criteria caption is computed from the data; replay labels no longer 
 
 **Simulator change.** `traffic_env.py` reads an optional `av_share` override (default `config.AV_SHARE`),
 so every published result is unchanged (checked: identical what-if KPIs before and after).
+
+## Added: research extensions (8 Nov 2026, `extensions.py`, dashboard view *Research Extensions*)
+
+Five gaps from the project review, each closed with an experiment on the deployed Q-tables (no
+retraining), the 8 held-out test episodes for reporting and validation episodes for any tuning.
+The new mechanisms are scenario overrides that default to off, so every other result is unchanged
+(checked: rush-hour Q-learning seed 0 still gives 61.6912 s).
+
+| Gap | What was added | Result |
+|---|---|---|
+| 1. AV speed control / lane selection | V2I speed advisory (AVs ease off towards a red light, max 15 s per link) and AV lane selection (AVs pass a vehicle waiting to turn or blocked by a full exit) | lane selection: AV delay −2.2 %, network delay −0.7 %; speed advisory: stops −0.4 %, conflicts −1.1 %, CO2 −0.2 %, AV delay +6.8 % (means over all scenarios, 25 % AVs) |
+| 2. Bus load balancing | load KPIs (load at each stop, spread, 95th percentile, passengers left behind) and an even-headway holding rule | rush hour: busiest buses full and ~35 passengers per window left behind under every holding strategy: capacity, not balance; a bus every 3 min cuts it to ~1. RL bus agents keep the best on-time record (66 % vs 57 %) |
+| 3. Proxy safety model | each conflict mechanism halved and doubled, all policies re-run | safest policy unchanged in 90 % of 42 cases; changes only swap the two non-learning controllers |
+| 4. Fair comparison | actuated controller tuned per scenario on validation runs (81 settings); RL averaged over training runs | same cooperative routing: event surge 46.6 (Q) vs 46.9 s (tuned actuated), a tie; rush hour 64.8 vs 57.7 s, tuned actuated better. Q-learning re-trained ×3: rush hour 72.5 ± 2.1 s |
+| 5. RL safety at high demand | pedestrian max-wait guard (safety supervisor forces service after 22-30 s) | stress (1.6 × demand, peak): conflicts 18.6 → 10.7 per 1,000 veh (actuated package 10.6) with delay 179 vs 205 s; costs delay in rush hour (64.8 → 76.2 s) and is counter-productive in the event surge |
+
+The Simulation Lab has three matching switches (speed advisory, lane selection, pedestrian guard).
+
+**What this changes in the story:** the earlier "RL signals win the event surge by 26 %" was against an
+untuned actuated controller. Against a tuned one it is a tie, and in rush hour tuned actuated is better.
+Cooperative AV routing remains the gain that survives a fair comparison. See
+`CORRECTIONS_FOR_SPEC_AND_SLIDES.md` for the wording.

@@ -1,0 +1,785 @@
+scenario,policy,variant,seed,conflicts_per_1000
+normal,Fixed-time,Base model,900000,9.304341771847044
+normal,Fixed-time,Base model,900001,8.89911554975552
+normal,Fixed-time,Base model,900002,8.660658455451097
+normal,Fixed-time,Base model,900003,8.642923671568456
+normal,Fixed-time,Red-light running × 0.5,900000,6.992156854527447
+normal,Fixed-time,Red-light running × 0.5,900001,6.801814199475414
+normal,Fixed-time,Red-light running × 0.5,900002,6.623340108690425
+normal,Fixed-time,Red-light running × 0.5,900003,6.650432266538377
+normal,Fixed-time,Red-light running × 2,900000,13.92871406599447
+normal,Fixed-time,Red-light running × 2,900001,13.093720062236532
+normal,Fixed-time,Red-light running × 2,900002,12.735293295378048
+normal,Fixed-time,Red-light running × 2,900003,12.62790770350474
+normal,Fixed-time,Rear-end (stops) × 0.5,900000,7.15379327593274
+normal,Fixed-time,Rear-end (stops) × 0.5,900001,6.730021065439583
+normal,Fixed-time,Rear-end (stops) × 0.5,900002,6.575461765458601
+normal,Fixed-time,Rear-end (stops) × 0.5,900003,6.51351982473487
+normal,Fixed-time,Rear-end (stops) × 2,900000,13.605437533921538
+normal,Fixed-time,Rear-end (stops) × 2,900001,13.23730391441379
+normal,Fixed-time,Rear-end (stops) × 2,900002,12.831049981841694
+normal,Fixed-time,Rear-end (stops) × 2,900003,12.901732587111752
+normal,Fixed-time,Jaywalking × 0.5,900000,9.131023301223568
+normal,Fixed-time,Jaywalking × 0.5,900001,8.723870797426056
+normal,Fixed-time,Jaywalking × 0.5,900002,8.469040045508066
+normal,Fixed-time,Jaywalking × 0.5,900003,8.443357698585954
+normal,Fixed-time,Jaywalking × 2,900000,9.650979942848112
+normal,Fixed-time,Jaywalking × 2,900001,9.249605658388047
+normal,Fixed-time,Jaywalking × 2,900002,9.043895275337162
+normal,Fixed-time,Jaywalking × 2,900003,9.042055006595394
+normal,Actuated,Base model,900000,7.492821728468402
+normal,Actuated,Base model,900001,7.2825626907203675
+normal,Actuated,Base model,900002,7.222613355354232
+normal,Actuated,Base model,900003,7.414515395717388
+normal,Actuated,Red-light running × 0.5,900000,6.069919972324433
+normal,Actuated,Red-light running × 0.5,900001,5.949719787172459
+normal,Actuated,Red-light running × 0.5,900002,5.902652104077773
+normal,Actuated,Red-light running × 0.5,900003,6.056155706353099
+normal,Actuated,Red-light running × 2,900000,10.338624011002226
+normal,Actuated,Red-light running × 2,900001,9.948249705763388
+normal,Actuated,Red-light running × 2,900002,9.862535240042353
+normal,Actuated,Red-light running × 2,900003,10.131235996322093
+normal,Actuated,Rear-end (stops) × 0.5,900000,5.511196561969533
+normal,Actuated,Rear-end (stops) × 0.5,900001,5.289212444902146
+normal,Actuated,Rear-end (stops) × 0.5,900002,5.250147951433178
+normal,Actuated,Rear-end (stops) × 0.5,900003,5.384086569786683
+normal,Actuated,Rear-end (stops) × 2,900000,11.456070831712026
+normal,Actuated,Rear-end (stops) × 2,900001,11.269263182356813
+normal,Actuated,Rear-end (stops) × 2,900002,11.167542927466746
+normal,Actuated,Rear-end (stops) × 2,900003,11.475374269454926
+normal,Actuated,Jaywalking × 0.5,900000,7.167055559189069
+normal,Actuated,Jaywalking × 0.5,900001,6.97539138069177
+normal,Actuated,Jaywalking × 0.5,900002,6.919930040701177
+normal,Actuated,Jaywalking × 0.5,900003,7.1120625654143605
+normal,Actuated,Jaywalking × 2,900000,8.144353452150012
+normal,Actuated,Jaywalking × 2,900001,7.896905310777564
+normal,Actuated,Jaywalking × 2,900002,7.827979984660344
+normal,Actuated,Jaywalking × 2,900003,8.019422278199572
+normal,Q-learning,Base model,900000,7.626575934817759
+normal,Q-learning,Base model,900001,7.655017507310303
+normal,Q-learning,Base model,900002,7.42016573882157
+normal,Q-learning,Base model,900003,7.600670667278087
+normal,Q-learning,Red-light running × 0.5,900000,6.167930145558813
+normal,Q-learning,Red-light running × 0.5,900001,6.15232031582427
+normal,Q-learning,Red-light running × 0.5,900002,6.057756558026856
+normal,Q-learning,Red-light running × 0.5,900003,6.133918957707212
+normal,Q-learning,Red-light running × 2,900000,10.543868743089766
+normal,Q-learning,Red-light running × 2,900001,10.66041309822957
+normal,Q-learning,Red-light running × 2,900002,10.144985954005394
+normal,Q-learning,Red-light running × 2,900003,10.534175308295964
+normal,Q-learning,Rear-end (stops) × 0.5,900000,5.639793794436427
+normal,Q-learning,Rear-end (stops) × 0.5,900001,5.713598723650129
+normal,Q-learning,Rear-end (stops) × 0.5,900002,5.460334434299203
+normal,Q-learning,Rear-end (stops) × 0.5,900003,5.587859462271281
+normal,Q-learning,Rear-end (stops) × 2,900000,11.600142675088652
+normal,Q-learning,Rear-end (stops) × 2,900001,11.53785507463065
+normal,Q-learning,Rear-end (stops) × 2,900002,11.3398295835959
+normal,Q-learning,Rear-end (stops) × 2,900003,11.626295521043952
+normal,Q-learning,Jaywalking × 0.5,900000,7.266776935274873
+normal,Q-learning,Jaywalking × 0.5,900001,7.27162593674856
+normal,Q-learning,Jaywalking × 0.5,900002,7.048521298284008
+normal,Q-learning,Jaywalking × 0.5,900003,7.287907646223187
+normal,Q-learning,Jaywalking × 2,900000,8.34617639341176
+normal,Q-learning,Jaywalking × 2,900001,8.421802460354593
+normal,Q-learning,Jaywalking × 2,900002,8.16345585562629
+normal,Q-learning,Jaywalking × 2,900003,8.226198542202077
+normal,SARSA,Base model,900000,7.7830154153318425
+normal,SARSA,Base model,900001,7.752738020101479
+normal,SARSA,Base model,900002,7.670090196199853
+normal,SARSA,Base model,900003,7.73945502330675
+normal,SARSA,Red-light running × 0.5,900000,6.18247444748033
+normal,SARSA,Red-light running × 0.5,900001,6.140755429307141
+normal,SARSA,Red-light running × 0.5,900002,6.146046966266045
+normal,SARSA,Red-light running × 0.5,900003,6.176226418572767
+normal,SARSA,Red-light running × 2,900000,10.984098580788983
+normal,SARSA,Red-light running × 2,900001,10.97670199374295
+normal,SARSA,Red-light running × 2,900002,10.718174802473072
+normal,SARSA,Red-light running × 2,900003,10.865912232774713
+normal,SARSA,Rear-end (stops) × 0.5,900000,5.783660268875801
+normal,SARSA,Rear-end (stops) × 0.5,900001,5.771104258174304
+normal,SARSA,Rear-end (stops) × 0.5,900002,5.6901739606743
+normal,SARSA,Rear-end (stops) × 0.5,900003,5.711588471612435
+normal,SARSA,Rear-end (stops) × 2,900000,11.781725708243926
+normal,SARSA,Rear-end (stops) × 2,900001,11.716005543955827
+normal,SARSA,Rear-end (stops) × 2,900002,11.629920813656565
+normal,SARSA,Rear-end (stops) × 2,900003,11.795188126695377
+normal,SARSA,Jaywalking × 0.5,900000,7.499463630445076
+normal,SARSA,Jaywalking × 0.5,900001,7.477901644764104
+normal,SARSA,Jaywalking × 0.5,900002,7.363298698501908
+normal,SARSA,Jaywalking × 0.5,900003,7.468830233273943
+normal,SARSA,Jaywalking × 2,900000,8.350118985105375
+normal,SARSA,Jaywalking × 2,900001,8.302410770776229
+normal,SARSA,Jaywalking × 2,900002,8.283671338001346
+normal,SARSA,Jaywalking × 2,900003,8.280703381496236
+rush_hour,Fixed-time,Base model,900000,10.751636776525494
+rush_hour,Fixed-time,Base model,900001,10.565638280176854
+rush_hour,Fixed-time,Base model,900002,10.200691762451402
+rush_hour,Fixed-time,Base model,900003,10.369919131414877
+rush_hour,Fixed-time,Red-light running × 0.5,900000,8.367760538222498
+rush_hour,Fixed-time,Red-light running × 0.5,900001,8.311528775281522
+rush_hour,Fixed-time,Red-light running × 0.5,900002,7.967447897491311
+rush_hour,Fixed-time,Red-light running × 0.5,900003,8.16340479162505
+rush_hour,Fixed-time,Red-light running × 2,900000,15.519389253131488
+rush_hour,Fixed-time,Red-light running × 2,900001,15.073858687292525
+rush_hour,Fixed-time,Red-light running × 2,900002,14.667180930523239
+rush_hour,Fixed-time,Red-light running × 2,900003,14.782949224630727
+rush_hour,Fixed-time,Rear-end (stops) × 0.5,900000,8.110383295252495
+rush_hour,Fixed-time,Rear-end (stops) × 0.5,900001,7.893477778731685
+rush_hour,Fixed-time,Rear-end (stops) × 0.5,900002,7.636696027203847
+rush_hour,Fixed-time,Rear-end (stops) × 0.5,900003,7.746424523905425
+rush_hour,Fixed-time,Rear-end (stops) × 2,900000,16.034142299291435
+rush_hour,Fixed-time,Rear-end (stops) × 2,900001,15.9099606803922
+rush_hour,Fixed-time,Rear-end (stops) × 2,900002,15.328684671098168
+rush_hour,Fixed-time,Rear-end (stops) × 2,900003,15.616908346433783
+rush_hour,Fixed-time,Jaywalking × 0.5,900000,10.419819305068616
+rush_hour,Fixed-time,Jaywalking × 0.5,900001,10.2228269472227
+rush_hour,Fixed-time,Jaywalking × 0.5,900002,9.907011846457866
+rush_hour,Fixed-time,Jaywalking × 0.5,900003,10.03349774940071
+rush_hour,Fixed-time,Jaywalking × 2,900000,11.415271719439252
+rush_hour,Fixed-time,Jaywalking × 2,900001,11.251263042072674
+rush_hour,Fixed-time,Jaywalking × 2,900002,10.788053032590128
+rush_hour,Fixed-time,Jaywalking × 2,900003,11.042763309079408
+rush_hour,Actuated,Base model,900000,10.413263986461184
+rush_hour,Actuated,Base model,900001,10.462159376878004
+rush_hour,Actuated,Base model,900002,10.201694154155131
+rush_hour,Actuated,Base model,900003,10.147730862849153
+rush_hour,Actuated,Red-light running × 0.5,900000,8.472248976535225
+rush_hour,Actuated,Red-light running × 0.5,900001,8.575081737923535
+rush_hour,Actuated,Red-light running × 0.5,900002,8.33761231389167
+rush_hour,Actuated,Red-light running × 0.5,900003,8.303283386060832
+rush_hour,Actuated,Red-light running × 2,900000,14.295294006313101
+rush_hour,Actuated,Red-light running × 2,900001,14.236313257461939
+rush_hour,Actuated,Red-light running × 2,900002,13.929859272833706
+rush_hour,Actuated,Red-light running × 2,900003,13.836625816425792
+rush_hour,Actuated,Rear-end (stops) × 0.5,900000,7.822776430169239
+rush_hour,Actuated,Rear-end (stops) × 0.5,900001,7.8260785057431175
+rush_hour,Actuated,Rear-end (stops) × 0.5,900002,7.596604673509661
+rush_hour,Actuated,Rear-end (stops) × 0.5,900003,7.538688564954344
+rush_hour,Actuated,Rear-end (stops) × 2,900000,15.59424197860519
+rush_hour,Actuated,Rear-end (stops) × 2,900001,15.734319721822773
+rush_hour,Actuated,Rear-end (stops) × 2,900002,15.411874553597727
+rush_hour,Actuated,Rear-end (stops) × 2,900003,15.36581545863877
+rush_hour,Actuated,Jaywalking × 0.5,900000,9.752289757095973
+rush_hour,Actuated,Jaywalking × 0.5,900001,9.772552238715875
+rush_hour,Actuated,Jaywalking × 0.5,900002,9.570019117062323
+rush_hour,Actuated,Jaywalking × 0.5,900003,9.541251249880576
+rush_hour,Actuated,Jaywalking × 2,900000,11.735213884971664
+rush_hour,Actuated,Jaywalking × 2,900001,11.841373653202266
+rush_hour,Actuated,Jaywalking × 2,900002,11.465044228340746
+rush_hour,Actuated,Jaywalking × 2,900003,11.360691502422497
+rush_hour,Q-learning,Base model,900000,11.792936107306508
+rush_hour,Q-learning,Base model,900001,12.284019665840345
+rush_hour,Q-learning,Base model,900002,11.189147776640551
+rush_hour,Q-learning,Base model,900003,11.659334164008579
+rush_hour,Q-learning,Red-light running × 0.5,900000,9.746979848239349
+rush_hour,Q-learning,Red-light running × 0.5,900001,10.37646003695198
+rush_hour,Q-learning,Red-light running × 0.5,900002,9.24467325884705
+rush_hour,Q-learning,Red-light running × 0.5,900003,9.989872936498285
+rush_hour,Q-learning,Red-light running × 2,900000,15.884847185660767
+rush_hour,Q-learning,Red-light running × 2,900001,16.09914032094208
+rush_hour,Q-learning,Red-light running × 2,900002,15.078096812227557
+rush_hour,Q-learning,Red-light running × 2,900003,14.998255912211066
+rush_hour,Q-learning,Rear-end (stops) × 0.5,900000,9.196219342590435
+rush_hour,Q-learning,Rear-end (stops) × 0.5,900001,9.633470192933695
+rush_hour,Q-learning,Rear-end (stops) × 0.5,900002,8.569166235604678
+rush_hour,Q-learning,Rear-end (stops) × 0.5,900003,9.068635916166533
+rush_hour,Q-learning,Rear-end (stops) × 2,900000,16.986368196958594
+rush_hour,Q-learning,Rear-end (stops) × 2,900001,17.585118611653645
+rush_hour,Q-learning,Rear-end (stops) × 2,900002,16.4291108587123
+rush_hour,Q-learning,Rear-end (stops) × 2,900003,16.840732780146958
+rush_hour,Q-learning,Jaywalking × 0.5,900000,10.553294115413875
+rush_hour,Q-learning,Jaywalking × 0.5,900001,10.718434372227707
+rush_hour,Q-learning,Jaywalking × 0.5,900002,10.168454874022517
+rush_hour,Q-learning,Jaywalking × 0.5,900003,10.0944586897506
+rush_hour,Q-learning,Jaywalking × 2,900000,14.272220091091775
+rush_hour,Q-learning,Jaywalking × 2,900001,15.415191650390625
+rush_hour,Q-learning,Jaywalking × 2,900002,13.230532143724965
+rush_hour,Q-learning,Jaywalking × 2,900003,14.789085819342633
+rush_hour,SARSA,Base model,900000,12.178137743781257
+rush_hour,SARSA,Base model,900001,12.056177439707103
+rush_hour,SARSA,Base model,900002,11.913553394314032
+rush_hour,SARSA,Base model,900003,12.249559081216995
+rush_hour,SARSA,Red-light running × 0.5,900000,10.348540113700698
+rush_hour,SARSA,Red-light running × 0.5,900001,10.394857916639838
+rush_hour,SARSA,Red-light running × 0.5,900002,10.067610960878593
+rush_hour,SARSA,Red-light running × 0.5,900003,10.49485064356862
+rush_hour,SARSA,Red-light running × 2,900000,15.837333003942371
+rush_hour,SARSA,Red-light running × 2,900001,15.37881369119162
+rush_hour,SARSA,Red-light running × 2,900002,15.605436823033253
+rush_hour,SARSA,Red-light running × 2,900003,15.758975956513746
+rush_hour,SARSA,Rear-end (stops) × 0.5,900000,9.603689337343647
+rush_hour,SARSA,Rear-end (stops) × 0.5,900001,9.438595055660485
+rush_hour,SARSA,Rear-end (stops) × 0.5,900002,9.292629144868123
+rush_hour,SARSA,Rear-end (stops) × 0.5,900003,9.656637183644053
+rush_hour,SARSA,Rear-end (stops) × 2,900000,17.327033116876414
+rush_hour,SARSA,Rear-end (stops) × 2,900001,17.291340810475333
+rush_hour,SARSA,Rear-end (stops) × 2,900002,17.155400455054195
+rush_hour,SARSA,Rear-end (stops) × 2,900003,17.435402876362883
+rush_hour,SARSA,Jaywalking × 0.5,900000,10.507268666276214
+rush_hour,SARSA,Jaywalking × 0.5,900001,10.31614729772994
+rush_hour,SARSA,Jaywalking × 0.5,900002,10.423641941886707
+rush_hour,SARSA,Jaywalking × 0.5,900003,10.486305919602687
+rush_hour,SARSA,Jaywalking × 2,900000,15.51987589879134
+rush_hour,SARSA,Jaywalking × 2,900001,15.536236326336423
+rush_hour,SARSA,Jaywalking × 2,900002,14.893376299168679
+rush_hour,SARSA,Jaywalking × 2,900003,15.77606399080942
+incident,Fixed-time,Base model,900000,9.4067126578192
+incident,Fixed-time,Base model,900001,8.85217980073453
+incident,Fixed-time,Base model,900002,8.684084036442357
+incident,Fixed-time,Base model,900003,9.309046785995115
+incident,Fixed-time,Red-light running × 0.5,900000,7.054984213084892
+incident,Fixed-time,Red-light running × 0.5,900001,6.807594500776032
+incident,Fixed-time,Red-light running × 0.5,900002,6.687934372982245
+incident,Fixed-time,Red-light running × 0.5,900003,7.1265610486692905
+incident,Fixed-time,Red-light running × 2,900000,14.110168946926272
+incident,Fixed-time,Red-light running × 2,900001,12.941350400651528
+incident,Fixed-time,Red-light running × 2,900002,12.67638396733618
+incident,Fixed-time,Red-light running × 2,900003,13.674019440206836
+incident,Fixed-time,Rear-end (stops) × 0.5,900000,7.281751575656083
+incident,Fixed-time,Rear-end (stops) × 0.5,900001,6.73785865880866
+incident,Fixed-time,Rear-end (stops) × 0.5,900002,6.5792704625096485
+incident,Fixed-time,Rear-end (stops) × 0.5,900003,7.102183080707425
+incident,Fixed-time,Rear-end (stops) × 2,900000,13.656633021060799
+incident,Fixed-time,Rear-end (stops) × 2,900001,13.080823269642892
+incident,Fixed-time,Rear-end (stops) × 2,900002,12.89371058033417
+incident,Fixed-time,Rear-end (stops) × 2,900003,13.722777735250705
+incident,Fixed-time,Jaywalking × 0.5,900000,9.219390249567509
+incident,Fixed-time,Jaywalking × 0.5,900001,8.670426481590022
+incident,Fixed-time,Jaywalking × 0.5,900002,8.474670081594612
+incident,Fixed-time,Jaywalking × 0.5,900003,9.136638747517829
+incident,Fixed-time,Jaywalking × 2,900000,9.781356873961037
+incident,Fixed-time,Jaywalking × 2,900001,9.215687031551857
+incident,Fixed-time,Jaywalking × 2,900002,9.102911946137846
+incident,Fixed-time,Jaywalking × 2,900003,9.653864632289794
+incident,Actuated,Base model,900000,7.930140244649348
+incident,Actuated,Base model,900001,7.438838611518644
+incident,Actuated,Base model,900002,7.985999268621791
+incident,Actuated,Base model,900003,7.802290907596171
+incident,Actuated,Red-light running × 0.5,900000,6.3969207177719
+incident,Actuated,Red-light running × 0.5,900001,6.162865038205467
+incident,Actuated,Red-light running × 0.5,900002,6.468481772907781
+incident,Actuated,Red-light running × 0.5,900003,6.3858905101014125
+incident,Actuated,Red-light running × 2,900000,10.99658109948888
+incident,Actuated,Red-light running × 2,900001,9.99078694320162
+incident,Actuated,Red-light running × 2,900002,11.02103365607621
+incident,Actuated,Red-light running × 2,900003,10.635092882145756
+incident,Actuated,Rear-end (stops) × 0.5,900000,5.8398032135883895
+incident,Actuated,Rear-end (stops) × 0.5,900001,5.404977481459268
+incident,Actuated,Rear-end (stops) × 0.5,900002,5.916335146362227
+incident,Actuated,Rear-end (stops) × 0.5,900003,5.688809434351688
+incident,Actuated,Rear-end (stops) × 2,900000,12.110813706409717
+incident,Actuated,Rear-end (stops) × 2,900001,11.50656324175064
+incident,Actuated,Rear-end (stops) × 2,900002,12.12532811711452
+incident,Actuated,Rear-end (stops) × 2,900003,12.029255033645205
+incident,Actuated,Jaywalking × 0.5,900000,7.6279716743851065
+incident,Actuated,Jaywalking × 0.5,900001,7.122451602097956
+incident,Actuated,Jaywalking × 0.5,900002,7.611847286212286
+incident,Actuated,Jaywalking × 0.5,900003,7.477410575380721
+incident,Actuated,Jaywalking × 2,900000,8.534476184454736
+incident,Actuated,Jaywalking × 2,900001,8.071613815416642
+incident,Actuated,Jaywalking × 2,900002,8.734303837414403
+incident,Actuated,Jaywalking × 2,900003,8.452053341367176
+incident,Q-learning,Base model,900000,8.223738053477632
+incident,Q-learning,Base model,900001,8.099910004904048
+incident,Q-learning,Base model,900002,8.147029502245351
+incident,Q-learning,Base model,900003,8.25919350062024
+incident,Q-learning,Red-light running × 0.5,900000,6.529535780472315
+incident,Q-learning,Red-light running × 0.5,900001,6.461886227890067
+incident,Q-learning,Red-light running × 0.5,900002,6.555870713275622
+incident,Q-learning,Red-light running × 0.5,900003,6.611995661634682
+incident,Q-learning,Red-light running × 2,900000,11.612142599488266
+incident,Q-learning,Red-light running × 2,900001,11.375958151460324
+incident,Q-learning,Red-light running × 2,900002,11.329347684158412
+incident,Q-learning,Red-light running × 2,900003,11.553591537711497
+incident,Q-learning,Rear-end (stops) × 0.5,900000,6.152601185031083
+incident,Q-learning,Rear-end (stops) × 0.5,900001,6.0936968383599455
+incident,Q-learning,Rear-end (stops) × 0.5,900002,6.096364577560957
+incident,Q-learning,Rear-end (stops) × 0.5,900003,6.20971967500157
+incident,Q-learning,Rear-end (stops) × 2,900000,12.366010589647638
+incident,Q-learning,Rear-end (stops) × 2,900001,12.112335745463945
+incident,Q-learning,Rear-end (stops) × 2,900002,12.248359955587743
+incident,Q-learning,Rear-end (stops) × 2,900003,12.358142331417652
+incident,Q-learning,Jaywalking × 0.5,900000,7.924421800920188
+incident,Q-learning,Jaywalking × 0.5,900001,7.771856113041584
+incident,Q-learning,Jaywalking × 0.5,900002,7.747003894731016
+incident,Q-learning,Jaywalking × 0.5,900003,7.888112159592175
+incident,Q-learning,Jaywalking × 2,900000,8.822370558592521
+incident,Q-learning,Jaywalking × 2,900001,8.756017196100666
+incident,Q-learning,Jaywalking × 2,900002,8.947080113300423
+incident,Q-learning,Jaywalking × 2,900003,9.001356182676373
+incident,SARSA,Base model,900000,7.940371005761012
+incident,SARSA,Base model,900001,8.065060452298
+incident,SARSA,Base model,900002,8.27032950499754
+incident,SARSA,Base model,900003,8.30128256302965
+incident,SARSA,Red-light running × 0.5,900000,6.330549548097778
+incident,SARSA,Red-light running × 0.5,900001,6.4595439634770475
+incident,SARSA,Red-light running × 0.5,900002,6.578777620051011
+incident,SARSA,Red-light running × 0.5,900003,6.644510824737832
+incident,SARSA,Red-light running × 2,900000,11.160012720364387
+incident,SARSA,Red-light running × 2,900001,11.27609580005315
+incident,SARSA,Red-light running × 2,900002,11.653432670916992
+incident,SARSA,Red-light running × 2,900003,11.614826039613288
+incident,SARSA,Rear-end (stops) × 0.5,900000,5.908895221790654
+incident,SARSA,Rear-end (stops) × 0.5,900001,6.037102089271889
+incident,SARSA,Rear-end (stops) × 0.5,900002,6.191481964130655
+incident,SARSA,Rear-end (stops) × 0.5,900003,6.18872881378004
+incident,SARSA,Rear-end (stops) × 2,900000,12.003323774424821
+incident,SARSA,Rear-end (stops) × 2,900001,12.120979548463469
+incident,SARSA,Rear-end (stops) × 2,900002,12.428025190704906
+incident,SARSA,Rear-end (stops) × 2,900003,12.526391241088943
+incident,SARSA,Jaywalking × 0.5,900000,7.658696377243604
+incident,SARSA,Jaywalking × 0.5,900001,7.759203263490457
+incident,SARSA,Jaywalking × 0.5,900002,7.9530615682765005
+incident,SARSA,Jaywalking × 0.5,900003,8.028192585017406
+incident,SARSA,Jaywalking × 2,900000,8.503719062072735
+incident,SARSA,Jaywalking × 2,900001,8.676776014969711
+incident,SARSA,Jaywalking × 2,900002,8.904864170492413
+incident,SARSA,Jaywalking × 2,900003,8.847463108834177
+rain,Fixed-time,Base model,900000,15.902836038817945
+rain,Fixed-time,Base model,900001,14.599816009843378
+rain,Fixed-time,Base model,900002,15.147176747047633
+rain,Fixed-time,Base model,900003,15.122168201992228
+rain,Fixed-time,Red-light running × 0.5,900000,11.874036785704345
+rain,Fixed-time,Red-light running × 0.5,900001,11.192895474584786
+rain,Fixed-time,Red-light running × 0.5,900002,11.572787433471474
+rain,Fixed-time,Red-light running × 0.5,900003,11.506845308470895
+rain,Fixed-time,Red-light running × 2,900000,23.960433250611057
+rain,Fixed-time,Red-light running × 2,900001,21.41365708036056
+rain,Fixed-time,Red-light running × 2,900002,22.295956658177488
+rain,Fixed-time,Red-light running × 2,900003,22.352815279091455
+rain,Fixed-time,Rear-end (stops) × 0.5,900000,12.165438493794007
+rain,Fixed-time,Rear-end (stops) × 0.5,900001,10.885991462845103
+rain,Fixed-time,Rear-end (stops) × 0.5,900002,11.350758185654689
+rain,Fixed-time,Rear-end (stops) × 0.5,900003,11.324544835018072
+rain,Fixed-time,Rear-end (stops) × 2,900000,23.37762983443173
+rain,Fixed-time,Rear-end (stops) × 2,900001,22.027466401797486
+rain,Fixed-time,Rear-end (stops) × 2,900002,22.740015153811058
+rain,Fixed-time,Rear-end (stops) × 2,900003,22.717413645883973
+rain,Fixed-time,Jaywalking × 0.5,900000,15.732120893185204
+rain,Fixed-time,Jaywalking × 0.5,900001,14.435198648562436
+rain,Fixed-time,Jaywalking × 0.5,900002,14.973174679042595
+rain,Fixed-time,Jaywalking × 0.5,900003,14.974029716463319
+rain,Fixed-time,Jaywalking × 2,900000,16.244265035649335
+rain,Fixed-time,Jaywalking × 2,900001,14.929050732405262
+rain,Fixed-time,Jaywalking × 2,900002,15.495182167035248
+rain,Fixed-time,Jaywalking × 2,900003,15.418445173050046
+rain,Actuated,Base model,900000,11.68775607012958
+rain,Actuated,Base model,900001,11.639838074291186
+rain,Actuated,Base model,900002,11.740361909920901
+rain,Actuated,Base model,900003,11.968953890860142
+rain,Actuated,Red-light running × 0.5,900000,9.635754427668763
+rain,Actuated,Red-light running × 0.5,900001,9.602361408452998
+rain,Actuated,Red-light running × 0.5,900002,9.741129276528579
+rain,Actuated,Red-light running × 0.5,900003,9.852276809480813
+rain,Actuated,Red-light running × 2,900000,15.791754177314854
+rain,Actuated,Red-light running × 2,900001,15.714792703925124
+rain,Actuated,Red-light running × 2,900002,15.738825892728011
+rain,Actuated,Red-light running × 2,900003,16.20230289339253
+rain,Actuated,Rear-end (stops) × 0.5,900000,8.216692869809672
+rain,Actuated,Rear-end (stops) × 0.5,900001,8.195402022728754
+rain,Actuated,Rear-end (stops) × 0.5,900002,8.216759685874587
+rain,Actuated,Rear-end (stops) × 0.5,900003,8.411319746856638
+rain,Actuated,Rear-end (stops) × 2,900000,18.629879881901218
+rain,Actuated,Rear-end (stops) × 2,900001,18.528712773331172
+rain,Actuated,Rear-end (stops) × 2,900002,18.787565074035992
+rain,Actuated,Rear-end (stops) × 2,900003,19.084219598754014
+rain,Actuated,Jaywalking × 0.5,900000,11.410457221459323
+rain,Actuated,Jaywalking × 0.5,900001,11.345470385634197
+rain,Actuated,Jaywalking × 0.5,900002,11.43618249524045
+rain,Actuated,Jaywalking × 0.5,900003,11.658784300643203
+rain,Actuated,Jaywalking × 2,900000,12.242347295299643
+rain,Actuated,Jaywalking × 2,900001,12.228574749562723
+rain,Actuated,Jaywalking × 2,900002,12.348720739281807
+rain,Actuated,Jaywalking × 2,900003,12.589287911067752
+rain,Q-learning,Base model,900000,11.83379671312325
+rain,Q-learning,Base model,900001,12.141450646378711
+rain,Q-learning,Base model,900002,12.262646737061779
+rain,Q-learning,Base model,900003,11.793226255611023
+rain,Q-learning,Red-light running × 0.5,900000,9.702138832799045
+rain,Q-learning,Red-light running × 0.5,900001,9.743145673037306
+rain,Q-learning,Red-light running × 0.5,900002,10.04916704371095
+rain,Q-learning,Red-light running × 0.5,900003,9.550391962530648
+rain,Q-learning,Red-light running × 2,900000,16.097108590469386
+rain,Q-learning,Red-light running × 2,900001,16.938060593061522
+rain,Q-learning,Red-light running × 2,900002,16.689607407740976
+rain,Q-learning,Red-light running × 2,900003,16.278897421884906
+rain,Q-learning,Rear-end (stops) × 0.5,900000,8.420178556102472
+rain,Q-learning,Rear-end (stops) × 0.5,900001,8.719704839882294
+rain,Q-learning,Rear-end (stops) × 0.5,900002,8.750556655621857
+rain,Q-learning,Rear-end (stops) × 0.5,900003,8.410237389397775
+rain,Q-learning,Rear-end (stops) × 2,900000,18.661030438296624
+rain,Q-learning,Rear-end (stops) × 2,900001,18.984942259371543
+rain,Q-learning,Rear-end (stops) × 2,900002,19.286826899941623
+rain,Q-learning,Rear-end (stops) × 2,900003,18.559205278094087
+rain,Q-learning,Jaywalking × 0.5,900000,11.491184603532856
+rain,Q-learning,Jaywalking × 0.5,900001,11.919868523752498
+rain,Q-learning,Jaywalking × 0.5,900002,11.928839540690214
+rain,Q-learning,Jaywalking × 0.5,900003,11.52243693212742
+rain,Q-learning,Jaywalking × 2,900000,12.519018343435857
+rain,Q-learning,Jaywalking × 2,900001,12.584614891631135
+rain,Q-learning,Jaywalking × 2,900002,12.93026241378245
+rain,Q-learning,Jaywalking × 2,900003,12.334803612521664
+rain,SARSA,Base model,900000,13.15296485054319
+rain,SARSA,Base model,900001,12.943591013697793
+rain,SARSA,Base model,900002,13.049893168960104
+rain,SARSA,Base model,900003,12.874403312716646
+rain,SARSA,Red-light running × 0.5,900000,10.336008321077976
+rain,SARSA,Red-light running × 0.5,900001,10.219646660232673
+rain,SARSA,Red-light running × 0.5,900002,10.370068339858541
+rain,SARSA,Red-light running × 0.5,900003,10.21159239463561
+rain,SARSA,Red-light running × 2,900000,18.786877909473617
+rain,SARSA,Red-light running × 2,900001,18.39147972062803
+rain,SARSA,Red-light running × 2,900002,18.40954282716323
+rain,SARSA,Red-light running × 2,900003,18.200027728991852
+rain,SARSA,Rear-end (stops) × 0.5,900000,9.646507291661143
+rain,SARSA,Rear-end (stops) × 0.5,900001,9.479372142001292
+rain,SARSA,Rear-end (stops) × 0.5,900002,9.5257163649655
+rain,SARSA,Rear-end (stops) × 0.5,900003,9.387900307648561
+rain,SARSA,Rear-end (stops) × 2,900000,20.165879968307284
+rain,SARSA,Rear-end (stops) × 2,900001,19.872028757090796
+rain,SARSA,Rear-end (stops) × 2,900002,20.098246776949313
+rain,SARSA,Rear-end (stops) × 2,900003,19.84740932285282
+rain,SARSA,Jaywalking × 0.5,900000,12.914403236474593
+rain,SARSA,Jaywalking × 0.5,900001,12.718142275503599
+rain,SARSA,Jaywalking × 0.5,900002,12.786504436686801
+rain,SARSA,Jaywalking × 0.5,900003,12.586516869564012
+rain,SARSA,Jaywalking × 2,900000,13.630089373114476
+rain,SARSA,Jaywalking × 2,900001,13.394488490086179
+rain,SARSA,Jaywalking × 2,900002,13.576669349529173
+rain,SARSA,Jaywalking × 2,900003,13.450177489078484
+sandstorm,Fixed-time,Base model,900000,17.67956769024884
+sandstorm,Fixed-time,Base model,900001,18.140989255577804
+sandstorm,Fixed-time,Base model,900002,18.581881765591895
+sandstorm,Fixed-time,Base model,900003,17.898101632188006
+sandstorm,Fixed-time,Red-light running × 0.5,900000,13.170559829206262
+sandstorm,Fixed-time,Red-light running × 0.5,900001,13.599113505092129
+sandstorm,Fixed-time,Red-light running × 0.5,900002,13.94531767247087
+sandstorm,Fixed-time,Red-light running × 0.5,900003,13.387310795667695
+sandstorm,Fixed-time,Red-light running × 2,900000,26.697580437911185
+sandstorm,Fixed-time,Red-light running × 2,900001,27.224743666310605
+sandstorm,Fixed-time,Red-light running × 2,900002,27.85501426222634
+sandstorm,Fixed-time,Red-light running × 2,900003,26.91969057408775
+sandstorm,Fixed-time,Rear-end (stops) × 0.5,900000,13.489313850625914
+sandstorm,Fixed-time,Rear-end (stops) × 0.5,900001,13.716123742424378
+sandstorm,Fixed-time,Rear-end (stops) × 0.5,900002,14.105799328360405
+sandstorm,Fixed-time,Rear-end (stops) × 0.5,900003,13.522340030204958
+sandstorm,Fixed-time,Rear-end (stops) × 2,900000,26.06007239507188
+sandstorm,Fixed-time,Rear-end (stops) × 2,900001,26.990723191646108
+sandstorm,Fixed-time,Rear-end (stops) × 2,900002,27.53405095044727
+sandstorm,Fixed-time,Rear-end (stops) × 2,900003,26.649626289925923
+sandstorm,Fixed-time,Jaywalking × 0.5,900000,17.597522698415418
+sandstorm,Fixed-time,Jaywalking × 0.5,900001,18.07537558968062
+sandstorm,Fixed-time,Jaywalking × 0.5,900002,18.497750090115936
+sandstorm,Fixed-time,Jaywalking × 0.5,900003,17.835605435255097
+sandstorm,Fixed-time,Jaywalking × 2,900000,17.843657673915693
+sandstorm,Fixed-time,Jaywalking × 2,900001,18.272216587372174
+sandstorm,Fixed-time,Jaywalking × 2,900002,18.750146553341278
+sandstorm,Fixed-time,Jaywalking × 2,900003,18.02309547982565
+sandstorm,Actuated,Base model,900000,12.502874779654757
+sandstorm,Actuated,Base model,900001,12.314618224864875
+sandstorm,Actuated,Base model,900002,13.038698472994644
+sandstorm,Actuated,Base model,900003,12.20993879364758
+sandstorm,Actuated,Red-light running × 0.5,900000,10.447950158667611
+sandstorm,Actuated,Red-light running × 0.5,900001,10.203864172521572
+sandstorm,Actuated,Red-light running × 0.5,900002,10.91964779151586
+sandstorm,Actuated,Red-light running × 0.5,900003,10.267805762407257
+sandstorm,Actuated,Red-light running × 2,900000,16.612722534417642
+sandstorm,Actuated,Red-light running × 2,900001,16.536129239312935
+sandstorm,Actuated,Red-light running × 2,900002,17.276799835952215
+sandstorm,Actuated,Red-light running × 2,900003,16.094207763671875
+sandstorm,Actuated,Rear-end (stops) × 0.5,900000,8.557454605548703
+sandstorm,Actuated,Rear-end (stops) × 0.5,900001,8.442002157506645
+sandstorm,Actuated,Rear-end (stops) × 0.5,900002,8.879000274026012
+sandstorm,Actuated,Rear-end (stops) × 0.5,900003,8.200030501295881
+sandstorm,Actuated,Rear-end (stops) × 2,900000,20.39371364065546
+sandstorm,Actuated,Rear-end (stops) × 2,900001,20.059851814462064
+sandstorm,Actuated,Rear-end (stops) × 2,900002,21.358096307729372
+sandstorm,Actuated,Rear-end (stops) × 2,900003,20.229756832122803
+sandstorm,Actuated,Jaywalking × 0.5,900000,12.329752961097405
+sandstorm,Actuated,Jaywalking × 0.5,900001,12.159749808700642
+sandstorm,Actuated,Jaywalking × 0.5,900002,12.835765199248176
+sandstorm,Actuated,Jaywalking × 0.5,900003,12.095122802548293
+sandstorm,Actuated,Jaywalking × 2,900000,12.849116929558052
+sandstorm,Actuated,Jaywalking × 2,900001,12.62435505719334
+sandstorm,Actuated,Jaywalking × 2,900002,13.444569330879974
+sandstorm,Actuated,Jaywalking × 2,900003,12.439573683389803
+sandstorm,Q-learning,Base model,900000,13.092540718658626
+sandstorm,Q-learning,Base model,900001,12.938056439502288
+sandstorm,Q-learning,Base model,900002,13.058853867812795
+sandstorm,Q-learning,Base model,900003,12.712693795925233
+sandstorm,Q-learning,Red-light running × 0.5,900000,10.615067361158703
+sandstorm,Q-learning,Red-light running × 0.5,900001,10.59828451987353
+sandstorm,Q-learning,Red-light running × 0.5,900002,10.74328377646466
+sandstorm,Q-learning,Red-light running × 0.5,900003,10.446780338519957
+sandstorm,Q-learning,Red-light running × 2,900000,18.047487433658475
+sandstorm,Q-learning,Red-light running × 2,900001,17.61759736899835
+sandstorm,Q-learning,Red-light running × 2,900002,17.689994050509064
+sandstorm,Q-learning,Red-light running × 2,900003,17.244525072051257
+sandstorm,Q-learning,Rear-end (stops) × 0.5,900000,9.221974869220578
+sandstorm,Q-learning,Rear-end (stops) × 0.5,900001,9.079168626681982
+sandstorm,Q-learning,Rear-end (stops) × 0.5,900002,9.01064253122793
+sandstorm,Q-learning,Rear-end (stops) × 0.5,900003,8.772908187494046
+sandstorm,Q-learning,Rear-end (stops) × 2,900000,20.83367241753472
+sandstorm,Q-learning,Rear-end (stops) × 2,900001,20.655829155381447
+sandstorm,Q-learning,Rear-end (stops) × 2,900002,21.155277977779985
+sandstorm,Q-learning,Rear-end (stops) × 2,900003,20.592267920331256
+sandstorm,Q-learning,Jaywalking × 0.5,900000,12.952788949709886
+sandstorm,Q-learning,Jaywalking × 0.5,900001,12.724893134936952
+sandstorm,Q-learning,Jaywalking × 0.5,900002,12.893208361839395
+sandstorm,Q-learning,Jaywalking × 0.5,900003,12.581102731751233
+sandstorm,Q-learning,Jaywalking × 2,900000,13.372045743767513
+sandstorm,Q-learning,Jaywalking × 2,900001,13.36437868399078
+sandstorm,Q-learning,Jaywalking × 2,900002,13.390144879759593
+sandstorm,Q-learning,Jaywalking × 2,900003,12.975877378045059
+sandstorm,SARSA,Base model,900000,13.696015415600634
+sandstorm,SARSA,Base model,900001,13.491330121329138
+sandstorm,SARSA,Base model,900002,13.832008950903367
+sandstorm,SARSA,Base model,900003,14.898944191816376
+sandstorm,SARSA,Red-light running × 0.5,900000,10.919315122489111
+sandstorm,SARSA,Red-light running × 0.5,900001,10.815816103821033
+sandstorm,SARSA,Red-light running × 0.5,900002,11.143105717028602
+sandstorm,SARSA,Red-light running × 0.5,900003,11.638823078899849
+sandstorm,SARSA,Red-light running × 2,900000,19.249418976246496
+sandstorm,SARSA,Red-light running × 2,900001,18.8423610661068
+sandstorm,SARSA,Red-light running × 2,900002,19.209815418652894
+sandstorm,SARSA,Red-light running × 2,900003,21.419187871421254
+sandstorm,SARSA,Rear-end (stops) × 0.5,900000,9.759954262895194
+sandstorm,SARSA,Rear-end (stops) × 0.5,900001,9.590490822752043
+sandstorm,SARSA,Rear-end (stops) × 0.5,900002,9.777771685756532
+sandstorm,SARSA,Rear-end (stops) × 0.5,900003,10.882176277114123
+sandstorm,SARSA,Rear-end (stops) × 2,900000,21.56814218264574
+sandstorm,SARSA,Rear-end (stops) × 2,900001,21.293008718483325
+sandstorm,SARSA,Rear-end (stops) × 2,900002,21.940483481197035
+sandstorm,SARSA,Rear-end (stops) × 2,900003,22.932481474992706
+sandstorm,SARSA,Jaywalking × 0.5,900000,13.599758631537068
+sandstorm,SARSA,Jaywalking × 0.5,900001,13.322019831630495
+sandstorm,SARSA,Jaywalking × 0.5,900002,13.696809183181792
+sandstorm,SARSA,Jaywalking × 0.5,900003,14.764471751887625
+sandstorm,SARSA,Jaywalking × 2,900000,13.888531958150585
+sandstorm,SARSA,Jaywalking × 2,900001,13.829953610487879
+sandstorm,SARSA,Jaywalking × 2,900002,14.102405612751589
+sandstorm,SARSA,Jaywalking × 2,900003,15.167889071673882
+event_surge,Fixed-time,Base model,900000,10.524178560448702
+event_surge,Fixed-time,Base model,900001,9.505658509689379
+event_surge,Fixed-time,Base model,900002,9.871941987643517
+event_surge,Fixed-time,Base model,900003,10.594600509496047
+event_surge,Fixed-time,Red-light running × 0.5,900000,8.076749529157366
+event_surge,Fixed-time,Red-light running × 0.5,900001,7.393248202019172
+event_surge,Fixed-time,Red-light running × 0.5,900002,7.762163027824414
+event_surge,Fixed-time,Red-light running × 0.5,900003,8.147167980222774
+event_surge,Fixed-time,Red-light running × 2,900000,15.419036623031374
+event_surge,Fixed-time,Red-light running × 2,900001,13.730476166371107
+event_surge,Fixed-time,Red-light running × 2,900002,14.091500933289591
+event_surge,Fixed-time,Red-light running × 2,900003,15.489465568042595
+event_surge,Fixed-time,Rear-end (stops) × 0.5,900000,8.285024935606295
+event_surge,Fixed-time,Rear-end (stops) × 0.5,900001,7.36630961468449
+event_surge,Fixed-time,Rear-end (stops) × 0.5,900002,7.63902156310674
+event_surge,Fixed-time,Rear-end (stops) × 0.5,900003,8.343257658207582
+event_surge,Fixed-time,Rear-end (stops) × 2,900000,15.002483791775173
+event_surge,Fixed-time,Rear-end (stops) × 2,900001,13.784355313479592
+event_surge,Fixed-time,Rear-end (stops) × 2,900002,14.337784888732811
+event_surge,Fixed-time,Rear-end (stops) × 2,900003,15.09728518771818
+event_surge,Fixed-time,Jaywalking × 0.5,900000,9.955284078285176
+event_surge,Fixed-time,Jaywalking × 0.5,900001,9.00458697819044
+event_surge,Fixed-time,Jaywalking × 0.5,900002,9.292120315362972
+event_surge,Fixed-time,Jaywalking × 0.5,900003,10.036354802476861
+event_surge,Fixed-time,Jaywalking × 2,900000,11.66196449723824
+event_surge,Fixed-time,Jaywalking × 2,900001,10.507800586467692
+event_surge,Fixed-time,Jaywalking × 2,900002,11.031588410228219
+event_surge,Fixed-time,Jaywalking × 2,900003,11.711091923534422
+event_surge,Actuated,Base model,900000,10.24916512625558
+event_surge,Actuated,Base model,900001,10.32998322700887
+event_surge,Actuated,Base model,900002,10.50907235558537
+event_surge,Actuated,Base model,900003,10.623241469632157
+event_surge,Actuated,Red-light running × 0.5,900000,8.57386412443938
+event_surge,Actuated,Red-light running × 0.5,900001,8.645453152266999
+event_surge,Actuated,Red-light running × 0.5,900002,8.698291583622957
+event_surge,Actuated,Red-light running × 0.5,900003,8.846184620923822
+event_surge,Actuated,Red-light running × 2,900000,13.59976914824632
+event_surge,Actuated,Red-light running × 2,900001,13.699041404053492
+event_surge,Actuated,Red-light running × 2,900002,14.130631847494453
+event_surge,Actuated,Red-light running × 2,900003,14.177356191403627
+event_surge,Actuated,Rear-end (stops) × 0.5,900000,7.999959067692832
+event_surge,Actuated,Rear-end (stops) × 0.5,900001,8.108421589990437
+event_surge,Actuated,Rear-end (stops) × 0.5,900002,8.244414429564577
+event_surge,Actuated,Rear-end (stops) × 0.5,900003,8.34853769501093
+event_surge,Actuated,Rear-end (stops) × 2,900000,14.747578252560247
+event_surge,Actuated,Rear-end (stops) × 2,900001,14.773105514826177
+event_surge,Actuated,Rear-end (stops) × 2,900002,15.038388207626959
+event_surge,Actuated,Rear-end (stops) × 2,900003,15.172651067584209
+event_surge,Actuated,Jaywalking × 0.5,900000,9.062317944077588
+event_surge,Actuated,Jaywalking × 0.5,900001,9.077545528944423
+event_surge,Actuated,Jaywalking × 0.5,900002,9.356870646115079
+event_surge,Actuated,Jaywalking × 0.5,900003,9.39694844050259
+event_surge,Actuated,Jaywalking × 2,900000,12.622859490611566
+event_surge,Actuated,Jaywalking × 2,900001,12.834856650698642
+event_surge,Actuated,Jaywalking × 2,900002,12.813474748518084
+event_surge,Actuated,Jaywalking × 2,900003,13.075828552246094
+event_surge,Q-learning,Base model,900000,11.667418101477244
+event_surge,Q-learning,Base model,900001,12.537775759613131
+event_surge,Q-learning,Base model,900002,10.987951269452452
+event_surge,Q-learning,Base model,900003,12.256734993480842
+event_surge,Q-learning,Red-light running × 0.5,900000,9.957259041922432
+event_surge,Q-learning,Red-light running × 0.5,900001,10.928324607683436
+event_surge,Q-learning,Red-light running × 0.5,900002,9.357913070112355
+event_surge,Q-learning,Red-light running × 0.5,900003,10.402599543685175
+event_surge,Q-learning,Red-light running × 2,900000,15.087734202228527
+event_surge,Q-learning,Red-light running × 2,900001,15.756680035911646
+event_surge,Q-learning,Red-light running × 2,900002,14.248026642124778
+event_surge,Q-learning,Red-light running × 2,900003,15.965005893072176
+event_surge,Q-learning,Rear-end (stops) × 0.5,900000,9.393342840608465
+event_surge,Q-learning,Rear-end (stops) × 0.5,900001,10.265283278866661
+event_surge,Q-learning,Rear-end (stops) × 0.5,900002,8.754761004845514
+event_surge,Q-learning,Rear-end (stops) × 0.5,900003,9.922148461756722
+event_surge,Q-learning,Rear-end (stops) × 2,900000,16.21556559567729
+event_surge,Q-learning,Rear-end (stops) × 2,900001,17.08276072110607
+event_surge,Q-learning,Rear-end (stops) × 2,900002,15.454329746650584
+event_surge,Q-learning,Rear-end (stops) × 2,900003,16.925907032574287
+event_surge,Q-learning,Jaywalking × 0.5,900000,9.824555008499711
+event_surge,Q-learning,Jaywalking × 0.5,900001,10.150832498702293
+event_surge,Q-learning,Jaywalking × 0.5,900002,9.363927528254123
+event_surge,Q-learning,Jaywalking × 0.5,900003,10.34394089056521
+event_surge,Q-learning,Jaywalking × 2,900000,15.3531412598948
+event_surge,Q-learning,Jaywalking × 2,900001,17.311664253873932
+event_surge,Q-learning,Jaywalking × 2,900002,14.235998751849113
+event_surge,Q-learning,Jaywalking × 2,900003,16.082320126247712
+event_surge,SARSA,Base model,900000,14.407722029105695
+event_surge,SARSA,Base model,900001,15.717433428443822
+event_surge,SARSA,Base model,900002,12.426428669174875
+event_surge,SARSA,Base model,900003,12.021749027305464
+event_surge,SARSA,Red-light running × 0.5,900000,12.628039607295284
+event_surge,SARSA,Red-light running × 0.5,900001,14.025458382228784
+event_surge,SARSA,Red-light running × 0.5,900002,10.61138893853855
+event_surge,SARSA,Red-light running × 0.5,900003,10.202413983042847
+event_surge,SARSA,Red-light running × 2,900000,17.967086872726522
+event_surge,SARSA,Red-light running × 2,900001,19.10138450709346
+event_surge,SARSA,Red-light running × 2,900002,16.056509156455398
+event_surge,SARSA,Red-light running × 2,900003,15.660417067121102
+event_surge,SARSA,Rear-end (stops) × 0.5,900000,12.166980965427621
+event_surge,SARSA,Rear-end (stops) × 0.5,900001,13.414175828462303
+event_surge,SARSA,Rear-end (stops) × 0.5,900002,10.174411160128933
+event_surge,SARSA,Rear-end (stops) × 0.5,900003,9.679106969454363
+event_surge,SARSA,Rear-end (stops) × 2,900000,18.889202138103506
+event_surge,SARSA,Rear-end (stops) × 2,900001,20.32394961462642
+event_surge,SARSA,Rear-end (stops) × 2,900002,16.93046368726676
+event_surge,SARSA,Rear-end (stops) × 2,900003,16.707034167362462
+event_surge,SARSA,Jaywalking × 0.5,900000,11.224284500041335
+event_surge,SARSA,Jaywalking × 0.5,900001,11.853948867308686
+event_surge,SARSA,Jaywalking × 0.5,900002,10.307168370616763
+event_surge,SARSA,Jaywalking × 0.5,900003,10.233269598250999
+event_surge,SARSA,Jaywalking × 2,900000,20.774597087234415
+event_surge,SARSA,Jaywalking × 2,900001,23.444399592055408
+event_surge,SARSA,Jaywalking × 2,900002,16.664951318306844
+event_surge,SARSA,Jaywalking × 2,900003,15.598707885414393
+bus_corridor,Fixed-time,Base model,900000,8.919813694098057
+bus_corridor,Fixed-time,Base model,900001,8.690364094981563
+bus_corridor,Fixed-time,Base model,900002,8.884885899077144
+bus_corridor,Fixed-time,Base model,900003,9.263034391671958
+bus_corridor,Fixed-time,Red-light running × 0.5,900000,6.7916561893287986
+bus_corridor,Fixed-time,Red-light running × 0.5,900001,6.693276416904179
+bus_corridor,Fixed-time,Red-light running × 0.5,900002,6.822103609176622
+bus_corridor,Fixed-time,Red-light running × 0.5,900003,7.042518464085328
+bus_corridor,Fixed-time,Red-light running × 2,900000,13.176128134957793
+bus_corridor,Fixed-time,Red-light running × 2,900001,12.684541654889808
+bus_corridor,Fixed-time,Red-light running × 2,900002,13.010452781744029
+bus_corridor,Fixed-time,Red-light running × 2,900003,13.704067378467071
+bus_corridor,Fixed-time,Rear-end (stops) × 0.5,900000,6.760302653395142
+bus_corridor,Fixed-time,Rear-end (stops) × 0.5,900001,6.556915864994043
+bus_corridor,Fixed-time,Rear-end (stops) × 0.5,900002,6.6983481745974665
+bus_corridor,Fixed-time,Rear-end (stops) × 0.5,900003,7.068137251209767
+bus_corridor,Fixed-time,Rear-end (stops) × 2,900000,13.238836344182669
+bus_corridor,Fixed-time,Rear-end (stops) × 2,900001,12.957261656833342
+bus_corridor,Fixed-time,Rear-end (stops) × 2,900002,13.25796249946942
+bus_corridor,Fixed-time,Rear-end (stops) × 2,900003,13.652829804218193
+bus_corridor,Fixed-time,Jaywalking × 0.5,900000,8.747575108181811
+bus_corridor,Fixed-time,Jaywalking × 0.5,900001,8.504604756109016
+bus_corridor,Fixed-time,Jaywalking × 0.5,900002,8.699309455279746
+bus_corridor,Fixed-time,Jaywalking × 0.5,900003,9.098844548001624
+bus_corridor,Fixed-time,Jaywalking × 2,900000,9.264289728572985
+bus_corridor,Fixed-time,Jaywalking × 2,900001,9.061884425541765
+bus_corridor,Fixed-time,Jaywalking × 2,900002,9.25603821095548
+bus_corridor,Fixed-time,Jaywalking × 2,900003,9.591414079012626
+bus_corridor,Actuated,Base model,900000,7.512184147615836
+bus_corridor,Actuated,Base model,900001,7.95230612046866
+bus_corridor,Actuated,Base model,900002,7.515831005166673
+bus_corridor,Actuated,Base model,900003,7.938655467388433
+bus_corridor,Actuated,Red-light running × 0.5,900000,6.091575645305745
+bus_corridor,Actuated,Red-light running × 0.5,900001,6.412965035176842
+bus_corridor,Actuated,Red-light running × 0.5,900002,6.11357339156059
+bus_corridor,Actuated,Red-light running × 0.5,900003,6.41727928449053
+bus_corridor,Actuated,Red-light running × 2,900000,10.353400014878456
+bus_corridor,Actuated,Red-light running × 2,900001,11.030989392929033
+bus_corridor,Actuated,Red-light running × 2,900002,10.320346232378839
+bus_corridor,Actuated,Red-light running × 2,900003,10.981407833184237
+bus_corridor,Actuated,Rear-end (stops) × 0.5,900000,5.524706399789081
+bus_corridor,Actuated,Rear-end (stops) × 0.5,900001,5.910422745500253
+bus_corridor,Actuated,Rear-end (stops) × 0.5,900002,5.509190857320475
+bus_corridor,Actuated,Rear-end (stops) × 0.5,900003,5.8199956911461035
+bus_corridor,Actuated,Rear-end (stops) × 2,900000,11.487138505911785
+bus_corridor,Actuated,Rear-end (stops) × 2,900001,12.036072870405473
+bus_corridor,Actuated,Rear-end (stops) × 2,900002,11.529112452291988
+bus_corridor,Actuated,Rear-end (stops) × 2,900003,12.175972756629385
+bus_corridor,Actuated,Jaywalking × 0.5,900000,7.179085100841579
+bus_corridor,Actuated,Jaywalking × 0.5,900001,7.586262668232777
+bus_corridor,Actuated,Jaywalking × 0.5,900002,7.174359755396591
+bus_corridor,Actuated,Jaywalking × 0.5,900003,7.646444111894479
+bus_corridor,Actuated,Jaywalking × 2,900000,8.178379966449226
+bus_corridor,Actuated,Jaywalking × 2,900001,8.684393024940425
+bus_corridor,Actuated,Jaywalking × 2,900002,8.198773504706837
+bus_corridor,Actuated,Jaywalking × 2,900003,8.523077612565412
+bus_corridor,Q-learning,Base model,900000,7.824548028662721
+bus_corridor,Q-learning,Base model,900001,8.07740769587384
+bus_corridor,Q-learning,Base model,900002,7.5362459108471835
+bus_corridor,Q-learning,Base model,900003,7.837390022651268
+bus_corridor,Q-learning,Red-light running × 0.5,900000,6.280362215081921
+bus_corridor,Q-learning,Red-light running × 0.5,900001,6.46922741233786
+bus_corridor,Q-learning,Red-light running × 0.5,900002,6.11696436151147
+bus_corridor,Q-learning,Red-light running × 0.5,900003,6.376672165926399
+bus_corridor,Q-learning,Red-light running × 2,900000,10.91291965582432
+bus_corridor,Q-learning,Red-light running × 2,900001,11.293767161069063
+bus_corridor,Q-learning,Red-light running × 2,900002,10.37480900951861
+bus_corridor,Q-learning,Red-light running × 2,900003,10.758825736101004
+bus_corridor,Q-learning,Rear-end (stops) × 0.5,900000,5.784000039598241
+bus_corridor,Q-learning,Rear-end (stops) × 0.5,900001,6.038123648129468
+bus_corridor,Q-learning,Rear-end (stops) × 0.5,900002,5.5395662334797935
+bus_corridor,Q-learning,Rear-end (stops) × 0.5,900003,5.796156379385116
+bus_corridor,Q-learning,Rear-end (stops) × 2,900000,11.905645144149243
+bus_corridor,Q-learning,Rear-end (stops) × 2,900001,12.155974689485847
+bus_corridor,Q-learning,Rear-end (stops) × 2,900002,11.529605265581964
+bus_corridor,Q-learning,Rear-end (stops) × 2,900003,11.919859572427274
+bus_corridor,Q-learning,Jaywalking × 0.5,900000,7.511916299909798
+bus_corridor,Q-learning,Jaywalking × 0.5,900001,7.729495625355422
+bus_corridor,Q-learning,Jaywalking × 0.5,900002,7.199176589132183
+bus_corridor,Q-learning,Jaywalking × 0.5,900003,7.450311978186531
+bus_corridor,Q-learning,Jaywalking × 2,900000,8.44981205484735
+bus_corridor,Q-learning,Jaywalking × 2,900001,8.773232938787416
+bus_corridor,Q-learning,Jaywalking × 2,900002,8.210384554277185
+bus_corridor,Q-learning,Jaywalking × 2,900003,8.611547243202592
+bus_corridor,SARSA,Base model,900000,7.983961202022073
+bus_corridor,SARSA,Base model,900001,8.355856354976238
+bus_corridor,SARSA,Base model,900002,8.301707577784544
+bus_corridor,SARSA,Base model,900003,8.28564241285389
+bus_corridor,SARSA,Red-light running × 0.5,900000,6.304677213738202
+bus_corridor,SARSA,Red-light running × 0.5,900001,6.61866393549328
+bus_corridor,SARSA,Red-light running × 0.5,900002,6.500874550148975
+bus_corridor,SARSA,Red-light running × 0.5,900003,6.570827922068516
+bus_corridor,SARSA,Red-light running × 2,900000,11.342530315947377
+bus_corridor,SARSA,Red-light running × 2,900001,11.830241193942154
+bus_corridor,SARSA,Red-light running × 2,900002,11.903374208772142
+bus_corridor,SARSA,Red-light running × 2,900003,11.715271394424642
+bus_corridor,SARSA,Rear-end (stops) × 0.5,900000,5.9607055973423755
+bus_corridor,SARSA,Rear-end (stops) × 0.5,900001,6.295486793980855
+bus_corridor,SARSA,Rear-end (stops) × 0.5,900002,6.217493666934708
+bus_corridor,SARSA,Rear-end (stops) × 0.5,900003,6.167280253158836
+bus_corridor,SARSA,Rear-end (stops) × 2,900000,12.030472411381465
+bus_corridor,SARSA,Rear-end (stops) × 2,900001,12.476596578843742
+bus_corridor,SARSA,Rear-end (stops) × 2,900002,12.470134823767756
+bus_corridor,SARSA,Rear-end (stops) × 2,900003,12.522366732244002
+bus_corridor,SARSA,Jaywalking × 0.5,900000,7.701975004119964
+bus_corridor,SARSA,Jaywalking × 0.5,900001,8.004375305704682
+bus_corridor,SARSA,Jaywalking × 0.5,900002,8.043446930880421
+bus_corridor,SARSA,Jaywalking × 0.5,900003,7.998247239965248
+bus_corridor,SARSA,Jaywalking × 2,900000,8.547934735183853
+bus_corridor,SARSA,Jaywalking × 2,900001,9.058819004457717
+bus_corridor,SARSA,Jaywalking × 2,900002,8.81822944730925
+bus_corridor,SARSA,Jaywalking × 2,900003,8.86043389025303

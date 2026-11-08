@@ -199,6 +199,12 @@ def load_tables():
     out["robust"] = pd.read_csv(rob) if os.path.exists(rob) else None
     ped = os.path.join(DATA, "ped_weight_tradeoff.csv")
     out["ped"] = pd.read_csv(ped) if os.path.exists(ped) else None
+    for k, n in [("x_av", "ext_av_speed_lane.csv"), ("x_bus", "ext_bus_load.csv"),
+                 ("x_safe", "ext_safety_sensitivity.csv"), ("x_rank", "ext_safety_ranking.csv"),
+                 ("x_tune", "ext_actuated_tuning.csv"), ("x_ta", "ext_tuned_actuated.csv"),
+                 ("x_guard", "ext_ped_guard.csv")]:
+        f_ = os.path.join(DATA, n)
+        out[k] = pd.read_csv(f_) if os.path.exists(f_) else None
     sim = out["sim"]
     sim["queue_total"] = sim[["queue_n", "queue_e", "queue_s", "queue_w"]].sum(axis=1)
     return out
@@ -453,15 +459,24 @@ for _s, _nm in (("rush_hour", "RUSH HOUR"), ("event_surge", "EVENT SURGE")):
         _items.append(f'<span class="it"><span class="sep">▍</span>SAME ROUTING, {_nm} · '
                       f'Q-learning vs actuated signals <b>{_q.mean():.1f} vs {_a.mean():.1f} s</b> '
                       f'<span class="{"up" if _v < 0 else "dn"}">{_v:+.0f}%</span></span>')
+if T.get("x_ta") is not None:
+    _ta = T["x_ta"][T["x_ta"].routing == "Cooperative RL"].groupby(["scenario", "controller"]) \
+        .avg_delay_s.mean()
+    for _s, _nm in (("rush_hour", "RUSH HOUR"), ("event_surge", "EVENT SURGE")):
+        _q, _a = _ta[(_s, "Q-learning (deployed)")], _ta[(_s, "Actuated (tuned)")]
+        _items.append(f'<span class="it"><span class="sep">▍</span>VS TUNED ACTUATED, {_nm} · '
+                      f'Q-learning <b>{_q:.1f}</b> vs <b>{_a:.1f} s</b> '
+                      f'<span class="{"up" if _q < _a else "dn"}">{100 * (_q - _a) / _a:+.0f}%</span></span>')
 _track = "".join(_items)
 st.markdown(f'<div class="ticker"><div class="track">{_track}{_track}</div></div>',
             unsafe_allow_html=True)
 
 VIEWS = ["City Overview", "RL Simulation", "Decision Network Visualizer",
-         "Scenario Explorer", "KPI & Trade-off Analysis", "Policy Comparison", "Simulation Lab"]
+         "Scenario Explorer", "KPI & Trade-off Analysis", "Policy Comparison", "Simulation Lab",
+         "Research Extensions"]
 ICONS = {"City Overview": "◉", "RL Simulation": "⟳", "Decision Network Visualizer": "◇",
          "Scenario Explorer": "☰", "KPI & Trade-off Analysis": "◆",
-         "Policy Comparison": "⇄", "Simulation Lab": "⚡"}
+         "Policy Comparison": "⇄", "Simulation Lab": "⚡", "Research Extensions": "✚"}
 if st.session_state.get("view") == "Live What-If":          # old name in a saved session
     st.session_state["view"] = "Simulation Lab"
 # Only the open view is drawn (st.tabs would build all seven on every click).
@@ -1170,6 +1185,10 @@ if view == VIEWS[5]:
                     "unusual (event surge). In the daily peak, actuated signals with the same "
                     "routing are statistically as good.** This matches the decision network, "
                     "which recommends actuated signals + cooperative routing in most conditions.")
+        st.info("Fair-comparison check (Research Extensions): with its four parameters tuned on "
+                "validation runs, the actuated controller ties Q-learning in the event surge and "
+                "beats it in rush hour. RL signals reach tuned-expert performance without manual "
+                "tuning; they do not beat a well-tuned actuated plan.")
         st.caption("The policies elsewhere in this dashboard are packages: *Actuated* = actuated "
                    "signals + static routes; *Q-learning* / *SARSA* = RL signals + cooperative "
                    "routing. Comparing signal controllers fairly means giving both the same routing.")
@@ -1273,7 +1292,8 @@ if view == VIEWS[5]:
 # ======================================================================================
 LAB_KEYS = dict(demand="lab-d", ped="lab-p", pax="lab-pax", weather="lab-w", peak="lab-peak",
                 av_share="lab-av", incident="lab-inc", inc_loss="lab-loss", evs="lab-ev",
-                bus_lane="lab-lane", headway_min="lab-hw", event="lab-evt")
+                bus_lane="lab-lane", headway_min="lab-hw", event="lab-evt",
+                glosa="lab-glosa", av_lane="lab-avlane", ped_guard="lab-guard")
 for _f, _k in LAB_KEYS.items():
     st.session_state.setdefault(_k, LB.DEFAULTS[_f])
 st.session_state.setdefault("lab-link", True)
@@ -1408,6 +1428,19 @@ if view == VIEWS[6]:
         st.toggle("Dedicated bus lane on Street 2", key="lab-lane", on_change=_lab_couple,
                   args=("bus_lane",))
         st.slider("Bus headway (minutes)", 2, 10, step=1, key="lab-hw", on_change=_lab_custom)
+    with st.container(border=True):
+        st.markdown("**🛡 Smart-control add-ons** (Research Extensions; apply to every policy)")
+        a1, a2, a3 = st.columns(3)
+        a1.toggle("AV speed advisory (GLOSA)", key="lab-glosa",
+                  help="Connected AVs ease off when the light ahead is red and the queue is "
+                       "short, arriving later instead of braking to a stop (max 15 s per link).")
+        a2.toggle("AV lane selection", key="lab-avlane",
+                  help="AVs pre-select their lane, so they pass a vehicle waiting to turn or "
+                       "blocked by a full exit link.")
+        a3.select_slider("Pedestrian max-wait guard", [0, 30, 26, 22], key="lab-guard",
+                         format_func=lambda v: "off" if v == 0 else f"{v} s",
+                         help="Safety supervisor: a signal must serve pedestrians who have waited "
+                              "this long, before they give up and cross on red.")
 
     cond = {f: st.session_state[k] for f, k in LAB_KEYS.items()}
     cond["av_share"] = float(cond["av_share"])
@@ -1546,3 +1579,208 @@ if view == VIEWS[6]:
                  "bus_on_time_pct", "bus_avg_delay_s", "ev_avg_delay_s", "av_avg_delay_s",
                  "human_avg_delay_s"]]
         table(out.reset_index().rename(columns={"policy": "Policy"}))
+
+
+# ======================================================================================
+# 8. Research extensions (extensions.py): the five review gaps, closed with experiments
+# ======================================================================================
+def _gap(num, title, verdict, good=True):
+    col = "#21c98b" if good else "#f5b301"
+    st.markdown(f'<div class="card" style="border-left:4px solid {col}; margin-top:18px">'
+                f'<span class="tag" style="color:{col}">GAP {num}</span>'
+                f'<h4>{title}</h4><p>{verdict}</p></div>', unsafe_allow_html=True)
+
+
+if view == VIEWS[7]:
+    st.markdown("#### Research extensions: five open questions, answered by experiment")
+    st.caption("Every study uses the deployed Q-tables (no retraining), the 8 held-out TEST "
+               "episodes for reporting and, where something is tuned, separate VALIDATION "
+               "episodes for choosing. New mechanisms are switched on per run, so all other "
+               "results in this dashboard are unchanged. Regenerate with `python extensions.py`.")
+    if T.get("x_av") is None:
+        st.warning("Run `python extensions.py` to create the data/ext_*.csv files.")
+        st.stop()
+    SCL = {k: LABEL[k] for k in C.SCENARIO_ORDER}
+
+    # ---- 1. AV speed control and lane selection ------------------------------------
+    av = T["x_av"]
+    gv = av.groupby("variant")[["avg_delay_s", "avg_stops", "co2_kg", "conflicts_per_1000",
+                                "av_avg_delay_s", "human_avg_delay_s"]].mean()
+    b0 = gv.loc["Baseline"]
+    _p = lambda v, c: 100 * (gv.loc[v, c] - b0[c]) / b0[c]
+    _gap(1, "Autonomous vehicles: speed control and lane selection",
+         f"Two V2I behaviours added to the AV agents. <b>Lane selection</b> (AVs pass a vehicle "
+         f"waiting to turn or blocked by a full exit): AV delay {_p('+ lane selection', 'av_avg_delay_s'):+.1f}%, "
+         f"network delay {_p('+ lane selection', 'avg_delay_s'):+.1f}%. <b>Speed advisory</b> "
+         f"(ease off towards a red light instead of stopping): stops "
+         f"{_p('+ speed advisory', 'avg_stops'):+.1f}%, conflicts "
+         f"{_p('+ speed advisory', 'conflicts_per_1000'):+.1f}%, CO₂ "
+         f"{_p('+ speed advisory', 'co2_kg'):+.1f}%, paid for with "
+         f"{_p('+ speed advisory', 'av_avg_delay_s'):+.1f}% AV delay. Means over all scenarios; "
+         "effects are small at a 25 % AV share and grow with it (try the AV-share slider in the "
+         "Simulation Lab with both add-ons on).")
+    c1, c2 = st.columns(2)
+    order_v = list(AV_ORDER := ["Baseline", "+ speed advisory", "+ lane selection", "+ both"])
+    with c1:
+        show(viz.grouped_bars(av, "scenario", "variant", "avg_delay_s", "s/veh",
+                              order_x=C.SCENARIO_ORDER, order_g=order_v, x_labels=SCL,
+                              title="Average delay (Q-learning package)", height=340),
+             key="x-av1")
+    with c2:
+        tb = gv.loc[order_v].rename(columns={"avg_delay_s": "Delay (s)", "avg_stops": "Stops / veh",
+                                             "co2_kg": "CO₂ (kg)",
+                                             "conflicts_per_1000": "Conflicts / 1,000",
+                                             "av_avg_delay_s": "AV delay (s)",
+                                             "human_avg_delay_s": "Human-driven delay (s)"})
+        st.markdown("**All scenarios, mean of 8 test episodes each**")
+        table(tb.round(3).reset_index().rename(columns={"variant": "AV behaviour"}))
+
+    # ---- 2. Bus passenger load balancing ---------------------------------------------
+    bus = T["x_bus"]
+    gb = bus.groupby(["scenario", "variant"])[["bus_load_cv", "bus_load_p95_pct",
+                                               "pax_left_behind", "bus_on_time_pct"]].mean()
+    rh = gb.loc["rush_hour"]
+    _gap(2, "Public transport: passenger load balancing",
+         "Bus loads are now measured (load at every stop departure, its spread, the 95th "
+         "percentile and passengers left behind by full buses) and the learned bus agents are "
+         "compared with an even-headway holding rule. Finding: in rush hour the busiest buses "
+         f"run full (95th percentile {rh.loc['RL bus agents (deployed)', 'bus_load_p95_pct']:.0f} % "
+         f"of capacity) and about {rh.loc['RL bus agents (deployed)', 'pax_left_behind']:.0f} "
+         "passengers per window are left behind <i>whatever</i> the holding strategy: the problem "
+         "is capacity, not balance. A bus every 3 minutes cuts that to "
+         f"{rh.loc['RL bus agents + bus every 3 min', 'pax_left_behind']:.1f}. The RL agents keep "
+         f"the best on-time record ({rh.loc['RL bus agents (deployed)', 'bus_on_time_pct']:.0f} % vs "
+         f"{rh.loc['No priority, no holding', 'bus_on_time_pct']:.0f} % without priority or holding).")
+    bv = ["No priority, no holding", "Always request priority", "Even-headway holding rule",
+          "RL bus agents (deployed)", "RL bus agents + bus every 3 min"]
+    bsc = ["normal", "rush_hour", "bus_corridor"]
+    c1, c2, c3 = st.columns(3)
+    with c1:
+        show(viz.grouped_bars(bus, "scenario", "variant", "pax_left_behind", "passengers",
+                              order_x=bsc, order_g=bv, x_labels=SCL, height=360,
+                              title="Passengers left behind by full buses"), key="x-b1")
+    with c2:
+        show(viz.grouped_bars(bus, "scenario", "variant", "bus_load_p95_pct", "% of capacity",
+                              order_x=bsc, order_g=bv, x_labels=SCL, height=360,
+                              title="Busiest buses (95th percentile load)"), key="x-b2")
+    with c3:
+        show(viz.grouped_bars(bus, "scenario", "variant", "bus_on_time_pct", "% on time",
+                              order_x=bsc, order_g=bv, x_labels=SCL, height=360,
+                              title="Bus on-time performance"), key="x-b3")
+    st.caption("The bus-priority corridor already runs a bus every 3 minutes, so its last two "
+               "bars are identical. Load spread (coefficient of variation) stays at 0.12-0.22 "
+               "for every strategy; see the table view.")
+    with st.expander("Table view: bus loads"):
+        table(gb.round(2).reset_index())
+
+    # ---- 3. Proxy safety model ------------------------------------------------------
+    rk = T["x_rank"]
+    nonbase = rk[rk.variant != "Base model"]
+    _gap(3, "Safety is a proxy: does the conclusion depend on its parameters?",
+         "Each of the three conflict mechanisms (red-light running, rear-end exposure from "
+         "stops, jaywalking) was halved and doubled, and all four policies re-run in every "
+         f"scenario. The safest policy is unchanged in {100 * nonbase.same_safest.mean():.0f} % "
+         f"of the {len(nonbase)} scenario × variant cases, and where it changes it only swaps "
+         "between the two non-learning controllers. The RL packages are never the safest under "
+         "any variant, so the safety conclusion does not hinge on the uncertain parameters. "
+         "Conflicts remain a surrogate for crashes; the ranking, not the absolute number, is "
+         "what the project relies on.")
+    sv = T["x_safe"]
+    c1, c2 = st.columns([1.3, 1])
+    with c1:
+        pick = st.selectbox("Scenario", C.SCENARIO_ORDER, index=1, format_func=lambda k: LABEL[k],
+                            key="x-safe-sc")
+        show(viz.grouped_bars(sv[sv.scenario == pick], "variant", "policy",
+                              "conflicts_per_1000", "conflicts / 1,000 veh",
+                              order_x=list(dict.fromkeys(sv.variant)), order_g=POL,
+                              colors=viz.POLICY_COLORS, height=360,
+                              title=f"Expected conflicts under each safety-model variant, {LABEL[pick]}"),
+             key="x-s1")
+    with c2:
+        st.markdown("**Cases where the safest policy changes**")
+        ch = rk[~rk.same_safest].copy()
+        ch["scenario"] = ch.scenario.map(LABEL)
+        table(ch[["scenario", "variant", "ranking"]] if len(ch) else
+              pd.DataFrame({"result": ["none: same safest policy everywhere"]}), height=220)
+        st.caption("Ranking = safest first. Value of time: savings scale linearly with the AED "
+                   "per hour set in the KPI tab, so no ranking depends on the U.S. figure.")
+
+    # ---- 4. Fair comparison -------------------------------------------------------
+    ta = T["x_ta"]
+    co = ta[ta.routing == "Cooperative RL"].groupby(["scenario", "controller"]).avg_delay_s.mean()
+    rob = T["robust"]
+    rr = rob[(rob.policy == "Q-learning")].groupby("scenario").avg_delay_s.agg(["mean", "std"]) \
+        if rob is not None else None
+    _gap(4, "A fair baseline: tune the actuated controller, average RL over training runs",
+         "The actuated controller's four parameters (max green, queue ratio, queue offset, "
+         "pedestrian service time) were tuned per scenario on validation episodes from 81 "
+         "combinations, then tested with the same cooperative routing as RL. Result: "
+         f"<b>event surge</b> {co[('event_surge', 'Q-learning (deployed)')]:.1f} s (Q-learning) vs "
+         f"{co[('event_surge', 'Actuated (tuned)')]:.1f} s (tuned actuated), a tie; <b>rush hour</b> "
+         f"{co[('rush_hour', 'Q-learning (deployed)')]:.1f} vs {co[('rush_hour', 'Actuated (tuned)')]:.1f} s, "
+         "tuned actuated is better. Averaged over three re-trainings, Q-learning's rush-hour delay is "
+         + (f"{rr.loc['rush_hour', 'mean']:.1f} ± {rr.loc['rush_hour', 'std']:.1f} s" if rr is not None else "n/a")
+         + ". Honest reading: RL signals learn tuned-expert performance on their own, without "
+         "manual tuning, but they do not beat a well-tuned actuated plan; cooperative AV routing "
+         "is the gain that survives a fair comparison.", good=False)
+    c1, c2 = st.columns([1.4, 1])
+    with c1:
+        show(viz.grouped_bars(ta[ta.routing == "Cooperative RL"], "scenario", "controller",
+                              "avg_delay_s", "s/veh", order_x=C.SCENARIO_ORDER,
+                              order_g=["Actuated (untuned)", "Actuated (tuned)",
+                                       "Q-learning (deployed)"],
+                              colors={"Actuated (untuned)": "#5f8f7d", "Actuated (tuned)": "#21c98b",
+                                      "Q-learning (deployed)": "#3d8bff"}, x_labels=SCL,
+                              title="Same cooperative routing: tuned vs untuned actuated vs RL",
+                              height=360), key="x-t1")
+    with c2:
+        st.markdown("**Tuned parameters (chosen on validation runs)**")
+        tt = T["x_tune"].copy()
+        tt["scenario"] = tt.scenario.map(LABEL)
+        table(tt.rename(columns={"scenario": "Scenario", "max_green": "Max green (s)",
+                                 "ratio": "Queue ratio", "offset": "Queue offset",
+                                 "ped_after": "Ped service after (s)",
+                                 "validation_delay_s": "Validation delay (s)"}).round(1), height=290)
+        if rr is not None:
+            st.caption("Q-learning re-trained with three other seeds: " + ", ".join(
+                f"{LABEL[k]} {v['mean']:.1f} ± {v['std']:.1f} s" for k, v in rr.iterrows()))
+
+    # ---- 5. RL safety at high demand ---------------------------------------------
+    gd = T["x_guard"]
+    gg = gd.groupby(["condition", "variant"])[["avg_delay_s", "conflicts_per_1000",
+                                               "ped_avg_wait_s", "jaywalks"]].mean()
+    stc = "Stress: peak at 1.6 × demand"
+    _gap(5, "RL safety at high demand: a pedestrian max-wait guard",
+         "Diagnosis: at extreme demand RL's extra conflicts come from jaywalking, because it "
+         f"leaves pedestrians waiting {gg.loc[(stc, 'Q-learning'), 'ped_avg_wait_s']:.0f} s on average "
+         "(non-compliance starts beyond 30 s). Fix: a safety supervisor on top of the RL signals "
+         "forces a crossing to be served once its first pedestrian has waited a set time. Under "
+         f"stress it cuts conflicts from {gg.loc[(stc, 'Q-learning'), 'conflicts_per_1000']:.1f} to "
+         f"{gg.loc[(stc, 'Q-learning + guard 30 s'), 'conflicts_per_1000']:.1f} per 1,000 vehicles "
+         f"(actuated: {gg.loc[(stc, 'Actuated package (reference)'), 'conflicts_per_1000']:.1f}) while staying "
+         f"faster than actuated ({gg.loc[(stc, 'Q-learning + guard 30 s'), 'avg_delay_s']:.0f} vs "
+         f"{gg.loc[(stc, 'Actuated package (reference)'), 'avg_delay_s']:.0f} s). The price is delay in "
+         "rush hour, and in the event surge the guard is counter-productive (thousands of "
+         "pedestrians force constant switching), so it should be switched on by demand level: "
+         "exactly the kind of choice the decision network makes.")
+    gvars = ["Q-learning", "Q-learning + guard 30 s", "Q-learning + guard 26 s",
+             "Q-learning + guard 22 s", "Actuated package (reference)"]
+    gcol = {"Q-learning": "#3d8bff", "Q-learning + guard 30 s": "#22d3ee",
+            "Q-learning + guard 26 s": "#7dd3fc", "Q-learning + guard 22 s": "#a78bfa",
+            "Actuated package (reference)": "#21c98b"}
+    conds = list(dict.fromkeys(gd.condition))
+    c1, c2 = st.columns(2)
+    with c1:
+        show(viz.grouped_bars(gd, "condition", "variant", "conflicts_per_1000",
+                              "conflicts / 1,000 veh", order_x=conds, order_g=gvars, colors=gcol,
+                              title="Expected conflicts", height=380), key="x-g1")
+    with c2:
+        show(viz.grouped_bars(gd, "condition", "variant", "avg_delay_s", "s/veh",
+                              order_x=conds, order_g=gvars, colors=gcol,
+                              title="Average delay", height=380), key="x-g2")
+    pick = st.selectbox("Trade-off view", conds, index=conds.index(stc), key="x-g-c")
+    show(viz.frontier(gd[gd.condition == pick], "avg_delay_s", "conflicts_per_1000", "variant",
+                      "Average delay (s/veh)", "Expected conflicts per 1,000 veh", colors=gcol,
+                      title=f"Delay vs safety, {pick} (lower-left is better)", height=380),
+         key="x-g3")
+    st.caption("Try it live: Simulation Lab → Smart-control add-ons → Pedestrian max-wait guard.")

@@ -150,7 +150,7 @@ def remaining_moves(i: int, dest_i: int):
 class Vehicle:
     __slots__ = ("vid", "vtype", "dest_i", "dest_h", "path", "pidx", "t_spawn", "t_enter",
                  "link", "t_arr", "next_h", "stopped", "delay", "stops", "idle", "dist",
-                 "ff", "co2", "nox", "av_pending", "bus")
+                 "ff", "co2", "nox", "av_pending", "bus", "glide")
 
     def __init__(self, vid, vtype, dest_i, dest_h, path, t_spawn):
         self.vid = vid
@@ -174,6 +174,7 @@ class Vehicle:
         self.nox = 0.0
         self.av_pending = None    # (state, action, t_decision, coop_penalty)
         self.bus = None           # BusInfo for buses
+        self.glide = 0.0          # s of speed-advisory slow-down on the current link
 
 
 class BusInfo:
@@ -214,7 +215,9 @@ FIELDS = ["phase", "elapsed", "q_n", "q_e", "q_s", "q_w", "arrivals", "departure
 F = {k: j for j, k in enumerate(FIELDS)}
 N_FIELDS = len(FIELDS)
 OVERRIDE_NAMES = ["none", "min-green", "max-green", "EV preemption", "TSP extension",
-                  "TSP early green", "pedestrian clearance"]
+                  "TSP early green", "pedestrian clearance", "dilemma-zone hold", "pedestrian max-wait"]
+GLIDE_MAX = 15.0      # speed advisory: an AV may arrive at most 15 s later per link
+DZ_HOLD_MAX = 5.0     # dilemma-zone protection: a phase change may be held at most 5 s
 
 
 class TrafficEnv:
@@ -241,6 +244,14 @@ class TrafficEnv:
             self.inc_sat, self.inc_speed = inc["sat_factor"], inc["speed_factor"]
         else:
             self.inc_L = -1
+        # optional extensions (all off by default, so every published result is unchanged)
+        self.av_glosa = bool(sc.get("av_glosa", False))     # AV speed advisory (GLOSA)
+        self.av_lane = bool(sc.get("av_lane", False))       # AV lane selection
+        self.dz_protect = bool(sc.get("dz_protect", False)) # dilemma-zone protection shield
+        self.ped_guard = float(sc.get("ped_guard", 0.0))    # pedestrian max-wait guard (s)
+        self.k_rlr = float(sc.get("rlr_mult", 1.0)) * C.P_RED_LIGHT_RUN
+        self.k_stop = float(sc.get("stop_conf_mult", 1.0)) * C.CONFLICT_PER_STOP
+        self.k_jay = float(sc.get("jay_conf_mult", 1.0)) * C.CONFLICT_PER_JAYWALK
         # hooks set by the multi-agent system
         self.av_policy = None      # callable(env, veh, i, options, dx, dy) -> heading
         self.av_learn = None       # callable(env, veh, t_exit, terminal)
@@ -364,6 +375,10 @@ class TrafficEnv:
         self.unfinished = []
         self.bus_trips = []
         self.ped_stats = dict(served=0, wait_sum=0.0, over30=0, jaywalks=0)
+        self.bus_loads = []        # load of every bus leaving every stop
+        self.pax_left = 0          # passengers left behind by a full bus
+        self.ext_stats = dict(glides=0, glide_s=0.0, bypass=0, dz_holds=0, ped_serves=0)
+        self.dz_held = [0.0] * N_INT
         self.ev_trips = []
         self.av_decisions = 0
         self.log = np.zeros((self.n_steps, N_INT, N_FIELDS), dtype=np.float32)
@@ -422,6 +437,7 @@ class TrafficEnv:
         ln = LINK_LEN[L]
         v.link = L
         v.t_enter = t
+        v.glide = 0.0
         v.t_arr = t + ln / speed
         v.ff += ln / C.FREE_SPEED
         v.dist += ln
@@ -458,6 +474,28 @@ class TrafficEnv:
         if occ > 0.20 or q > 6:
             return 1
         return 0
+
+    def _would_stop(self, L: int) -> bool:
+        """V2I check for the speed advisory: the light is red and the standing queue is short
+        enough to clear soon after green, so easing off can avoid a full stop."""
+        i, a = divmod(L, 4)
+        return PH_A[a] != self.phase[i] and len(self.queue[L]) <= LINK_LANES[L]
+
+    def _lane_bypass(self, q, down_i, cr, tc, it, ped_extra, lanes):
+        """Lane selection: the head vehicle waits for a full exit link; an AV within the
+        first 2 x lanes positions that pre-selected another lane may pass it."""
+        for k in range(1, min(len(q), 2 * lanes)):
+            v = q[k]
+            if v.vtype != C.VT_AV:
+                continue
+            h = v.next_h
+            Ld = down_i[h]
+            if Ld >= 0 and self.occ[Ld] >= LINK_STORAGE[Ld]:
+                continue
+            cost = tc[h] * TYPE_COST[v.vtype] + (ped_extra if it[h] else 0.0)
+            if cr >= cost:
+                return k
+        return None
 
     # ----------------------------------------------------------------------------------
     # Arrival at a stop line
@@ -515,6 +553,7 @@ class TrafficEnv:
         b.load -= alight
         board = min(self.pax_waiting[key], C.BUS_CAPACITY - b.load)
         self.pax_waiting[key] -= board
+        self.pax_left += self.pax_waiting[key] if b.load + board >= C.BUS_CAPACITY else 0
         b.load += board
         dwell = C.BUS_DOOR_S + max(C.BUS_BOARD_S * board, C.BUS_ALIGHT_S * alight)
         b.t_ready = v.t_arr + dwell
@@ -563,6 +602,8 @@ class TrafficEnv:
                     continue
                 b.tsp = action == 1
             self.last_dep_stop[(b.direction, i)] = b.t_ready
+            if b.t_ready >= C.WARMUP_S:
+                self.bus_loads.append(b.load)
             b.stop_idx += 1
             v.t_arr = b.t_ready
             v.next_h = v.path[v.pidx]
@@ -625,6 +666,23 @@ class TrafficEnv:
                     continue
             if el >= C.MAX_GREEN and executed[i] == 0:
                 executed[i], codes[i] = 1, 2
+            if self.ped_guard and executed[i] == 0 and codes[i] == 0:
+                wq = self.ped_wait[i][ph]            # pedestrians held by the current phase
+                if wq and self.t - wq[0] >= self.ped_guard:
+                    executed[i], codes[i] = 1, 8     # serve them before they give up and jaywalk
+                    self.ext_stats["ped_serves"] += 1
+                    continue
+            if self.dz_protect and executed[i] == 1 and codes[i] == 0 and el < C.MAX_GREEN \
+                    and self.dz_held[i] < DZ_HOLD_MAX:
+                n_dz = sum(self.approaching(i, a, C.DILEMMA_WINDOW)
+                           for a in range(4) if PH_A[a] == ph)
+                if n_dz > 0:                         # vehicles too close to stop safely
+                    executed[i], codes[i] = 0, 7
+                    self.dz_held[i] += C.DT
+                    self.ext_stats["dz_holds"] += 1
+                    continue
+            if executed[i] == 1 or actions[i] == 0:
+                self.dz_held[i] = 0.0
         return executed, codes
 
     @staticmethod
@@ -690,7 +748,7 @@ class TrafficEnv:
                     cross_q = sum(self.queue_len(i, x) for x in range(4)
                                   if PH_A[x] == phase[i])
                     p_conf = C.CONFLICT_PER_RLR * min(1.0, 0.4 + 0.06 * cross_q)
-                    conflicts[i] += n_dz * C.P_RED_LIGHT_RUN * p_conf * self.w_risk
+                    conflicts[i] += n_dz * self.k_rlr * p_conf * self.w_risk
 
         # ---------------- new demand into entry buffers, then into the network
         arr = self.arrivals
@@ -722,6 +780,25 @@ class TrafficEnv:
             mv = moving[L]
             if mv and mv[0].t_arr < t1:
                 while mv and mv[0].t_arr < t1:
+                    v = mv[0]
+                    if self.av_glosa and v.vtype == C.VT_AV and v.glide < GLIDE_MAX \
+                            and self._would_stop(L):
+                        mv.popleft()                 # ease off instead of braking to a stop
+                        g = min(C.DT, GLIDE_MAX - v.glide)
+                        v.t_arr += g
+                        v.glide += g
+                        v.delay += g                 # slower than free flow = delay
+                        em = EM[v.vtype]
+                        v.co2 += 0.3 * em[1] * g     # low-speed cruising, conservative
+                        self.ext_stats["glides"] += 1
+                        self.ext_stats["glide_s"] += g
+                        for k_, x_ in enumerate(mv):
+                            if x_.t_arr > v.t_arr:
+                                mv.insert(k_, v)
+                                break
+                        else:
+                            mv.append(v)
+                        continue
                     self._arrive(mv.popleft(), L)
             if self.moving_ev[L]:
                 still = []
@@ -835,11 +912,41 @@ class TrafficEnv:
                     if ped_extra and it[h]:
                         cost += ped_extra
                     if cr < cost:
-                        break
+                        k_ = self._lane_bypass(q, down_i, cr, tc, it, ped_extra, LINK_LANES[L]) \
+                            if (self.av_lane and it[h]) else None
+                        if k_ is None:
+                            break
+                        v = q[k_]                    # AV in the through lane passes a turner
+                        h = v.next_h
+                        cost = tc[h] * TYPE_COST[v.vtype] + (ped_extra if it[h] else 0.0)
+                        t_dep = max(t_green0 + used / rate, v.t_arr)
+                        cr -= cost
+                        used += cost
+                        del q[k_]
+                        self._finish_queue_wait(v, t_dep)
+                        self._depart(v, L, i, h, t_dep)
+                        deps[i] += 1
+                        self.ext_stats["bypass"] += 1
+                        continue
                     Ld = down_i[h]
                     if Ld >= 0 and occ[Ld] >= LINK_STORAGE[Ld]:
                         blocked[i] += 1
-                        break
+                        k_ = self._lane_bypass(q, down_i, cr, tc, it, ped_extra, LINK_LANES[L]) \
+                            if self.av_lane else None
+                        if k_ is None:
+                            break
+                        v = q[k_]                    # AV in another lane drives past
+                        h = v.next_h
+                        cost = tc[h] * TYPE_COST[v.vtype] + (ped_extra if it[h] else 0.0)
+                        t_dep = max(t_green0 + used / rate, v.t_arr)
+                        cr -= cost
+                        used += cost
+                        del q[k_]
+                        self._finish_queue_wait(v, t_dep)
+                        self._depart(v, L, i, h, t_dep)
+                        deps[i] += 1
+                        self.ext_stats["bypass"] += 1
+                        continue
                     t_dep = t_green0 + used / rate
                     if v.t_arr > t_dep:
                         t_dep = v.t_arr
@@ -906,7 +1013,7 @@ class TrafficEnv:
                 if n1 or n2:
                     exp_j = n1 * p1 + n2 * p2
                     flow = min(1.0, deps[i] / 6.0)
-                    conflicts[i] += exp_j * C.CONFLICT_PER_JAYWALK * (0.3 + 0.7 * flow) \
+                    conflicts[i] += exp_j * self.k_jay * (0.3 + 0.7 * flow) \
                         * self.w_risk
                     k = int(self.rng_noise.binomial(n2, p2)) + \
                         int(self.rng_noise.binomial(n1, p1))
@@ -918,7 +1025,7 @@ class TrafficEnv:
                         stats["wait_sum"] += t1 - ta
                         jay[i] += 1
         for i in range(N_INT):
-            conflicts[i] += stops_step[i] * C.CONFLICT_PER_STOP * self.w_risk
+            conflicts[i] += stops_step[i] * self.k_stop * self.w_risk
 
         # ---------------- emergency vehicles still in the network (for the shield)
         self.active_ev = [(v, v.link) for (v, L) in self.active_ev if v.link >= 0]
@@ -1101,4 +1208,11 @@ class TrafficEnv:
             blocked=float(log[:, :, F["blocked"]].sum()),
         )
         out["safety_score"] = 100.0 / (1.0 + out["conflicts_per_1000"] / 10.0)
+        bl = np.array(self.bus_loads, dtype=float)
+        out["bus_load_mean"] = float(bl.mean()) if len(bl) else 0.0
+        out["bus_load_cv"] = float(bl.std() / bl.mean()) if len(bl) and bl.mean() > 0 else 0.0
+        out["bus_load_p95_pct"] = float(100 * np.percentile(bl, 95) / C.BUS_CAPACITY) \
+            if len(bl) else 0.0
+        out["pax_left_behind"] = int(self.pax_left)
+        out.update({f"ext_{k}": v for k, v in self.ext_stats.items()})
         return out

@@ -710,3 +710,53 @@ def spark(values, color="#22d3ee", height=70):
     fig.update_xaxes(visible=False)
     fig.update_yaxes(visible=False)
     return fig
+
+
+# ======================================================================================
+# Research extensions (extensions.py)
+# ======================================================================================
+EXT_COLORS = ["#7d8aa3", "#22d3ee", "#a78bfa", "#3d8bff", "#21c98b", "#f5b301", "#ff7a45"]
+
+
+def grouped_bars(df, x, group, metric, label, order_x=None, order_g=None, colors=None,
+                 height=340, title=None, fmt=".1f", x_labels=None):
+    g = df.groupby([x, group])[metric].agg(["mean", "std"]).reset_index()
+    order_x = order_x or list(dict.fromkeys(g[x]))
+    order_g = order_g or list(dict.fromkeys(g[group]))
+    fig = go.Figure()
+    for k, gv in enumerate(order_g):
+        sub = g[g[group] == gv].set_index(x).reindex(order_x)
+        col = (colors or {}).get(gv, EXT_COLORS[k % len(EXT_COLORS)])
+        fig.add_trace(go.Bar(
+            name=gv, x=[(x_labels or {}).get(v, v) for v in order_x], y=sub["mean"],
+            marker=dict(color=col, line=dict(color=PANEL, width=1)),
+            error_y=dict(type="data", array=sub["std"].fillna(0), color=LINE, thickness=1,
+                         width=2),
+            hovertemplate=f"%{{x}}<br>{gv}: %{{y:{fmt}}} {label}<extra></extra>"))
+    extra = 21 * len(order_g)                      # room for the legend under the title
+    base_layout(fig, height=height + extra, title=title)
+    fig.update_layout(legend=dict(orientation="h", yanchor="bottom", y=1.01, x=0,
+                                  xanchor="left", font=dict(size=12)),
+                      margin=dict(l=10, r=10, t=44 + extra, b=40))
+    fig.update_xaxes(tickangle=-25)
+    fig.update_yaxes(title_text=label)
+    return fig
+
+
+def frontier(df, x, y, group, xlab, ylab, colors=None, height=380, title=None):
+    """Mean point per variant (one panel), lower-left is better."""
+    g = df.groupby(group)[[x, y]].mean().reset_index()
+    fig = go.Figure()
+    for k, r in g.iterrows():
+        col = (colors or {}).get(r[group], EXT_COLORS[k % len(EXT_COLORS)])
+        fig.add_trace(go.Scatter(x=[r[x]], y=[r[y]], mode="markers+text", name=r[group],
+                                 text=[str(r[group]).replace("Q-learning + ", "")],
+                                 textposition=["top center", "bottom center"][k % 2],
+                                 textfont=dict(size=12, color=INK2),
+                                 marker=dict(size=16, color=col, line=dict(color=PANEL, width=2)),
+                                 hovertemplate=f"{r[group]}<br>{xlab}: %{{x:.1f}}<br>"
+                                               f"{ylab}: %{{y:.2f}}<extra></extra>"))
+    base_layout(fig, height=height, title=title, legend=False)
+    fig.update_xaxes(title_text=xlab, showgrid=True, gridcolor=GRID)
+    fig.update_yaxes(title_text=ylab)
+    return fig
