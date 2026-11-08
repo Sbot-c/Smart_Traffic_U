@@ -16,6 +16,7 @@ families are compared; a six-tab **Streamlit dashboard** shows everything.
 | Colab code link | upload `Smart_Traffic_MARL_DecisionNetwork.ipynb` to Google Drive, open with Colab, share *Anyone with the link* |
 | Dashboard | `app.py` (run locally or deploy, below) |
 | PPT | `presentation/Smart_Traffic_Group2.pptx` (16 slides with speaker notes) |
+| Project report | `report/Smart_Traffic_Project_Report.pdf` (3 pages, 6 figures) |
 | GenAI prompts | `GenAI_disclosure_and_prompts.md` |
 
 ## Headline result (read this before quoting numbers)
