@@ -11,7 +11,7 @@ families are compared; a six-tab **Streamlit dashboard** shows everything.
 
 | Deliverable | Where |
 |---|---|
-| Requirement specification (5 pages) | Claude doc *Requirement Specification – Smart City Traffic Management (Group 2)*, <https://claude.ai/artifact/NcNxM9NPofCuKRQMF5Km59> — export it as **PDF, A4** |
+| Requirement specification (5 pages) | `Requirement_Specification.pdf` (v2.0, includes the corrections and research extensions) |
 | Data CSV file | `data/smart_traffic_simulation_log.csv` (main file; the other CSVs support it) |
 | Colab code link | upload `Smart_Traffic_MARL_DecisionNetwork.ipynb` to Google Drive, open with Colab, share *Anyone with the link* |
 | Dashboard | `app.py` (run locally or deploy, below) |
