@@ -21,7 +21,7 @@ TEMPLATE = r"""
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@500;700&display=swap');
   :root { --bg:#070b14; --panel:rgba(18,26,43,0.85); --ink:#e8eef8; --muted:#8693a8;
-          --line:rgba(148,163,184,0.16); --cyan:#22d3ee; --chrome:262px; }
+          --line:rgba(148,163,184,0.16); --cyan:#22d3ee; --chrome:282px; }
   html, body { height:100%; }
   body { margin:0; padding:0 4px; box-sizing:border-box; overflow:hidden;
          font-family: Inter, -apple-system, Segoe UI, Roboto, sans-serif; background:transparent;
@@ -93,11 +93,12 @@ TEMPLATE = r"""
 <div class="wrap" id="wrap"></div>
 <div class="legend">
   <span>Road glow = queue per lane <span class="grad"></span></span>
-  <span><span class="sw" style="background:#dbe4f3"></span>Car</span>
+  <span><span class="sw" style="background:linear-gradient(90deg,#eef2f7,#c0566a,#5b7fbf,#cdb68c)"></span>Car</span>
   <span><span class="sw" style="background:#22d3ee"></span>Autonomous vehicle</span>
   <span><span class="sw" style="background:#d39a5c"></span>Truck</span>
   <span><span class="sw" style="background:#f5b301"></span>Bus</span>
-  <span><span class="sw" style="background:#ff4d5e"></span>Emergency</span>
+  <span><span class="sw" style="background:#f4f6fa;box-shadow:inset 0 -3px 0 #ff4d5e"></span>Ambulance</span>
+  <span><span class="sw" style="background:#ff3b4f;width:6px"></span>Brake lights = queued</span>
   <span><span class="sw" style="background:#a78bfa"></span>Pedestrians</span>
   <span><span class="sw" style="background:#34d399"></span><span class="sw" style="background:#fbbf24"></span><span class="sw" style="background:#ff4d5e"></span>Signal</span>
 </div>
@@ -108,7 +109,13 @@ const PCOL = {"Fixed-time":"#f5b301","Actuated":"#21c98b","Q-learning":"#3d8bff"
 const HV = [[0,-1],[1,0],[0,1],[-1,0]];
 const COLORS = ["#dbe4f3", "#22d3ee", "#d39a5c", "#f5b301", "#ff4d5e"];
 const SIZE = 640;                 // canvas pixels (square)
-const LW = 4.2;                   // lateral pixels per lane (exaggerated)
+const LW = 6.0;                   // lateral pixels per lane (exaggerated so vehicles read as vehicles)
+const DPR = 2;                    // backing-store scale: crisp vehicle detail on any screen
+// vehicle sprites (canvas px): car, AV, truck, bus, emergency
+const VLEN = [9.0, 9.0, 15.0, 17.0, 11.0], VWID = [4.3, 4.3, 5.0, 5.2, 4.7];
+const GAP = 1.6;                  // bumper-to-bumper gap in a queue
+const CAR_COLS = ["#eef2f7", "#a8b3c4", "#6b7a90", "#c0566a", "#5b7fbf", "#cdb68c", "#6fae8a",
+                  "#e8e1d0", "#8c5a9e", "#3f4a5c"];
 // per vehicle type (car, AV, truck, bus, emergency): config.EMISSION  (g CO2 per km / per s idle / per stop)
 const EM_KM = [249, 237, 900, 1100, 400], EM_IDLE = [0.74, 0.74, 2.8, 2.8, 1.2],
       EM_STOP = [41, 25, 250, 290, 60];
@@ -179,8 +186,8 @@ function prep(P) {
 
 function backdrop(S) {           // static city layer, drawn once
   const {B, E, s} = S;
-  const cv = document.createElement("canvas"); cv.width = SIZE; cv.height = SIZE;
-  const ctx = cv.getContext("2d");
+  const cv = document.createElement("canvas"); cv.width = SIZE * DPR; cv.height = SIZE * DPR;
+  const ctx = cv.getContext("2d"); ctx.scale(DPR, DPR);
   const g0 = ctx.createRadialGradient(SIZE / 2, SIZE / 2, 40, SIZE / 2, SIZE / 2, SIZE * 0.75);
   g0.addColorStop(0, "#0b1324"); g0.addColorStop(1, "#04070d");
   ctx.fillStyle = g0; ctx.fillRect(0, 0, SIZE, SIZE);
@@ -302,7 +309,8 @@ function draw(S, canvas) {
   const ctx = canvas.getContext("2d");
   const P = S.P;
   const step = Math.min(P.phase.length - 1, Math.max(0, Math.floor(t / P.dt)));
-  ctx.drawImage(S.bg, 0, 0);
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  ctx.drawImage(S.bg, 0, 0, SIZE, SIZE);
   let nQueued = 0;
   const lists = [];
   ctx.globalCompositeOperation = "lighter";
@@ -325,23 +333,43 @@ function draw(S, canvas) {
   ctx.globalCompositeOperation = "source-over";
   for (let L = 0; L < 36; L++) {
     const G = S.geom[L], {queued, moving} = lists[L];
-    const qs = 7.5 * S.s * 1.0 + 0.6;
     const nl = G.lanes;
+    // queued vehicles: fill lanes in turn, bumper to bumper from the stop line
+    const lanes = Array.from({length: nl}, () => []);
     let rank = 0;
     for (const g of queued) {
-      let lane, row, along;
-      if (g.vt === 4) { lane = -0.5; along = 3; }
-      else { lane = rank % nl; row = Math.floor(rank / nl); along = row * qs + qs / 2 + 1; rank++; }
-      drawVeh(ctx, G, lane, along, g, nl, false);
+      if (g.vt === 4) { drawVeh(ctx, G, -0.5, 2 + VLEN[4] / 2, g, false); continue; }
+      lanes[rank % nl].push(g); rank++;
     }
-    const tailRows = Math.ceil(rank / nl);
-    for (const g of moving) {
+    const tails = new Array(nl).fill(1);
+    for (let ln = 0; ln < nl; ln++) {
+      let need = 0;
+      for (const g of lanes[ln]) need += VLEN[g.vt] + GAP;
+      const f = need > G.len - 4 ? Math.max(0.55, (G.len - 4) / need) : 1;   // jam: squeeze
+      let off = 1;
+      for (const g of lanes[ln]) {
+        const half = VLEN[g.vt] / 2;
+        const along = off + half * f;
+        off += (VLEN[g.vt] + GAP) * f;
+        if (along + half > G.len) continue;          // queue spills past the upstream junction
+        drawVeh(ctx, G, ln, along, g, false);
+      }
+      tails[ln] = off;
+    }
+    // moving vehicles: follow the vehicle ahead in the same lane, never overlap the queue
+    const mv = moving.map(g => {
       const p = (t - g.te) / Math.max(0.1, g.ta - g.te);
-      let along = (1 - p) * G.len;
-      const lane = g.vt === 4 ? -0.5 : (g.id % nl);
-      const tail = tailRows * qs + qs / 2 + 1;
-      if (g.vt !== 4 && along < tail) along = tail + (g.id % 3) * 0.8;
-      drawVeh(ctx, G, lane, along, g, nl, true);
+      return {g, along: (1 - p) * G.len, lane: g.vt === 4 ? -0.5 : (g.id % nl)};
+    }).sort((u, v) => u.along - v.along);
+    const front = tails.slice();
+    for (const m of mv) {
+      const half = VLEN[m.g.vt] / 2;
+      if (m.g.vt !== 4) {
+        m.along = Math.max(m.along, front[m.lane] + half);
+        front[m.lane] = m.along + half + GAP;
+        if (m.along - half > G.len) continue;
+      }
+      drawVeh(ctx, G, m.lane, m.along, m.g, true);
     }
   }
   // signals (glowing heads at each stop line)
@@ -395,28 +423,72 @@ function draw(S, canvas) {
   return {q: nQueued, delay: c.delay, co2: c.co2, ped: P.ped[step].reduce((a, b) => a + b, 0), ev: c.ev};
 }
 
-function drawVeh(ctx, G, lane, along, g, nl, moving) {
+function drawVeh(ctx, G, lane, along, g, moving) {
   const latOff = (lane + 0.5) * LW;
   const x = G.stop[0] - G.d[0] * along + G.right[0] * latOff;
   const y = G.stop[1] - G.d[1] * along + G.right[1] * latOff;
-  const big = (g.vt === 2 || g.vt === 3);
-  const lenPx = big ? 10 : 6.2, wPx = big ? 3.8 : 3.2;
-  const horiz = G.d[1] === 0;
-  const w = horiz ? lenPx : wPx, h = horiz ? wPx : lenPx;
-  if (g.vt === 4) {
-    const on = Math.floor(t * 3) % 2 === 0;
-    ctx.shadowColor = on ? "#ff4d5e" : "#3d8bff"; ctx.shadowBlur = 14;
-    ctx.fillStyle = on ? "#ff4d5e" : "#3d8bff";
-    ctx.fillRect(x - w / 2, y - h / 2, w, h); ctx.shadowBlur = 0;
-    return;
+  const vt = g.vt, L = VLEN[vt], W = VWID[vt], hl = L / 2, hw = W / 2;
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(Math.atan2(G.d[1], G.d[0]));           // +x = direction of travel
+  // soft shadow
+  ctx.fillStyle = "rgba(0,0,0,0.45)";
+  ctx.beginPath(); ctx.roundRect(-hl + 0.6, -hw + 0.8, L, W, 1.6); ctx.fill();
+  if (moving && vt !== 4) {                         // headlight beam on the road ahead
+    ctx.fillStyle = "rgba(255,236,190,0.10)";
+    ctx.beginPath(); ctx.moveTo(hl, -hw + 0.6); ctx.lineTo(hl + 9, -hw - 1.2);
+    ctx.lineTo(hl + 9, hw + 1.2); ctx.lineTo(hl, hw - 0.6); ctx.closePath(); ctx.fill();
   }
-  ctx.fillStyle = COLORS[g.vt];
-  ctx.fillRect(x - w / 2, y - h / 2, w, h);
-  if (moving) {                    // headlights in the direction of travel
-    ctx.fillStyle = "rgba(255,244,214,0.9)";
-    const fx = x + G.d[0] * (lenPx / 2), fy = y + G.d[1] * (lenPx / 2);
-    ctx.fillRect(fx - 0.9, fy - 0.9, 1.8, 1.8);
+  const glass = "rgba(9,15,28,0.88)";
+  if (vt === 0 || vt === 1) {                       // car / autonomous car
+    ctx.fillStyle = vt === 1 ? "#22d3ee" : CAR_COLS[g.id % CAR_COLS.length];
+    ctx.beginPath(); ctx.roundRect(-hl, -hw, L, W, 1.8); ctx.fill();
+    ctx.fillStyle = glass;
+    ctx.beginPath(); ctx.roundRect(hl - 3.6, -hw + 0.6, 1.7, W - 1.2, 0.6); ctx.fill();   // windscreen
+    ctx.beginPath(); ctx.roundRect(-hl + 1.0, -hw + 0.7, 1.2, W - 1.4, 0.5); ctx.fill();  // rear window
+    ctx.fillStyle = "rgba(255,255,255,0.16)";                                             // roof
+    ctx.fillRect(-hl + 2.4, -hw + 0.8, L - 6.2, W - 1.6);
+    if (vt === 1) {                                 // lidar dome
+      ctx.fillStyle = "#ffffff"; ctx.beginPath(); ctx.arc(-0.4, 0, 0.95, 0, 6.283); ctx.fill();
+    }
+  } else if (vt === 2) {                            // truck: cab + trailer
+    ctx.fillStyle = "#c9cfd9";
+    ctx.beginPath(); ctx.roundRect(-hl, -hw, L - 4.6, W, 1.0); ctx.fill();
+    ctx.strokeStyle = "rgba(60,70,90,0.55)"; ctx.lineWidth = 0.5;
+    for (let k = -hl + 2; k < hl - 5; k += 2) { ctx.beginPath(); ctx.moveTo(k, -hw + 0.4); ctx.lineTo(k, hw - 0.4); ctx.stroke(); }
+    ctx.fillStyle = "#e0a25e";
+    ctx.beginPath(); ctx.roundRect(hl - 4.0, -hw + 0.2, 4.0, W - 0.4, 1.2); ctx.fill();
+    ctx.fillStyle = glass; ctx.fillRect(hl - 1.6, -hw + 0.8, 1.0, W - 1.6);
+  } else if (vt === 3) {                            // bus
+    ctx.fillStyle = "#f5b301";
+    ctx.beginPath(); ctx.roundRect(-hl, -hw, L, W, 1.6); ctx.fill();
+    ctx.fillStyle = glass;
+    for (let k = -hl + 1.4; k < hl - 3.2; k += 2.3) {           // side windows
+      ctx.fillRect(k, -hw + 0.35, 1.6, 0.9); ctx.fillRect(k, hw - 1.25, 1.6, 0.9);
+    }
+    ctx.fillRect(hl - 1.7, -hw + 0.7, 1.2, W - 1.4);            // windscreen
+    ctx.fillStyle = "rgba(255,255,255,0.22)"; ctx.fillRect(-hl + 1.2, -0.5, L - 3.6, 1.0);   // roof stripe
+  } else {                                          // ambulance
+    ctx.fillStyle = "#f4f6fa";
+    ctx.beginPath(); ctx.roundRect(-hl, -hw, L, W, 1.4); ctx.fill();
+    ctx.fillStyle = "#ff4d5e"; ctx.fillRect(-hl, -0.55, L - 3.2, 1.1);
+    ctx.fillStyle = glass; ctx.fillRect(hl - 2.2, -hw + 0.6, 1.3, W - 1.2);
+    const on = Math.floor(t * 4) % 2 === 0;
+    ctx.shadowBlur = 12;
+    ctx.shadowColor = on ? "#ff4d5e" : "#3d8bff"; ctx.fillStyle = on ? "#ff4d5e" : "#3d8bff";
+    ctx.fillRect(-0.6, -hw + 0.3, 1.6, hw - 0.3);
+    ctx.shadowColor = on ? "#3d8bff" : "#ff4d5e"; ctx.fillStyle = on ? "#7fb0ff" : "#ff9aa5";
+    ctx.fillRect(-0.6, 0, 1.6, hw - 0.3);
+    ctx.shadowBlur = 0;
   }
+  if (moving) {                                     // headlights
+    ctx.fillStyle = "#fff6d6";
+    ctx.fillRect(hl - 0.7, -hw + 0.4, 0.8, 1.0); ctx.fillRect(hl - 0.7, hw - 1.4, 0.8, 1.0);
+  } else {                                          // brake lights while queued
+    ctx.fillStyle = "#ff3b4f";
+    ctx.fillRect(-hl - 0.1, -hw + 0.4, 0.8, 1.1); ctx.fillRect(-hl - 0.1, hw - 1.5, 0.8, 1.1);
+  }
+  ctx.restore();
 }
 
 function drawSpark(v) {
@@ -461,7 +533,7 @@ const views = states.map((S, k) => {
   sb.appendChild(sp);
   const sl = document.createElement("div"); sl.className = "sparklbl"; sl.textContent = "Cars queued over time";
   sb.appendChild(sl);
-  const cv = document.createElement("canvas"); cv.className = "city"; cv.width = SIZE; cv.height = SIZE;
+  const cv = document.createElement("canvas"); cv.className = "city"; cv.width = SIZE * DPR; cv.height = SIZE * DPR;
   cell.appendChild(head); cell.appendChild(kp); cell.appendChild(sb); cell.appendChild(cv); wrap.appendChild(cell);
   return {S, cv, tiles, spark: sp, name: NAMES[k], badge: head.querySelector(".badge"), yMax: yMaxAll};
 });

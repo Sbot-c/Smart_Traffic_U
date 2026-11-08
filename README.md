@@ -45,7 +45,9 @@ The four dashboard "policies" are **packages**: *Actuated* = actuated signals + 
 app.py                  Streamlit dashboard (6 brief tabs + Simulation Lab), dark command-centre theme
 viz.py                  Plotly figures
 sim_view.py             animated night-mode canvas replay (Play / Pause / speed / scrubber, side-by-side,
-                        queue sparkline, emergency-preemption badge)
+                        queue sparkline, emergency-preemption badge); top-down car, autonomous-car, truck,
+                        bus and ambulance sprites with headlights / brake lights (sizes exaggerated for
+                        visibility, queues squeeze when they exceed the link)
 lab.py                  Simulation Lab: conditions -> simulator overrides, live runs, replays, sweeps,
                         correlated-condition rules, decision-network evidence mapping
 config.py               every parameter, scenario definition and source
