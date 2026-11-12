@@ -252,6 +252,16 @@ class TrafficEnv:
         self.k_rlr = float(sc.get("rlr_mult", 1.0)) * C.P_RED_LIGHT_RUN
         self.k_stop = float(sc.get("stop_conf_mult", 1.0)) * C.CONFLICT_PER_STOP
         self.k_jay = float(sc.get("jay_conf_mult", 1.0)) * C.CONFLICT_PER_JAYWALK
+        # sensing uncertainty (off by default): what the signal controllers *see* of the
+        # queues. sense_bias scales every count (e.g. 1.6 = phone-based counting that
+        # assumes one phone per person when people carry more; 0.6 = 40 % of vehicles
+        # missed); sense_noise adds Poisson counting noise. The physics always uses the
+        # true queues; only the controllers' observation changes. A separate random stream
+        # keeps the arrivals identical (common random numbers).
+        self.sense_bias = float(sc.get("sense_bias", 1.0))
+        self.sense_noise = bool(sc.get("sense_noise", False))
+        self.sense_rng = (np.random.default_rng(10_000_019 + int(seed))
+                          if (self.sense_bias != 1.0 or self.sense_noise) else None)
         # hooks set by the multi-agent system
         self.av_policy = None      # callable(env, veh, i, options, dx, dy) -> heading
         self.av_learn = None       # callable(env, veh, t_exit, terminal)
@@ -416,6 +426,14 @@ class TrafficEnv:
             else:
                 break
         return n
+
+    def sensed(self, n: int) -> int:
+        """A vehicle count as the detectors report it (identity unless sensing
+        uncertainty is switched on)."""
+        if self.sense_rng is None:
+            return n
+        m = n * self.sense_bias
+        return int(self.sense_rng.poisson(m)) if self.sense_noise else int(round(m))
 
     def queue_len(self, i: int, a: int) -> int:
         L = i * 4 + a
@@ -1136,7 +1154,7 @@ class TrafficEnv:
 
         Returns (phase, green elapsed, queue on green, queue on red, vehicles arriving on
         green within 6 s, pedestrian flag, spillback flag, per-approach queues)."""
-        q = [self.queue_len(i, a) for a in range(4)]
+        q = [self.sensed(self.queue_len(i, a)) for a in range(4)]
         ph = self.phase[i]
         q_ns, q_ew = q[0] + q[2], q[1] + q[3]
         qg, qr = (q_ns, q_ew) if ph == 0 else (q_ew, q_ns)
@@ -1149,6 +1167,7 @@ class TrafficEnv:
                         arr_g += 1
                     else:
                         break
+        arr_g = self.sensed(arr_g)
         # pedestrians waiting > 20 s in the group that is red for them now (group == phase)
         wq = self.ped_wait[i][ph]
         ped_flag = 1 if (wq and self.t - wq[0] > 20.0) else 0

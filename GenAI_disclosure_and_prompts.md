@@ -5,41 +5,107 @@ The unit's group-project brief (Exploration & Exploitation deck, slide 37) says:
 differentiate your own vs GenAI content."* This file is the separate prompt record.
 
 **Tool:** Claude (Anthropic), used through the Claude app with access to the RDMU course folder.
-**Date:** 24 October 2026.
 
-## Prompts given to the AI (verbatim)
+**How the GenAI content is marked ("encircled")**
 
-1. > There is a folder in this called group project I need you to go through it and help me build it
-   > first read it, understand it - there is a more content in the RDMU folder attached to get better context
+* **Presentation** (`presentation/Smart_Traffic_Group2.pptx`): every slide with AI-generated
+  content has an **amber dashed frame** around that content and the tag *"GenAI-generated
+  (Claude) · prompts in log"*. Slide 16 explains the marking.
+* **Requirement specification** (`Requirement_Specification.pdf`, v2.1): every AI-drafted
+  section sits inside an **amber dashed frame** with a GenAI tag; the team table is the group's.
+* **Code, notebook, data, dashboard**: AI-generated as listed in the table at the end.
 
-2. Answers to the AI's two scoping questions:
-   - *Which parts do you want me to build?* → **Code + data, Dashboard, Requirement spec** (the presentation deck was left to the group).
-   - *What should the dashboard run on?* → **Streamlit app**.
+---
 
-3. > continue
+## Prompt log (in date order)
 
-4. Dashboard upgrade (8 Nov 2026):
-   > See if there are any caveats in the dashboard, fix them, add additional functionality if possible which is around the problem statement for the project. Also make the dashboard look amazing, it should look as if it's made to attract attention, the simulators and all, the live traffic and everything it shouldn't look like a demo project. Moreover, for the simulators, and what-if if there is any correlation possible in between the sliders add them too accordingly.
+Prompts marked **verbatim** are copied exactly. Where a row says **paste the verbatim prompt**,
+the session's exact wording is not in this folder: copy it from that Claude chat (the AI cannot
+see earlier chats) before submitting, so the log is complete.
 
-5. Research extensions (8 Nov 2026):
-   > Can we fill these 5 gaps instead of making it a weakness for our project? Also for the final dashboard after making changes, I would need PPT accordingly
+| # | Date | Purpose | Prompt | Output |
+|---|---|---|---|---|
+| P1 | 24 Oct 2026 | Build the project | verbatim, below | simulator, agents, decision network, experiments, data, notebook, first dashboard, spec draft |
+| P2 | 24 Oct 2026 | Answers to the AI's scoping questions | verbatim, below | scope: code + data, dashboard, spec; Streamlit |
+| P3 | 24 Oct 2026 | Continue | verbatim, below | rest of the 24 Oct build |
+| P4 | 7–8 Nov 2026 | Requirement specification as a Claude doc (if that version was used) | **paste the verbatim prompt** | Claude doc "Requirement Specification – Smart City Traffic Management (Group 2)" |
+| P5 | Nov 2026 | Pedestrian trade-off and value of time | **paste the verbatim prompt** | `ped_tradeoff.py`, `value_of_time.py`, `make_figures.py`, `figures/`, two KPI-view sections |
+| P6 | Nov 2026 | Corrections wording for the spec and slides | **paste the verbatim prompt** | `CORRECTIONS_FOR_SPEC_AND_SLIDES.md` |
+| P7 | 8 Nov 2026 | Dashboard upgrade | verbatim, below | command-centre theme, Simulation Lab, linked sliders |
+| P8 | 8 Nov 2026 | Research extensions and the deck | verbatim, below | `extensions.py`, `data/ext_*.csv`, Research Extensions view, 16-slide deck |
+| P9 | 8 Nov 2026 | Project report and spec v2.0 PDF | **paste the verbatim prompt** | `report/Smart_Traffic_Project_Report.pdf`, `Requirement_Specification.pdf` v2.0 |
+| P10 | 10 Nov 2026 | Submission review (Claude doc "Group 2 Submission Review – Smart City Traffic") | **paste the verbatim prompt** | review document listing eight gaps |
+| P11 | 12 Nov 2026 | Close the review's gaps | verbatim, below | the changes listed under P11 |
+| P12 | 12 Nov 2026 | Names and push | verbatim, below | names added; pushed to GitHub |
 
-## What the AI produced from those prompts
+### P1 (24 Oct, verbatim)
+> There is a folder in this called group project I need you to go through it and help me build it
+> first read it, understand it - there is a more content in the RDMU folder attached to get better context
+
+### P2 (24 Oct, answers to the AI's two scoping questions)
+- *Which parts do you want me to build?* → **Code + data, Dashboard, Requirement spec** (the presentation deck was left to the group at that point).
+- *What should the dashboard run on?* → **Streamlit app**.
+
+### P3 (24 Oct, verbatim)
+> continue
+
+### P7 (8 Nov, verbatim)
+> See if there are any caveats in the dashboard, fix them, add additional functionality if possible which is around the problem statement for the project. Also make the dashboard look amazing, it should look as if it's made to attract attention, the simulators and all, the live traffic and everything it shouldn't look like a demo project. Moreover, for the simulators, and what-if if there is any correlation possible in between the sliders add them too accordingly.
+
+### P8 (8 Nov, verbatim)
+> Can we fill these 5 gaps instead of making it a weakness for our project? Also for the final dashboard after making changes, I would need PPT accordingly
+
+### P11 (12 Nov, verbatim; attached: `smart_traffic_final.zip` and `Group_2_Submission_Review___Smart_City_Traffic.pdf`)
+> Read the whole thing check which gaps are needed to fill then provide the final zip with everything covered.
+
+What P11 changed:
+- **Colab link** (open to anyone, opens the notebook straight from the public GitHub repository):
+  https://colab.research.google.com/github/Sbot-c/Smart_Traffic_U/blob/main/Smart_Traffic_MARL_DecisionNetwork.ipynb
+- **Deck**: hosted dashboard and Colab links on the last slide (no "streamlit run"), wake-button
+  note; team-and-roles slide and a lead per part on slide 2; GenAI frames
+  and a GenAI slide; "LIVE" → "LIVE SIMULATION"; 280 + 80 episodes (not 360); both
+  decision-network counts explained; reference article cited; new uncertainty slide; Simulation
+  Lab and pedestrian guard moved to backup; value of time and AHP/TOPSIS out of the main talk;
+  fresh City Overview screenshot.
+- **Sensing uncertainty** (the professor's phones-per-person point): `sensing.py`,
+  `data/ext_sensing*.csv`, a sensing switch in `traffic_env.py` (off by default; all published
+  results unchanged, checked), Simulation Lab controls, a sixth study in Research Extensions,
+  notebook section 6b (executed).
+- **Dashboard**: "Live simulation · replay of simulated data" header; KPI tiles no longer cut
+  off in a ~1,100 px window; project links in the sidebar; 280 + 80 wording; Policy Comparison
+  headline aligned with the tuned-baseline result.
+- **Specification v2.1** rebuilt under five headings (problem and requirements; data and data
+  sources; algorithms; required libraries; dashboard wireframe), with the reference article.
+- **UI wireframe** redrawn for the eight views (`docs/ui_wireframe.html`, `docs/dashboard_ui_diagram.png`).
+- **Notebook** findings brought in line with the deck; links added.
+
+---
+
+## What the AI produced
 
 | Deliverable | Files | Generated by AI? |
 |---|---|---|
-| Simulator, agents (Q-learning / SARSA), baselines, decision network, experiment pipeline | `config.py`, `traffic_env.py`, `agents.py`, `decision_network.py`, `experiments.py`, `run_experiments.py`, `robustness.py` | Yes — all code |
-| Colab notebook | `Smart_Traffic_MARL_DecisionNetwork.ipynb` (built by `build_notebook.py`) | Yes — code and explanatory text |
+| Simulator, agents (Q-learning / SARSA), baselines, decision network, experiment pipeline | `config.py`, `traffic_env.py`, `agents.py`, `decision_network.py`, `experiments.py`, `run_experiments.py`, `robustness.py`, `refresh_analysis.py`, `course_methods.py` | Yes — all code |
+| Research extensions and sensing study | `extensions.py`, `sensing.py`, `ped_tradeoff.py`, `value_of_time.py`, `data/ext_*.csv` | Yes — code and the generated data |
+| Colab notebook | `Smart_Traffic_MARL_DecisionNetwork.ipynb` (built by `build_notebook.py`, updated 12 Nov) | Yes — code and explanatory text |
 | Data CSV files | `data/*.csv` | Generated by running the AI-written simulator |
-| Research extensions | `extensions.py`, `data/ext_*.csv`, extension switches in `traffic_env.py` | Yes — code and the generated data |
-| Streamlit dashboard | `app.py`, `viz.py`, `sim_view.py`, `lab.py`, `.streamlit/config.toml` | Yes — all code (dark command-centre redesign, Simulation Lab and linked sliders added in the 8 Nov upgrade) |
-| Requirement specification (5 pages) and UI diagram | Claude doc "Requirement Specification – Smart City Traffic Management (Group 2)" (https://claude.ai/artifact/NcNxM9NPofCuKRQMF5Km59); `docs/dashboard_ui_diagram.png` | Yes — first draft |
+| Streamlit dashboard | `app.py`, `viz.py`, `sim_view.py`, `lab.py`, `.streamlit/config.toml` | Yes — all code |
+| Requirement specification v2.1 and UI wireframe | `Requirement_Specification.pdf`, `docs/spec_source/`, `docs/ui_wireframe.html`, `docs/dashboard_ui_diagram.png` | Yes — drafted by AI (framed in amber) |
+| Presentation | `presentation/Smart_Traffic_Group2.pptx` | Yes — drafted by AI (framed in amber); team names from the group |
+| Project report | `report/Smart_Traffic_Project_Report.pdf` | Yes — drafted by AI |
 
 ## What the group should do before submitting
 
-- Read and edit the specification and notebook text in your own words where you can, then
-  **circle or highlight the passages that remain AI-generated**, as the brief requires.
-- Be ready to explain every modelling choice marked **ASSUMPTION** in `config.py`. These are
-  modelling judgements, not facts from a source.
-- Add the group members' names and individual contributions; the AI did not write the
-  presentation.
+- Check that each person's responsibilities on slide 3 and in the spec's team table match
+  what they actually did (team: Siddal, Shashaank, Sparsh, Aradhana, Shirley).
+- Complete the rows above marked **paste the verbatim prompt**.
+- On slide 16, replace the amber line with what the group wrote or rewrote itself, and remove
+  the amber frame from any slide the group rewrote in its own words.
+- Be ready to explain every modelling choice marked **ASSUMPTION** in `config.py`.
+
+### P12 (12 Nov, verbatim)
+> You can push it, I have linked the github repo anyways.
+> Names:
+> 1. Siddal 2. Shashaank 3. Sparsh 4. Aradhana 5. Shirley
+
+What P12 changed: team names on slides 1-3 and in the spec; this folder pushed to the GitHub repository (live app and Colab link updated).

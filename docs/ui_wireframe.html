@@ -4,7 +4,7 @@
   :root { --bg:#fcfcfb; --panel:#ffffff; --line:#d9d7cf; --ink:#0b0b0b; --ink2:#52514e; --muted:#8a887f;
           --blue:#2a78d6; --blue-l:#e6f0fc; --orange:#eb6834; --aqua:#1baf7a; --yellow:#eda100; }
   * { box-sizing:border-box; }
-  body { margin:0; padding:24px; background:var(--bg); font-family: Inter, -apple-system, "Segoe UI", Roboto, sans-serif; color:var(--ink); width:1600px; }
+  body { margin:0; padding:24px; background:var(--bg); font-family: Inter, -apple-system, "Segoe UI", Roboto, sans-serif; color:var(--ink); width:1900px; }
   h1 { font-size:22px; margin:0 0 4px 0; letter-spacing:-0.01em; }
   .sub { color:var(--ink2); font-size:13px; margin-bottom:16px; }
   .frame { display:grid; grid-template-columns: 230px 1fr; border:1.5px solid #4a4d52; border-radius:10px; overflow:hidden; background:var(--panel); }
@@ -20,7 +20,11 @@
   .tabs { display:flex; gap:0; border-bottom:1px solid var(--line); margin-bottom:12px; font-size:12.5px; }
   .tab { padding:7px 12px; color:var(--ink2); }
   .tab.on { color:var(--blue); border-bottom:2px solid var(--blue); font-weight:600; }
-  .grid6 { display:grid; grid-template-columns: repeat(3, 1fr); gap:14px; }
+  .grid6 { display:grid; grid-template-columns: repeat(4, 1fr); gap:12px; }
+  .hero { border:1px dashed #b9b7ae; border-radius:8px; padding:8px 10px; margin-bottom:8px; display:flex; gap:10px; align-items:center; background:#fafaf7; font-size:12px; color:var(--ink2);}
+  .hero b {color:var(--ink);} .live {color:#d43d4f; font-weight:700; font-size:11px; letter-spacing:.08em;}
+  .tick { border:1px dashed #b9b7ae; border-radius:6px; padding:4px 10px; font-size:11px; color:var(--muted); margin-bottom:8px; background:#fafaf7;}
+  .new {color:#d43d4f; font-size:10px; font-weight:700; margin-left:4px;}
   .panel { border:1px solid var(--line); border-radius:9px; padding:10px; background:#fff; }
   .panel h4 { margin:0 0 2px 0; font-size:13.5px; display:flex; align-items:center; gap:8px; }
   .num { display:inline-flex; width:20px; height:20px; border-radius:50%; background:var(--blue); color:#fff; font-size:11px; align-items:center; justify-content:center; }
@@ -37,59 +41,37 @@
   .arrow { color:#8a887f; font-size:18px; }
 </style></head>
 <body>
-<h1>Smart Traffic Management Dashboard — user-interface diagram</h1>
-<div class="sub">Streamlit prototype · global controls in the sidebar drive every tab · all panels read the CSV outputs of the simulation pipeline</div>
+<h1>Smart Traffic Command Centre — user-interface wireframe (v2.1)</h1>
+<div class="sub">Streamlit dashboard, 8 views · global controls in the sidebar drive every view · all panels read the CSV outputs of the simulation pipeline · dashed boxes = chart, table or control</div>
 <div class="frame">
   <div class="side">
     <h3>Sidebar (global controls)</h3>
     <div class="ctl"><b>Scenario</b>Normal · Rush hour · Incident · Rain · Sandstorm · Event surge · Bus corridor</div>
     <div class="ctl"><b>Control policy</b>Fixed-time · Actuated · Q-learning · SARSA</div>
-    <div class="ctl"><b>Stakeholder weights</b>Efficiency<div class="slider"></div><br>Safety<div class="slider"></div><br>Environment<div class="slider"></div></div>
-    <div class="ctl"><b>Download the data</b>7 CSV files</div>
-    <div class="ctl"><b>Notes</b>episode = 30 min · 8 evaluation seeds · identical arrivals per policy</div>
+    <div class="ctl"><b>Stakeholder weights</b>linked: always sum to 100<br>Efficiency<div class="slider"></div><br>Safety<div class="slider"></div><br>Environment<div class="slider"></div></div>
+    <div class="ctl"><b>Download the data</b>CSV files</div>
+    <div class="ctl"><b>Project links</b>Colab notebook · GitHub</div>
+    <div class="ctl"><b>Notes</b>episode = 30 min · 8 held-out test episodes · identical arrivals per policy</div>
   </div>
   <div class="main">
-    <div class="hdr"><b style="color:var(--ink);font-size:15px">Smart Traffic Management Dashboard</b><span class="pill">scenario</span><span class="pill">policy</span><span class="pill">weather</span> scenario description</div>
-    <div class="tabs"><div class="tab on">City Overview</div><div class="tab">RL Simulation</div><div class="tab">Decision Network Visualizer</div><div class="tab">Scenario Explorer</div><div class="tab">KPI &amp; Trade-off Analysis</div><div class="tab">Policy Comparison</div></div>
-    <div class="grid6">
-      <div class="panel"><h4><span class="num">1</span>City Overview</h4><div class="why">Real-time traffic flow and network status</div>
-        <div class="row"><div class="box kpi">delay</div><div class="box kpi">throughput</div><div class="box kpi">CO₂</div><div class="box kpi">safety</div><div class="box kpi">bus</div><div class="box kpi">peds</div></div>
-        <div class="row"><div class="box tall f2">Animated replay<br>vehicles · signals · pedestrians<br>Play / speed / scrubber</div><div class="box tall f1">Network map<br>queues per approach<br>minute slider</div></div>
-        <div class="row"><div class="box short f1">Network queue over time (all policies)</div><div class="box short f1">Junction table</div></div></div>
-      <div class="panel"><h4><span class="num">2</span>RL Simulation</h4><div class="why">RL agent decisions: signal phases, vehicle routing, bus priority</div>
-        <div class="row"><div class="box mid f1">Replay: policy A</div><div class="box mid f1">Replay: policy B<br>(same seed, one clock)</div></div>
-        <div class="row"><div class="box short f1">Signal trace: chose / executed / shield</div><div class="box short f1">Bus &amp; AV decisions</div></div>
-        <div class="row"><div class="box mid f1">Learned policy heatmap<br>(queue on green × red)</div><div class="box mid f1">Learning curves<br>pre-train / adapt</div></div></div>
-      <div class="panel"><h4><span class="num">3</span>Decision Network Visualizer</h4><div class="why">Utilities, probabilities and trade-offs under uncertainty</div>
-        <div class="row"><div class="box short f1">Evidence: weather</div><div class="box short f1">density</div><div class="box short f1">pedestrians</div></div>
-        <div class="row"><div class="box tall f2">Influence diagram<br>chance ○ · decision ▭ · utility ◇<br>posteriors on nodes</div><div class="box tall f1">Expected utility of 8 decision pairs</div></div>
-        <div class="row"><div class="box short f1">EU table · VOI</div><div class="box short f1">Weight-sensitivity ternary</div><div class="box short f1">CPT explorer</div></div></div>
-      <div class="panel"><h4><span class="num">4</span>Scenario Explorer</h4><div class="why">Scenario definitions and outcome distributions</div>
-        <div class="row"><div class="box short f1">7 scenario cards (parameters)</div></div>
-        <div class="row"><div class="box mid f1">Delay box plot</div><div class="box mid f1">Conflicts box plot</div><div class="box mid f1">CO₂ box plot</div></div>
-        <div class="row"><div class="box mid f2">Time series by junction and measure</div><div class="box mid f1">DN recommendation vs simulation ranking</div></div></div>
-      <div class="panel"><h4><span class="num">5</span>KPI &amp; Trade-off Analysis</h4><div class="why">Delay reduction, emission savings, safety scores</div>
-        <div class="row"><div class="box mid f1">Δ delay heatmap</div><div class="box mid f1">Δ CO₂ heatmap</div><div class="box mid f1">Δ conflicts heatmap</div></div>
-        <div class="row"><div class="box mid f1">Δ pedestrian wait</div><div class="box mid f1">Δ bus on-time</div></div>
-        <div class="row"><div class="box mid f2">Trade-off scatter (delay vs safety, bubble = CO₂)</div><div class="box mid f1">Weighted-sum ranking + radar</div></div></div>
-      <div class="panel"><h4><span class="num">6</span>Policy Comparison</h4><div class="why">Q-learning vs SARSA vs baselines</div>
-        <div class="row"><div class="box mid f1">All policies × scenarios (measure selector)</div></div>
-        <div class="row"><div class="box short f1">Paired Q-learning vs SARSA test</div><div class="box short f1">Training stability</div></div>
-        <div class="row"><div class="box mid f1">Component studies: AV routing · bus priority</div><div class="box mid f1">Return &amp; safety learning curves</div></div></div>
-    </div>
+    <div class="hero"><span class="live">● LIVE SIMULATION</span><b style="font-size:15px">Smart Traffic Command Centre</b><span class="pill">scenario</span><span class="pill">policy</span><span class="pill">weather</span><span>headline tiles: delay · vs fixed-time · throughput · CO₂</span></div>
+    <div class="tick">ticker: best package per scenario · same-routing and tuned-baseline comparisons</div>
+    <div class="tabs"><div class="tab on">City Overview</div><div class="tab">RL Simulation</div><div class="tab">Decision Network Visualizer</div><div class="tab">Scenario Explorer</div><div class="tab">KPI &amp; Trade-off Analysis</div><div class="tab">Policy Comparison</div><div class="tab">Simulation Lab</div><div class="tab">Research Extensions</div></div>
+    <div class="grid6"><div class="panel"><h4><span class="num">1</span>City Overview</h4><div class="why">Live simulation of the selected scenario and policy</div><div class="row"><div class="box kpi">delay</div><div class="box kpi">through-put</div><div class="box kpi">CO₂</div><div class="box kpi">safety</div><div class="box kpi">bus</div><div class="box kpi">peds</div></div><div class="row"><div class="box tall f2">Animated replay (night map)<br>vehicles · signals · pedestrians<br>play / speed / scrubber</div><div class="box tall f1">Network map<br>queue per approach<br>minute slider</div></div><div class="row"><div class="box short f1">Network queue over time</div><div class="box short f1">Junction table</div></div></div><div class="panel"><h4><span class="num">2</span>RL Simulation</h4><div class="why">What the agents decide and what they learned</div><div class="row"><div class="box mid f1">Replay: policy A</div><div class="box mid f1">Replay: policy B<br>(same arrivals, one clock)</div></div><div class="row"><div class="box short f1">Signal trace: chose / executed / shield</div><div class="box short f1">Bus & AV decisions</div></div><div class="row"><div class="box mid f1">Learned signal policy heatmap</div><div class="box mid f1">Learning curves<br>pre-train / adapt</div></div></div><div class="panel"><h4><span class="num">3</span>Decision Network Visualizer</h4><div class="why">Expected utility under uncertainty</div><div class="row"><div class="box short f1">Evidence: weather</div><div class="box short f1">density</div><div class="box short f1">pedestrians</div></div><div class="row"><div class="box tall f2">Influence diagram<br>chance ○ · decision ▭ · utility ◇</div><div class="box tall f1">Expected utility<br>of 8 decision pairs</div></div><div class="row"><div class="box short f1">EU table · VOI</div><div class="box short f1">Weight ternary</div><div class="box short f1">CPT explorer</div></div></div><div class="panel"><h4><span class="num">4</span>Scenario Explorer</h4><div class="why">Seven scenarios and their outcome spread</div><div class="row"><div class="box short f1">7 scenario cards (parameters)</div></div><div class="row"><div class="box mid f1">Delay box plot</div><div class="box mid f1">Conflicts box plot</div><div class="box mid f1">CO₂ box plot</div></div><div class="row"><div class="box mid f2">Time series by junction</div><div class="box mid f1">DN pick vs simulation ranking</div></div></div><div class="panel"><h4><span class="num">5</span>KPI & Trade-off Analysis</h4><div class="why">Gains against fixed-time and the trade-offs</div><div class="row"><div class="box mid f1">Δ delay heatmap</div><div class="box mid f1">Δ CO₂ / NOx</div><div class="box mid f1">Δ conflicts</div></div><div class="row"><div class="box mid f2">Delay vs safety scatter</div><div class="box mid f1">Weighted-sum ranking</div></div><div class="row"><div class="box short f1">Course toolkit: criteria · AHP · TOPSIS</div><div class="box short f1">Value of time · pedestrian trade-off</div></div></div><div class="panel"><h4><span class="num">6</span>Policy Comparison</h4><div class="why">Signals vs routing, with statistics</div><div class="row"><div class="box short f1">Headline tiles: routing alone · same-routing tests</div></div><div class="row"><div class="box mid f1">Signal × routing (8 pairs)</div><div class="box mid f1">Model selection on validation runs</div></div><div class="row"><div class="box short f1">Q-learning vs SARSA (paired)</div><div class="box short f1">Training stability · component studies</div></div></div><div class="panel"><h4><span class="num">7</span>Simulation Lab<span class="new">NEW</span></h4><div class="why">Set conditions; every controller re-runs live</div><div class="row"><div class="box short f1">Demand & people</div><div class="box short f1">Environment & disruptions</div><div class="box short f1">Fleet & transit</div></div><div class="row"><div class="box short f1">Add-ons: speed advisory · lane selection · ped guard</div><div class="box short f1">Sensing bias · noise &nbsp;<b style='color:#d43d4f'>NEW</b></div></div><div class="row"><div class="box mid f1">Score per policy + DN pick<br>7 criteria</div><div class="box mid f1">Replay of these conditions<br>stress test · correlation map</div></div></div><div class="panel"><h4><span class="num">8</span>Research Extensions<span class="new">NEW</span></h4><div class="why">Six open questions answered by experiment</div><div class="row"><div class="box short f1">1 AV speed & lane</div><div class="box short f1">2 Bus loads</div><div class="box short f1">3 Safety proxy</div></div><div class="row"><div class="box short f1">4 Tuned baseline</div><div class="box short f1">5 Ped guard</div><div class="box short f1">6 Sensing &nbsp;<b style='color:#d43d4f'>NEW</b></div></div><div class="row"><div class="box mid f1">Finding card + charts per study<br>(deployed Q-tables, 8 test episodes)</div></div></div></div>
   </div>
 </div>
 <div class="flow">
   <div class="node">config.py<small>parameters &amp; scenarios</small></div><span class="arrow">→</span>
   <div class="node">traffic_env.py<small>simulator + safety shield</small></div><span class="arrow">⇄</span>
   <div class="node">agents.py<small>Q-learning · SARSA · baselines</small></div><span class="arrow">→</span>
-  <div class="node">experiments.py<small>train · evaluate · export CSV</small></div><span class="arrow">→</span>
-  <div class="node">decision_network.py<small>CPTs from data · EU · VOI</small></div><span class="arrow">→</span>
-  <div class="node" style="border-color:var(--blue)">app.py (Streamlit)<small>six tabs above</small></div>
+  <div class="node">experiments.py<small>train · select · evaluate · CSV</small></div><span class="arrow">→</span>
+  <div class="node">decision_network.py<small>CPTs · EU · VOI</small></div><span class="arrow">→</span>
+  <div class="node">extensions.py · sensing.py<small>research studies</small></div><span class="arrow">→</span>
+  <div class="node" style="border-color:var(--blue)">app.py (Streamlit)<small>8 views · lab.py · sim_view.py</small></div>
 </div>
 <div class="legend"><span>Colour roles in every chart:
   <span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#eda100;margin:0 4px 0 6px"></span>Fixed-time
   <span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#1baf7a;margin:0 4px 0 10px"></span>Actuated
   <span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#2a78d6;margin:0 4px 0 10px"></span>Q-learning
-  <span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#eb6834;margin:0 4px 0 10px"></span>SARSA</span><span>Dashed boxes = chart or table components; sidebar selections filter all tabs.</span></div>
+  <span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#eb6834;margin:0 4px 0 10px"></span>SARSA</span><span>The deployed app uses a dark theme; this wireframe shows layout only.</span></div>
 </body></html>

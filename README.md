@@ -4,18 +4,48 @@ Group 2 project for *Reasoning and Decision Making under Uncertainty* (MAIB DSC 
 
 Traffic lights, autonomous vehicles and buses on a 3 × 3 Downtown-Dubai-style grid learn
 with **Q-learning** and **SARSA**; a **decision network (influence diagram)** learned from
-the simulator scores efficiency, safety and emissions under uncertainty; six scenario
-families are compared; a six-tab **Streamlit dashboard** shows everything.
+the simulator scores efficiency, safety and emissions under uncertainty; seven scenarios are
+compared; an eight-view **Streamlit dashboard** shows everything as a live simulation.
+
+| Open (no installation, no sign-in) | Link |
+|---|---|
+| Live dashboard | https://smarttrafficu-mmzjikh5bg8frby3adzdc2.streamlit.app/ — if it says *"This app has gone to sleep"*, click **Yes, get this app back up** and wait about a minute |
+| Colab notebook (code) | https://colab.research.google.com/github/Sbot-c/Smart_Traffic_U/blob/main/Smart_Traffic_MARL_DecisionNetwork.ipynb |
+| Code and data | https://github.com/Sbot-c/Smart_Traffic_U |
+
+## Final changes, 12 Nov 2026 (closing the 10 Nov submission review)
+
+| Review item | What was done |
+|---|---|
+| 1. No Colab link | The notebook opens in Colab straight from the public repository (link above); it is on the last slide, in the spec, the README and the dashboard sidebar. |
+| 2. Deck's last slide said "streamlit run app.py" | Last slide now lists the hosted dashboard, Colab and GitHub links, plus the wake-button note; the dashboard slide carries the link too. |
+| 3. App goes to sleep | Wake-button note on the last slide, slide 13, here and in `DASHBOARD_LINK.md`. Open it a few minutes before the session. |
+| 4. No names or roles | Slide 2 shows a lead per part; new slide 3 "Who did what"; team table in the spec: 1 Multi-agent system — Siddal, 2 Reinforcement learning — Shashaank, 3 Decision network — Sparsh, 4 Scenario experiments — Aradhana, 5 Command dashboard — Shirley. Adjust the responsibilities on slide 3 to what each person actually did. |
+| 5. GenAI not circled, prompt log incomplete | Amber dashed frames + GenAI tag on every AI-drafted slide and spec section; GenAI slide 16; prompt log restructured with every session (rows still needing the verbatim prompt are marked). |
+| 6. Which spec? | `Requirement_Specification.pdf` **v2.1** replaces both versions: five headings (problem and requirements; data and data sources; algorithms; required libraries; UI wireframe), reference article cited, matches this build. Source: `docs/spec_source/`. |
+| 7. Phones-per-person uncertainty | New experiment `sensing.py`: agents see queue counts biased 0.5–2× (e.g. two phones per person) and noisy. RL-vs-actuated verdict unchanged in 86 % of 84 conditions; RL more sensitive than actuated (event surge 2×: 46.6 → 60.2 s, still ahead of actuated 65.5 s). In the dashboard (Simulation Lab control + Research Extensions study 6), the notebook (§6b), slide 12 and the spec (§3.6). |
+| 8. Too many extras | Main talk leads with the brief; Simulation Lab and the pedestrian guard moved to backup slides; value of time and AHP/TOPSIS kept out of the main talk. AV speed/lane and bus loads stay (on the brief's agent list). |
+| Notebook a step behind | Findings now state the tuned-baseline result, that AV speed control and lane selection are modelled, 280 + 80 episodes, and both decision-network counts. |
+| "360 pre-training episodes" | Corrected to 280 pre-training + 80 adaptation per scenario (deck, spec, dashboard, notebook, report, README). |
+| Two decision-network headlines | Both explained: 6 of 7 scenarios vs 22 of 27 weather × density × pedestrian conditions. |
+| "LIVE" label | "LIVE SIMULATION · replay of simulated data" on the title slide and the dashboard header. |
+| KPI tiles cut off at ~1,100 px | Tiles wrap into rows of three in narrow windows; values and deltas are never truncated. Still best presented full screen. |
+| Old UI diagram | `docs/ui_wireframe.html` / `docs/dashboard_ui_diagram.png` redrawn for all eight views. |
+| Reference article not cited | Wairagade, Ugale & Waghmare (2025) cited on slide 2 and in the spec. |
+
+**Before presenting:** complete the prompt-log rows marked *paste the verbatim prompt*; check the
+responsibilities on slide 3; open the live app a few minutes early; rehearse the rush-hour
+demo at minutes 12–15 (about 510 cars queued under fixed timing vs about 124 under Q-learning).
 
 ## Deliverables (Blackboard, 8 Nov 2026, 10 pm)
 
 | Deliverable | Where |
 |---|---|
-| Requirement specification (5 pages) | `Requirement_Specification.pdf` (v2.0, includes the corrections and research extensions) |
+| Requirement specification (5 pages) | `Requirement_Specification.pdf` (v2.1, 12 Nov: five headings, wireframe, libraries, data sources) |
 | Data CSV file | `data/smart_traffic_simulation_log.csv` (main file; the other CSVs support it) |
-| Colab code link | upload `Smart_Traffic_MARL_DecisionNetwork.ipynb` to Google Drive, open with Colab, share *Anyone with the link* |
-| Dashboard | `app.py` (run locally or deploy, below) |
-| PPT | `presentation/Smart_Traffic_Group2.pptx` (16 slides with speaker notes) |
+| Colab code link | https://colab.research.google.com/github/Sbot-c/Smart_Traffic_U/blob/main/Smart_Traffic_MARL_DecisionNetwork.ipynb (opens from the public repo; anyone can open it) |
+| Dashboard | https://smarttrafficu-mmzjikh5bg8frby3adzdc2.streamlit.app/ (source `app.py`) |
+| PPT | `presentation/Smart_Traffic_Group2.pptx` (17 main slides + 3 backup, speaker notes) |
 | Project report | `report/Smart_Traffic_Project_Report.pdf` (3 pages, 6 figures) |
 | GenAI prompts | `GenAI_disclosure_and_prompts.md` |
 
@@ -32,7 +62,7 @@ The four dashboard "policies" are **packages**: *Actuated* = actuated signals + 
 * Cooperative routing is the biggest lever (−16 % under fixed-time, −24 % under actuated signals).
 * With the same routing, Q-learning vs actuated signals in rush hour is 64.8 vs 66.9 s (−3 %, paired p = 0.08, not significant). In the event surge Q-learning wins clearly: 46.6 vs 62.9 s (−26 %, p < 0.001).
 * The extra rush-hour training made the policy worse (training delay rises 72 → 82 s). The deployed table is chosen between *general* and *scenario-adapted* on separate **validation** episodes (`data/model_selection.csv`); test episodes are never used to choose.
-* Caveats: RL agents had 360 training episodes while the actuated rule was not tuned; "safety" is a stand-in based on expected conflicts, not crashes; the simulator models AV routing and platooning only (no speed control or lane selection), assumes a 25 % AV share, and cooperative routing needs vehicle-to-infrastructure communication.
+* Caveats: RL agents had 280 pre-training + 80 adaptation episodes per scenario while the actuated rule here is untuned (the tuned comparison is under research extensions); "safety" is a stand-in based on expected conflicts, not crashes; AV speed control and lane selection are evaluated as extensions, a 25 % AV share is assumed, and cooperative routing needs vehicle-to-infrastructure communication.
 
 | Agent | State | Actions | Reward |
 |---|---|---|---|
@@ -43,13 +73,14 @@ The four dashboard "policies" are **packages**: *Actuated* = actuated signals + 
 ## Files
 
 ```
-app.py                  Streamlit dashboard (6 brief tabs + Simulation Lab), dark command-centre theme
+app.py                  Streamlit dashboard (6 brief views + Simulation Lab + Research Extensions)
 viz.py                  Plotly figures
 sim_view.py             animated night-mode canvas replay (Play / Pause / speed / scrubber, side-by-side,
                         queue sparkline, emergency-preemption badge); top-down car, autonomous-car, truck,
                         bus and ambulance sprites with headlights / brake lights (sizes exaggerated for
                         visibility, queues squeeze when they exceed the link)
 extensions.py           research extensions closing five review gaps -> data/ext_*.csv (~4 min)
+sensing.py              sensing uncertainty: biased / noisy queue counts -> data/ext_sensing*.csv (~2 min)
 lab.py                  Simulation Lab: conditions -> simulator overrides, live runs, replays, sweeps,
                         correlated-condition rules, decision-network evidence mapping
 config.py               every parameter, scenario definition and source
@@ -63,6 +94,8 @@ course_methods.py       uncertainty criteria, risk-averse utility, MDP table, pr
 refresh_analysis.py     validation-based model selection + re-evaluation from the saved Q-tables
 build_notebook.py       rebuild the Colab notebook from these files
 Smart_Traffic_MARL_DecisionNetwork.ipynb   the Colab notebook (code + results)
+docs/                   UI wireframe (html + png); spec_source/ rebuilds the specification PDF
+presentation/           the deck
 data/                   CSV outputs, trained Q-tables, animation recordings
 ```
 
@@ -79,6 +112,7 @@ data/                   CSV outputs, trained Q-tables, animation recordings
 | `model_selection.csv` | 14 | general vs adapted tables on validation episodes, with test results for reporting |
 | `training_robustness.csv` | 18 | re-adaptation with three other random seeds |
 | `scenario_parameters.csv` | 7 | scenario definitions |
+| `ext_sensing.csv` · `ext_sensing_summary.csv` | 2,072 · 259 | sensing-uncertainty runs (biased / noisy counts) and their summary |
 | `q_tables.npz` | — | trained Q-tables (general + per-scenario) |
 | `animations.json.gz` | — | vehicle trajectories for the replay |
 
@@ -89,7 +123,7 @@ pip install -r requirements.txt
 streamlit run app.py
 ```
 
-To regenerate every result: `python run_experiments.py` (then `python robustness.py`). To redo only the selection and evaluation from the saved Q-tables: `python refresh_analysis.py` (about 2 minutes).
+To regenerate every result: `python run_experiments.py` (then `python robustness.py`, `python extensions.py` and `python sensing.py`). To redo only the selection and evaluation from the saved Q-tables: `python refresh_analysis.py` (about 2 minutes).
 
 ## Deploy (Streamlit Community Cloud)
 
@@ -99,8 +133,9 @@ To regenerate every result: `python run_experiments.py` (then `python robustness
 
 ## Google Colab
 
-Upload `Smart_Traffic_MARL_DecisionNetwork.ipynb` to Google Drive, open it with Colab, and
-share it with *Anyone with the link → Viewer*. *Runtime → Run all* reproduces the results.
+Open https://colab.research.google.com/github/Sbot-c/Smart_Traffic_U/blob/main/Smart_Traffic_MARL_DecisionNetwork.ipynb — it loads the notebook from the public GitHub repository, so anyone with the
+link can open it (no sharing settings needed). *Runtime → Run all* reproduces the results.
+To save a personal copy: *File → Save a copy in Drive*.
 
 ## Added: pedestrian trade-off and value of time
 
@@ -113,7 +148,7 @@ share it with *Anyone with the link → Viewer*. *Runtime → Run all* reproduce
 
 Slide wording for these additions is in `CORRECTIONS_FOR_SPEC_AND_SLIDES.md`.
 
-Not done: the SARSA sweep (run `python ped_tradeoff.py --sarsa` to add it) and the Colab notebook, which was not rebuilt because that would erase its saved outputs. Note that retraining at the default pedestrian weight 0.5 gives about 69 s rush-hour delay (three runs: 64.8, 72.4, 70.1 s), not the headline 64.8 s: the difference is training randomness.
+Not done: the SARSA sweep (run `python ped_tradeoff.py --sarsa` to add it). Note that retraining at the default pedestrian weight 0.5 gives about 69 s rush-hour delay (three runs: 64.8, 72.4, 70.1 s), not the headline 64.8 s: the difference is training randomness.
 
 ## Added: dashboard upgrade (8 Nov 2026)
 

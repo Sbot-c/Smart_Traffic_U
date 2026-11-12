@@ -1,4 +1,9 @@
-"""Assemble the Colab notebook from the project's source files (single source of truth)."""
+"""
+Assemble the Colab notebook from the project's source files (single source of truth).
+
+NOTE (12 Nov 2026): the shipped notebook was then updated in place (current module sources,
+corrected findings, links and section 6b on sensing uncertainty, executed). Rebuilding from this
+script would drop section 6b and the saved outputs; keep the shipped notebook."""
 import os
 
 import nbformat as nbf
@@ -324,7 +329,7 @@ cells.append(md(r"""
 6. **Q-learning vs SARSA.** On the test seeds Q-learning is ahead in rush hour (64.8 vs 71.4 s, paired t-test p < 0.001) and level in the event surge (46.6 vs 47.4 s, p = 0.35). That test covers evaluation noise only. Re-adapting the general tables with three other seeds gave SARSA 68–70 s and Q-learning 71–75 s in rush hour, i.e. the order flips with the training seed. The gap between the algorithms is therefore mostly **training randomness**, not an algorithmic advantage.
 7. **Extra rush-hour training made the policy worse.** The general table beats the rush-hour-adapted one on validation episodes (Q-learning 66.2 vs 68.9 s, SARSA 74.7 vs 75.5 s) and on the test episodes (64.8 vs 69.1 s and 71.4 vs 79.0 s), so the general table is deployed there.
 
-**Caveats to state when presenting.** (a) The RL agents had 360 training episodes per algorithm, while the actuated controller was never tuned. (b) "Safety" is a stand-in built from expected conflicts, not real crashes. (c) The simulator models AV *routing and platooning* only — not AV speed control or lane selection — assumes a 25 % AV share, and cooperative routing needs vehicle-to-infrastructure communication. (d) Retiming the fixed plan for the peak does not help it (109.5 s). (e) The RL agents almost never fall back to the actuated rule for an unseen state: at most 7 of 25,920 signal decisions (9 junctions × 360 steps × 8 test episodes) in any scenario.
+**Caveats to state when presenting.** (a) The RL agents had 280 pre-training episodes plus 80 adaptation episodes per scenario; the actuated controller here is untuned (the tuned comparison is in *Research Extensions*). (b) "Safety" is a stand-in built from expected conflicts, not real crashes. (c) The simulator models AV *routing and platooning* only — not AV speed control or lane selection — assumes a 25 % AV share, and cooperative routing needs vehicle-to-infrastructure communication. (d) Retiming the fixed plan for the peak does not help it (109.5 s). (e) The RL agents almost never fall back to the actuated rule for an unseen state: at most 7 of 25,920 signal decisions (9 junctions × 360 steps × 8 test episodes) in any scenario.
 """))
 cells.append(md(r"""
 ## 5b. Further course techniques — `course_methods.py`

@@ -62,8 +62,24 @@ CSS = """
       position:relative; overflow:hidden; box-shadow: 0 10px 30px rgba(0,0,0,.25);}
   [data-testid="stMetric"]::after {content:""; position:absolute; inset:0 0 auto 0; height:2px;
       background:linear-gradient(90deg, var(--cyan), rgba(61,139,255,0.0));}
-  [data-testid="stMetricValue"] {font-family:'JetBrains Mono', monospace; font-size:1.85rem;
-      font-weight:700; color:#f4f8ff;}
+  [data-testid="stMetricValue"] {font-family:'JetBrains Mono', monospace;
+      font-size:clamp(1.05rem, 1.75vw, 1.85rem); font-weight:700; color:#f4f8ff;}
+  /* never cut a KPI value or label off with "…" in a narrow window (e.g. ~1,100 px) */
+  [data-testid="stMetricValue"] > div, [data-testid="stMetricValue"] div,
+  [data-testid="stMetricLabel"] div, [data-testid="stMetricLabel"] p {
+      overflow:visible !important; text-overflow:clip !important; white-space:normal !important;}
+  [data-testid="stMetricLabel"] p {word-break:normal !important; overflow-wrap:normal !important;}
+  [data-testid="stMetricDelta"], [data-testid="stMetricDelta"] div {overflow:visible !important;
+      text-overflow:clip !important; white-space:nowrap !important;}
+  /* narrow windows (about 1,100-1,450 px): a row of 4-6 KPI tiles wraps to rows of three */
+  @media (max-width: 1450px) {
+      [data-testid="stHorizontalBlock"]:has(> [data-testid="stColumn"] [data-testid="stMetric"]) {
+          flex-wrap: wrap !important; row-gap: 0.75rem;}
+      [data-testid="stHorizontalBlock"]:has(> [data-testid="stColumn"] [data-testid="stMetric"])
+          > [data-testid="stColumn"] {flex: 1 1 calc(33.3% - 1rem) !important;
+          min-width: calc(33.3% - 1rem) !important;}
+      [data-testid="stMetric"] {padding:10px 12px 8px 12px;}
+      [data-testid="stMetricLabel"] p {font-size:.72rem; letter-spacing:.04em;}}
   [data-testid="stMetricLabel"] p {font-size:.80rem; color:var(--muted); text-transform:uppercase;
       letter-spacing:.07em; font-weight:600;}
   [data-testid="stMetricDelta"] {font-size:.88rem; font-weight:600;}
@@ -202,7 +218,8 @@ def load_tables():
     for k, n in [("x_av", "ext_av_speed_lane.csv"), ("x_bus", "ext_bus_load.csv"),
                  ("x_safe", "ext_safety_sensitivity.csv"), ("x_rank", "ext_safety_ranking.csv"),
                  ("x_tune", "ext_actuated_tuning.csv"), ("x_ta", "ext_tuned_actuated.csv"),
-                 ("x_guard", "ext_ped_guard.csv")]:
+                 ("x_guard", "ext_ped_guard.csv"), ("x_sense", "ext_sensing.csv"),
+                 ("x_sense_sum", "ext_sensing_summary.csv")]:
         f_ = os.path.join(DATA, n)
         out[k] = pd.read_csv(f_) if os.path.exists(f_) else None
     sim = out["sim"]
@@ -405,6 +422,12 @@ with st.sidebar:
     st.caption("Each episode = 30 simulated minutes; KPIs exclude the first 5 minutes "
                "(warm-up). Evaluation uses 8 held-out seeds with identical arrivals for "
                "every policy.")
+    st.markdown("**Project links**  \n"
+                "[Colab notebook](https://colab.research.google.com/github/Sbot-c/Smart_Traffic_U/"
+                "blob/main/Smart_Traffic_MARL_DecisionNetwork.ipynb) · "
+                "[Code and data (GitHub)](https://github.com/Sbot-c/Smart_Traffic_U)")
+    st.caption("Everything here is a live simulation: a replay of simulated data, not live "
+               "city sensor feeds.")
 
 SC = C.SCENARIOS[scenario]
 k_sel = KPI[(KPI.scenario == scenario) & (KPI.policy == policy)]
@@ -423,7 +446,8 @@ _co2chg = 100 * (_c - _cb) / _cb if _cb else 0.0
 _wx = {"Clear": "☀ Clear", "Rain": "🌧 Rain", "Sandstorm": "🌪 Sandstorm"}[SC["weather"]]
 st.markdown(
     '<div class="hero"><div class="hero-grid"><div>'
-    '<div class="eyebrow"><span class="live"></span>Live · adaptive signal control · '
+    '<div class="eyebrow"><span class="live"></span>Live simulation · replay of simulated '
+    'data · adaptive signal control · '
     '9 junctions · 36 approaches</div>'
     '<h1>Smart Traffic <span class="g">Command Centre</span></h1>'
     '<p class="sub">Traffic lights, autonomous vehicles and buses learning together with '
@@ -927,7 +951,8 @@ if view == VIEWS[4]:
                "Each row is a package (signals + routing), so a gap between policies mixes a "
                "signal effect and a routing effect - see Policy Comparison. \"Safety\" is a "
                "stand-in built from expected conflicts, not observed crashes. The RL agents "
-               "had 360 training episodes; the actuated rule was not tuned.")
+               "had 280 pre-training episodes plus 80 adaptation episodes per scenario; the "
+               "actuated rule here is untuned (see Research Extensions for the tuned one).")
     st.markdown("#### Trade-offs")
     t1, t2 = st.columns([1.2, 1])
     with t1:
@@ -1181,10 +1206,13 @@ if view == VIEWS[5]:
                      f"{eq.mean():.1f} vs {ea.mean():.1f} s",
                      f"{pct(eq.mean(), ea.mean()):+.0f}% (paired p {'< 0.001' if _p(eq, ea) < 0.001 else '= %.3f' % _p(eq, ea)})",
                      delta_color="inverse")
-        st.markdown("**Cooperative routing is the big lever. RL signals pay off when demand is "
-                    "unusual (event surge). In the daily peak, actuated signals with the same "
-                    "routing are statistically as good.** This matches the decision network, "
-                    "which recommends actuated signals + cooperative routing in most conditions.")
+        st.markdown("**Cooperative routing is the big lever.** Against the actuated rule as first "
+                    "written, RL signals win the event surge; in the daily peak, actuated signals "
+                    "with the same routing are statistically as good. Against a *tuned* actuated "
+                    "controller (below), RL signals tie: they learn expert-level timing without "
+                    "manual tuning. This matches the decision network, which recommends actuated "
+                    "signals + cooperative routing in 6 of 7 scenarios (22 of 27 weather × "
+                    "density × pedestrian conditions).")
         st.info("Fair-comparison check (Research Extensions): with its four parameters tuned on "
                 "validation runs, the actuated controller ties Q-learning in the event surge and "
                 "beats it in rush hour. RL signals reach tuned-expert performance without manual "
@@ -1293,7 +1321,8 @@ if view == VIEWS[5]:
 LAB_KEYS = dict(demand="lab-d", ped="lab-p", pax="lab-pax", weather="lab-w", peak="lab-peak",
                 av_share="lab-av", incident="lab-inc", inc_loss="lab-loss", evs="lab-ev",
                 bus_lane="lab-lane", headway_min="lab-hw", event="lab-evt",
-                glosa="lab-glosa", av_lane="lab-avlane", ped_guard="lab-guard")
+                glosa="lab-glosa", av_lane="lab-avlane", ped_guard="lab-guard",
+                sense_bias="lab-sbias", sense_noise="lab-snoise")
 for _f, _k in LAB_KEYS.items():
     st.session_state.setdefault(_k, LB.DEFAULTS[_f])
 st.session_state.setdefault("lab-link", True)
@@ -1441,6 +1470,22 @@ if view == VIEWS[6]:
                          format_func=lambda v: "off" if v == 0 else f"{v} s",
                          help="Safety supervisor: a signal must serve pedestrians who have waited "
                               "this long, before they give up and cross on red.")
+    with st.container(border=True):
+        st.markdown("**📡 Sensing uncertainty** (what the signal controllers *see*; the traffic "
+                    "itself is unchanged)")
+        s1, s2 = st.columns([2, 1])
+        s1.select_slider("Queue-count bias", [0.5, 0.75, 1.0, 1.25, 1.5, 2.0], key="lab-sbias",
+                         format_func=lambda v: {0.5: "0.5× (half missed)", 0.75: "0.75×",
+                                                1.0: "1.0× (exact)", 1.25: "1.25×",
+                                                1.5: "1.5× (1.5 phones/person)",
+                                                2.0: "2.0× (2 phones/person)"}[v],
+                         help="Systematic (likelihood) bias of the queue counts. Counting "
+                              "phones and assuming one per person over-counts when people carry "
+                              "two; low detector or probe coverage under-counts. Fixed-time "
+                              "signals use no detectors and are unaffected.")
+        s2.toggle("Random counting noise", key="lab-snoise",
+                  help="Each count is drawn from a Poisson distribution around the (biased) "
+                       "true value, as with sampled probe data.")
 
     cond = {f: st.session_state[k] for f, k in LAB_KEYS.items()}
     cond["av_share"] = float(cond["av_share"])
@@ -1592,11 +1637,11 @@ def _gap(num, title, verdict, good=True):
 
 
 if view == VIEWS[7]:
-    st.markdown("#### Research extensions: five open questions, answered by experiment")
+    st.markdown("#### Research extensions: six open questions, answered by experiment")
     st.caption("Every study uses the deployed Q-tables (no retraining), the 8 held-out TEST "
                "episodes for reporting and, where something is tuned, separate VALIDATION "
                "episodes for choosing. New mechanisms are switched on per run, so all other "
-               "results in this dashboard are unchanged. Regenerate with `python extensions.py`.")
+               "results in this dashboard are unchanged. Regenerate with `python extensions.py` and `python sensing.py`.")
     if T.get("x_av") is None:
         st.warning("Run `python extensions.py` to create the data/ext_*.csv files.")
         st.stop()
@@ -1784,3 +1829,59 @@ if view == VIEWS[7]:
                       title=f"Delay vs safety, {pick} (lower-left is better)", height=380),
          key="x-g3")
     st.caption("Try it live: Simulation Lab → Smart-control add-ons → Pedestrian max-wait guard.")
+
+    # ---- 6. Sensing uncertainty (phones per person, missed vehicles, noise) ----------
+    xs, xss = T.get("x_sense"), T.get("x_sense_sum")
+    if xs is not None and xss is not None:
+        nb_ = xss[xss.policy != "Fixed-time"].drop_duplicates(["scenario", "bias", "noise"])
+        _sp = xss[(xss.policy != "Fixed-time") & xss.bias.between(0.75, 1.5)] \
+            .groupby("policy").delay_change_pct.mean()
+        _ev = xss[(xss.scenario == "event_surge") & (xss.policy == "Q-learning")
+                  & (xss.bias == 2.0) & (~xss.noise)].avg_delay_s.iloc[0]
+        _ev0 = xss[(xss.scenario == "event_surge") & (xss.policy == "Q-learning")
+                   & (xss.bias == 1.0) & (~xss.noise)].avg_delay_s.iloc[0]
+        _eva = xss[(xss.scenario == "event_surge") & (xss.policy == "Actuated")
+                   & (xss.bias == 2.0) & (~xss.noise)].avg_delay_s.iloc[0]
+        _gap(6, "Sensing uncertainty: what if the counts are wrong (phones per person)?",
+             "Every other result gives the controllers exact queue counts. Real counts come from "
+             "detectors or phone/probe data: counting phones and assuming one per person "
+             "over-counts when people carry two (likelihood bias above 1), low coverage misses "
+             "vehicles (below 1), and sampling adds noise. The deployed agents were re-run with "
+             "counts biased from 0.5× to 2× and with Poisson noise, on the 8 test episodes of every "
+             "scenario (fixed-time uses no detectors and is the unaffected reference). Within "
+             f"0.75-1.5× the delay changes by {_sp.get('Actuated', 0):+.1f} % for actuated, "
+             f"{_sp.get('Q-learning', 0):+.1f} % for Q-learning and {_sp.get('SARSA', 0):+.1f} % for "
+             f"SARSA on average. The worst case is the event surge with a 2× over-count: Q-learning "
+             f"{_ev0:.1f} → {_ev:.1f} s, still ahead of actuated ({_eva:.1f} s). Whether an RL "
+             f"package beats the actuated package is unchanged in {100 * nb_.same_verdict.mean():.0f} % "
+             f"of the {len(nb_)} scenario × sensing conditions; the flips are in calm scenarios "
+             "where the two were already within a second. Reading: the conclusions survive "
+             "realistic sensing error, but RL trained on exact counts is more sensitive to it than "
+             "the simple actuated rule, so a deployment would calibrate the counts (or train on "
+             "noisy ones).", good=True)
+        c1, c2 = st.columns([1.4, 1])
+        with c1:
+            pk = st.selectbox("Scenario", C.SCENARIO_ORDER, index=5, format_func=lambda k: LABEL[k],
+                              key="x-sense-sc")
+            nz = st.toggle("With random counting noise", key="x-sense-nz")
+            d_ = xs[(xs.scenario == pk) & ((xs.noise == nz) | (xs.policy == "Fixed-time"))].copy()
+            ft = d_[d_.policy == "Fixed-time"]
+            d_ = pd.concat([d_[d_.policy != "Fixed-time"]]
+                           + [ft.assign(bias=b) for b in sorted(xs.bias.unique())])
+            show(viz.sweep_lines(d_.rename(columns={"bias": "x"}),
+                                 "Queue-count bias (1 = exact; 2 = two phones per person)",
+                                 "avg_delay_s", "Average delay (s/veh)", current=1.0,
+                                 title=f"Delay as the counts get worse, {LABEL[pk]} "
+                                       "(band = range over 8 test episodes)", height=380),
+                 key="x-sense1")
+        with c2:
+            st.markdown("**Delay change vs exact counts (%)**, mean over scenarios")
+            tb_ = xss[xss.policy != "Fixed-time"].pivot_table(
+                index=["bias", "noise"], columns="policy", values="delay_change_pct").round(1)
+            tb_ = tb_.reset_index()
+            tb_["noise"] = tb_.noise.map({True: "Poisson", False: "none"})
+            table(tb_.rename(columns={"bias": "Bias", "noise": "Noise"}), height=330)
+            st.caption("Try it live: Simulation Lab → Sensing uncertainty. Related evidence: the "
+                       "value of information on the decision network is about zero, and the "
+                       "decision network's probabilities are Laplace-smoothed estimates learned "
+                       "from simulation, not measured frequencies.")

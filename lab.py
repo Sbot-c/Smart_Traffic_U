@@ -31,7 +31,7 @@ import experiments as X
 DEFAULTS = dict(demand=1.0, ped=1.0, pax=1.0, weather="Clear", peak=False,
                 av_share=C.AV_SHARE, incident=False, inc_loss=75, evs=3,
                 bus_lane=False, headway_min=6, event=False, glosa=False, av_lane=False,
-                ped_guard=0)
+                ped_guard=0, sense_bias=1.0, sense_noise=False)
 
 PAX_ELASTICITY = math.log(1.8) / math.log(1.3)      # = 2.24: rush hour 1.30 -> 1.80
 EV_BY_WEATHER = {"Clear": 3, "Rain": 4, "Sandstorm": 4}   # config: rain/sandstorm scenarios
@@ -109,6 +109,10 @@ def overrides(cond: dict) -> dict:
     ov["av_lane"] = bool(cond.get("av_lane"))
     if cond.get("ped_guard"):                            # extensions.py, gap 5
         ov["ped_guard"] = float(cond["ped_guard"])
+    if float(cond.get("sense_bias", 1.0)) != 1.0:        # sensing.py: detector / phone bias
+        ov["sense_bias"] = float(cond["sense_bias"])
+    if cond.get("sense_noise"):
+        ov["sense_noise"] = True
     return ov
 
 

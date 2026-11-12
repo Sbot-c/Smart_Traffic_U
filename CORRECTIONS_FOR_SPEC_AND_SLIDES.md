@@ -1,3 +1,5 @@
+> **12 Nov 2026:** these wording notes are already applied in the deck (v12 Nov), the specification v2.1, the dashboard and the notebook. Kept for reference. The one-line story "RL signals pay off when demand is unusual" is superseded by the tuned-baseline result at the end of this file.
+
 # Wording to use in the requirement specification and the slides
 
 The specification is a Claude doc that I could not open, so these are replacement sentences to paste in.
@@ -12,7 +14,7 @@ The specification is a Claude doc that I could not open, so these are replacemen
 
 **Q-learning vs SARSA caption:** the gap between the algorithms comes mostly from training randomness; re-adapting with three other seeds put SARSA at 68–70 s and Q-learning at 71–75 s in rush hour.
 
-**Limitations to state:** 360 training episodes for RL against an untuned actuated rule; "safety" means expected conflicts, not crashes; AV speed control and lane selection are not modelled (routing and platooning only); 25 % AV share; cooperative routing needs vehicle-to-infrastructure communication.
+**Limitations to state:** 280 pre-training + 80 adaptation episodes per scenario for RL against an untuned actuated rule (superseded: see the tuned comparison below); "safety" means expected conflicts, not crashes; AV speed control and lane selection were added later as extensions (see below); 25 % AV share; cooperative routing needs vehicle-to-infrastructure communication.
 
 **Why lookup tables, not deep RL (one slide):** 2,250 states per junction, every decision can be inspected in the Q-table, training takes minutes on a CPU. Deep RL would fit if the state grew to raw detector or camera data.
 
@@ -58,3 +60,10 @@ The specification is a Claude doc that I could not open, so these are replacemen
 3. Safety proxy: halving or doubling each conflict mechanism leaves the safest policy unchanged in 90 % of cases.
 4. Fair baseline: see above; Q-learning re-trained three times averages 72.5 ± 2.1 s in rush hour.
 5. High-demand safety: a pedestrian max-wait guard cuts RL's conflicts from 18.6 to 10.7 per 1,000 vehicles at 1.6 × demand, matching actuated safety at 13 % less delay; it costs delay in ordinary rush hour and should not run during an event surge.
+
+
+---
+
+## Added 12 Nov 2026: answer on sensing uncertainty (professor's phones-per-person point)
+
+> Our agents normally see exact queue counts. Real counts come from detectors or phone data, and phone data has a likelihood bias: assume one phone per person and people carry two, and it over-counts. We re-ran the deployed agents with counts from half to double the truth and with random noise, on the test episodes of all seven scenarios. Whether an RL package beats the actuated package is unchanged in 86 % of the 84 conditions; RL is more sensitive than the simple actuated rule (event surge at 2×: 46.6 → 60.2 s, still ahead of actuated at 65.5 s), so a deployment would calibrate the counts or train on noisy ones. Also: value of information ≈ 0, safety ranking unchanged in 90 % when the conflict model is halved or doubled, re-training spread 72.5 ± 2.1 s, and the network's probabilities are smoothed estimates from simulation.

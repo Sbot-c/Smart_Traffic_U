@@ -174,8 +174,8 @@ class TunedActuated(A.ActuatedSignals):
         out = []
         for i in range(C.N_INT):
             ph, el, qg, qr, arr_g, ped, spill, q = env.signal_obs(i)
-            qg += sum(env.approaching(i, a, 4.0) for a in range(4)
-                      if C.PHASE_OF_APPROACH[a] == ph)
+            qg += env.sensed(sum(env.approaching(i, a, 4.0) for a in range(4)
+                      if C.PHASE_OF_APPROACH[a] == ph))
             if el < C.MIN_GREEN:
                 out.append(0)
             elif el >= p["max_green"]:
