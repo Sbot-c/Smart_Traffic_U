@@ -39,6 +39,7 @@ see earlier chats) before submitting, so the log is complete.
 | P12 | 12 Nov 2026 | Names and push | verbatim, below | names added; pushed to GitHub |
 | P13 | 12 Nov 2026 | Ownership by dashboard view | verbatim, below | slide 3 and the spec's team table reorganised by view |
 | P14 | 12 Nov 2026 | Dashboard: humanoid pedestrians, single-junction focus | verbatim, below | `sim_view.py`, `app.py`, `viz.py` |
+| P15 | 12 Nov 2026 | Slide 16 wording | verbatim, below | "Our own work" column on slide 16 |
 
 ### P1 (24 Oct, verbatim)
 > There is a folder in this called group project I need you to go through it and help me build it
@@ -101,8 +102,8 @@ What P11 changed:
 - Check that each person's responsibilities on slide 3 and in the spec's team table match
   what they actually did (ownership by dashboard view; see slide 3).
 - Complete the rows above marked **paste the verbatim prompt**.
-- On slide 16, replace the amber line with what the group wrote or rewrote itself, and remove
-  the amber frame from any slide the group rewrote in its own words.
+- Each person checks that their line on slide 16 ("Our own work") is true, and removes the
+  amber frame from any slide the group rewrote in its own words.
 - Be ready to explain every modelling choice marked **ASSUMPTION** in `config.py`.
 
 ### P12 (12 Nov, verbatim)
@@ -127,3 +128,13 @@ What P13 changed: the AI assigned the empty views (City Overview and Policy Comp
 What P14 changed: pedestrian figures in the replay (waiting and crossing); a *Junction focus*
 selector and click-to-zoom on the replay, with junction-level counters, KPIs, policy comparison,
 approach queues and time series.
+
+### P15 (12 Nov, verbatim)
+> In ppt, what can we write for slide 16 also what is missing in the GenAI prompt md?
+>
+> Give me some suggestions on what to write on slide 16 for my group
+>
+> B
+
+What P15 changed: the AI suggested three wordings; the group chose option B (one line per person,
+based on the dashboard views each person took responsibility for), now on slide 16.
