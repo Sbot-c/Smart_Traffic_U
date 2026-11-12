@@ -38,6 +38,7 @@ see earlier chats) before submitting, so the log is complete.
 | P11 | 12 Nov 2026 | Close the review's gaps | verbatim, below | the changes listed under P11 |
 | P12 | 12 Nov 2026 | Names and push | verbatim, below | names added; pushed to GitHub |
 | P13 | 12 Nov 2026 | Ownership by dashboard view | verbatim, below | slide 3 and the spec's team table reorganised by view |
+| P14 | 12 Nov 2026 | Dashboard: humanoid pedestrians, single-junction focus | verbatim, below | `sim_view.py`, `app.py`, `viz.py` |
 
 ### P1 (24 Oct, verbatim)
 > There is a folder in this called group project I need you to go through it and help me build it
@@ -117,3 +118,12 @@ What P12 changed: team names on slides 1-3 and in the spec; this folder pushed t
 > The ones empty you can fill randomly with Sparsh and Aradhana
 
 What P13 changed: the AI assigned the empty views (City Overview and Policy Comparison to Sparsh; Scenario Explorer and Simulation Lab to Aradhana) and rebuilt slide 3, slide 2 and the spec's team table around the eight views.
+
+### P14 (12 Nov, verbatim)
+> Change in the dashboard:
+> 1. Change the pedestrian dots into humanoid figures just like you change the cars and buses etc
+> 2. Give control over single junctions as well (meaning we can choose the junction and see things for a single junction
+
+What P14 changed: pedestrian figures in the replay (waiting and crossing); a *Junction focus*
+selector and click-to-zoom on the replay, with junction-level counters, KPIs, policy comparison,
+approach queues and time series.

@@ -67,9 +67,15 @@ def _jxy(i):
 
 
 def network_map(queues_step, phases_step, title=None, incident=None, show_values=True,
-                height=470):
-    """queues_step: [9][4] queue per approach; phases_step: [9] current phase."""
+                height=470, highlight=-1):
+    """queues_step: [9][4] queue per approach; phases_step: [9] current phase;
+    highlight: junction index drawn with a focus ring (-1 = none)."""
     fig = go.Figure()
+    if highlight is not None and highlight >= 0:
+        hx, hy = _jxy(highlight)
+        fig.add_shape(type="rect", x0=hx - 0.42, x1=hx + 0.42, y0=hy - 0.42, y1=hy + 0.42,
+                      line=dict(color="#22d3ee", width=2, dash="dot"),
+                      fillcolor="rgba(34,211,238,0.07)", layer="below")
     # roads
     for r in range(3):
         fig.add_trace(go.Scatter(x=[-0.6, 2.6], y=[-r, -r], mode="lines",
@@ -759,4 +765,20 @@ def frontier(df, x, y, group, xlab, ylab, colors=None, height=380, title=None):
     base_layout(fig, height=height, title=title, legend=False)
     fig.update_xaxes(title_text=xlab, showgrid=True, gridcolor=GRID)
     fig.update_yaxes(title_text=ylab)
+    return fig
+
+
+def approach_lines(sub, height=300, title=None):
+    """Queue on each approach (N, E, S, W) of one junction over the episode."""
+    fig = go.Figure()
+    cols = {"queue_n": ("from N", "#3d8bff"), "queue_e": ("from E", "#22d3ee"),
+            "queue_s": ("from S", "#a78bfa"), "queue_w": ("from W", "#f5b301")}
+    for c, (nm, col) in cols.items():
+        fig.add_trace(go.Scatter(x=sub.t_start_s / 60.0, y=sub[c], mode="lines", name=nm,
+                                 line=dict(color=col, width=2),
+                                 hovertemplate=f"{nm}, minute %{{x:.1f}}: %{{y:.1f}} veh"
+                                               "<extra></extra>"))
+    base_layout(fig, height=height, title=title)
+    fig.update_xaxes(title_text="Minute of episode")
+    fig.update_yaxes(title_text="Mean queue (veh)")
     return fig

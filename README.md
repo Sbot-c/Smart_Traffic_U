@@ -33,6 +33,19 @@ compared; an eight-view **Streamlit dashboard** shows everything as a live simul
 | Old UI diagram | `docs/ui_wireframe.html` / `docs/dashboard_ui_diagram.png` redrawn for all eight views. |
 | Reference article not cited | Wairagade, Ugale & Waghmare (2025) cited on slide 2 and in the spec. |
 
+## Dashboard additions, 12 Nov 2026 (evening)
+
+* **Pedestrians as people.** The replay draws pedestrians as small walking figures (varied skin
+  tones and clothing) instead of dots: they wait at the four corners of each junction, and those
+  served in a signal step walk across the zebra crossings that are green for them.
+* **Single-junction focus.** *Junction focus* in the sidebar (Whole network or J1-J9) applies to
+  every view: replays zoom onto that junction with queue labels per approach and junction-only
+  counters and sparkline; City Overview shows the junction's KPIs against fixed-time (delay per
+  vehicle, vehicles served, mean queue, conflicts, pedestrians waiting, CO₂), all four policies at
+  that junction, its approaches, and its queue over time; RL Simulation and Scenario Explorer
+  switch their junction pickers to it. Inside any replay, the *View* menu or a click on a junction
+  zooms in (click again to zoom out).
+
 **Before presenting:** complete the prompt-log rows marked *paste the verbatim prompt*; check the
 responsibilities and slide numbers on slide 3; open the live app a few minutes early; rehearse the rush-hour
 demo at minutes 12–15 (about 510 cars queued under fixed timing vs about 124 under Q-learning).

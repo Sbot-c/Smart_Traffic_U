@@ -5,7 +5,9 @@ The simulator records every vehicle's passage over every link as
 (vehicle type, link, time entered, time reached the stop line, time departed).
 The browser interpolates positions from those timestamps, stacks queued vehicles
 behind the stop line, colours the signal heads from the phase log, and draws
-pedestrians waiting at each junction. Two recordings with the same random seed can
+pedestrians as walking figures (waiting at the corners, crossing on the zebras when served).
+Any junction can be put in focus (bar selector or a click on the map): the view zooms in and
+the counters and sparkline switch to that junction. Two recordings with the same random seed can
 be shown side by side on one clock (e.g. Fixed-time vs Q-learning). Each view carries live
 counters (cars queued, queue delay and CO2 accumulated so far, pedestrians waiting), a
 queue-history sparkline with a playhead, an emergency-preemption badge, and colours every
@@ -68,7 +70,9 @@ TEMPLATE = r"""
               letter-spacing:.06em; text-transform:uppercase; }
   canvas.city { width:min(100%, calc(100vh - var(--chrome))); height:auto; aspect-ratio:1/1;
                 background:#060a12; border-radius:14px; display:block; border:1px solid var(--line);
-                box-shadow:0 0 0 1px rgba(34,211,238,0.06), 0 20px 50px rgba(0,0,0,0.45); }
+                box-shadow:0 0 0 1px rgba(34,211,238,0.06), 0 20px 50px rgba(0,0,0,0.45);
+                cursor:zoom-in; }
+  canvas.city.zoomed { cursor:zoom-out; }
   .legend { display:flex; gap:14px; flex-wrap:wrap; font-size:12px; color:var(--muted);
             margin-top:8px; justify-content:center; }
   .sw { display:inline-block; width:11px; height:11px; border-radius:3px; margin-right:4px;
@@ -87,6 +91,13 @@ TEMPLATE = r"""
     <option value="10" selected>10&times;</option><option value="30">30&times;</option>
     <option value="60">60&times;</option>
   </select>
+  <span class="lbl">View</span>
+  <select id="focus" title="Zoom to one junction (or click a junction on the map)">
+    <option value="-1">Whole network</option>
+    <option value="0">J1</option><option value="1">J2</option><option value="2">J3</option>
+    <option value="3">J4</option><option value="4">J5</option><option value="5">J6</option>
+    <option value="6">J7</option><option value="7">J8</option><option value="8">J9</option>
+  </select>
   <input id="scrub" type="range" min="0" max="900" step="1" value="0">
   <span class="clock" id="clock">00:00</span>
 </div>
@@ -99,7 +110,8 @@ TEMPLATE = r"""
   <span><span class="sw" style="background:#f5b301"></span>Bus</span>
   <span><span class="sw" style="background:#f4f6fa;box-shadow:inset 0 -3px 0 #ff4d5e"></span>Ambulance</span>
   <span><span class="sw" style="background:#ff3b4f;width:6px"></span>Brake lights = queued</span>
-  <span><span class="sw" style="background:#a78bfa"></span>Pedestrians</span>
+  <span><svg width="9" height="13" viewBox="0 0 9 13" style="vertical-align:-2px;margin-right:4px"><circle cx="4.5" cy="2" r="1.7" fill="#f1c9a5"/><rect x="2.6" y="4" width="3.8" height="4.6" rx="1.2" fill="#a78bfa"/><path d="M3.4 8.4 L2.4 12.4 M5.6 8.4 L6.6 12.4 M2.6 5 L1.2 8 M6.4 5 L7.8 8" stroke="#cbd5e1" stroke-width="1.1" stroke-linecap="round"/></svg>Pedestrians (waiting / crossing)</span>
+  <span>Click a junction to zoom</span>
   <span><span class="sw" style="background:#34d399"></span><span class="sw" style="background:#fbbf24"></span><span class="sw" style="background:#ff4d5e"></span>Signal</span>
 </div>
 <script>
@@ -119,6 +131,16 @@ const CAR_COLS = ["#eef2f7", "#a8b3c4", "#6b7a90", "#c0566a", "#5b7fbf", "#cdb68
 // per vehicle type (car, AV, truck, bus, emergency): config.EMISSION  (g CO2 per km / per s idle / per stop)
 const EM_KM = [249, 237, 900, 1100, 400], EM_IDLE = [0.74, 0.74, 2.8, 2.8, 1.2],
       EM_STOP = [41, 25, 250, 290, 60];
+const PED_S = 1.55;               // pedestrian figure scale (exaggerated, like the vehicles)
+const ZOOM = 2.8;                 // magnification when one junction is in focus
+const NAMES_J = ["J1 · Street 1 × Avenue A", "J2 · Street 1 × Avenue B", "J3 · Street 1 × Avenue C",
+                 "J4 · Street 2 × Avenue A", "J5 · Street 2 × Avenue B", "J6 · Street 2 × Avenue C",
+                 "J7 · Street 3 × Avenue A", "J8 · Street 3 × Avenue B", "J9 · Street 3 × Avenue C"];
+const SKIN = ["#f1c9a5", "#d9a477", "#b97d52", "#8d5a3a", "#e8b896", "#6b4430"];
+const SHIRT = ["#a78bfa", "#f472b6", "#38bdf8", "#facc15", "#34d399", "#fb923c", "#e2e8f0",
+               "#c084fc", "#60a5fa", "#f87171"];
+const PANTS = ["#334155", "#1e3a5f", "#3f3f46", "#4b5563", "#1f2937"];
+let focus = __FOCUS__;
 let t = 0, playing = false, speed = 10, last = null;
 const tMax = Math.min(...PAYLOADS.map(p => p.t_max));
 document.getElementById("scrub").max = Math.floor(tMax);
@@ -166,28 +188,39 @@ function prep(P) {
   // as in the dashboard KPIs)
   const n = P.segments.length;
   const flat = {n, vt: new Uint8Array(n), te: new Float32Array(n), ta: new Float32Array(n),
-                td: new Float32Array(n), km: new Float32Array(n)};
+                td: new Float32Array(n), km: new Float32Array(n), j: new Uint8Array(n)};
   for (let k = 0; k < n; k++) {
     const g = P.segments[k];
     flat.vt[k] = g[0]; flat.te[k] = g[2]; flat.ta[k] = g[3]; flat.td[k] = g[4];
-    flat.km[k] = geom[g[1]].len / s / 1000;
+    flat.km[k] = geom[g[1]].len / s / 1000; flat.j[k] = Math.floor(g[1] / 4);
   }
   // queue history (cars queued every 10 s) for the sparkline
   const NS = Math.floor(P.t_max / 10) + 1, hist = new Float32Array(NS);
+  const histJ = Array.from({length: 9}, () => new Float32Array(NS));
   for (let k = 0; k < n; k++) {
     if (flat.vt[k] === 4) continue;
     const a0 = Math.ceil(flat.ta[k] / 10), a1 = Math.floor((flat.td[k] - 1e-6) / 10);
-    for (let j = Math.max(0, a0); j <= Math.min(NS - 1, a1); j++) hist[j] += 1;
+    for (let j = Math.max(0, a0); j <= Math.min(NS - 1, a1); j++) { hist[j] += 1; histJ[flat.j[k]][j] += 1; }
   }
-  const S = {P, s, segs, maxDur, geom, B, E, flat, hist};
-  S.bg = backdrop(S);
+  const S = {P, s, segs, maxDur, geom, B, E, flat, hist, histJ, bgFocus: {}};
+  S.bg = backdrop(S, null);
   return S;
 }
 
-function backdrop(S) {           // static city layer, drawn once
+function camera(S, f) {           // world -> screen for junction f (null = whole network)
+  if (f === null || f < 0) return {z: 1, x0: 0, y0: 0};
+  const r = Math.floor(f / 3), c = f % 3;
+  const cx = (S.E + c * S.B) * S.s, cy = (S.E + r * S.B) * S.s, half = SIZE / (2 * ZOOM);
+  const clamp = v => Math.min(SIZE - half, Math.max(half, v));
+  return {z: ZOOM, x0: clamp(cx) - half, y0: clamp(cy) - half};
+}
+
+function backdrop(S, f) {        // static city layer, drawn once per camera
   const {B, E, s} = S;
+  const cam = camera(S, f);
   const cv = document.createElement("canvas"); cv.width = SIZE * DPR; cv.height = SIZE * DPR;
-  const ctx = cv.getContext("2d"); ctx.scale(DPR, DPR);
+  const ctx = cv.getContext("2d");
+  ctx.setTransform(DPR * cam.z, 0, 0, DPR * cam.z, -cam.x0 * DPR * cam.z, -cam.y0 * DPR * cam.z);
   const g0 = ctx.createRadialGradient(SIZE / 2, SIZE / 2, 40, SIZE / 2, SIZE / 2, SIZE * 0.75);
   g0.addColorStop(0, "#0b1324"); g0.addColorStop(1, "#04070d");
   ctx.fillStyle = g0; ctx.fillRect(0, 0, SIZE, SIZE);
@@ -242,7 +275,8 @@ function backdrop(S) {           // static city layer, drawn once
     for (let k = -hh + 1; k < hh; k += 3) { ctx.fillRect(cx + k, cy - hv - 6, 1.6, 4); ctx.fillRect(cx + k, cy + hv + 2, 1.6, 4); }
     for (let k = -hv + 1; k < hv; k += 3) { ctx.fillRect(cx - hh - 6, cy + k, 4, 1.6); ctx.fillRect(cx + hh + 2, cy + k, 4, 1.6); }
   }
-  ctx.font = "700 12px 'JetBrains Mono', monospace"; ctx.fillStyle = "rgba(148,163,184,0.85)";
+  ctx.font = `700 ${(12 / Math.sqrt(cam.z)).toFixed(1)}px 'JetBrains Mono', monospace`;
+  ctx.fillStyle = "rgba(148,163,184,0.85)";
   for (let i = 0; i < 9; i++) {
     const r = Math.floor(i / 3), c = i % 3;
     ctx.fillText("J" + (i + 1), (E + c * B) * s + 2 * LW + 6, (E + r * B) * s - (r === 1 ? 3 : 2) * LW - 7);
@@ -252,7 +286,9 @@ function backdrop(S) {           // static city layer, drawn once
     const gg = ctx.createRadialGradient(ax, ay, 4, ax, ay, 46);
     gg.addColorStop(0, "rgba(167,139,250,0.55)"); gg.addColorStop(1, "rgba(167,139,250,0)");
     ctx.fillStyle = gg; ctx.beginPath(); ctx.arc(ax, ay, 46, 0, 6.283); ctx.fill();
-    ctx.fillStyle = "#c4b5fd"; ctx.font = "700 12px Inter, sans-serif"; ctx.fillText("ARENA", ax - 20, ay + 4);
+    const fz = 12 / Math.sqrt(cam.z);
+    ctx.fillStyle = "#c4b5fd"; ctx.font = `700 ${fz.toFixed(1)}px Inter, sans-serif`;
+    ctx.fillText("ARENA", ax - 1.7 * fz, ay + fz / 3);
   }
   return cv;
 }
@@ -261,6 +297,7 @@ function counters(S) {
   const F = S.flat;
   let delay = 0, co2 = 0, ev = 0;
   for (let k = 0; k < F.n; k++) {
+    if (focus >= 0 && F.j[k] !== focus) continue;
     const vt = F.vt[k];
     const te = F.te[k];
     if (t <= te) continue;
@@ -309,9 +346,13 @@ function draw(S, canvas) {
   const ctx = canvas.getContext("2d");
   const P = S.P;
   const step = Math.min(P.phase.length - 1, Math.max(0, Math.floor(t / P.dt)));
-  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
-  ctx.drawImage(S.bg, 0, 0, SIZE, SIZE);
-  let nQueued = 0;
+  const cam = camera(S, focus);
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  if (focus >= 0 && !S.bgFocus[focus]) S.bgFocus[focus] = backdrop(S, focus);
+  ctx.drawImage(focus >= 0 ? S.bgFocus[focus] : S.bg, 0, 0);
+  ctx.setTransform(DPR * cam.z, 0, 0, DPR * cam.z, -cam.x0 * DPR * cam.z, -cam.y0 * DPR * cam.z);
+  let nQueued = 0, nQJ = 0;
+  const qByL = new Array(36).fill(0);
   const lists = [];
   ctx.globalCompositeOperation = "lighter";
   for (let L = 0; L < 36; L++) {
@@ -326,7 +367,8 @@ function draw(S, canvas) {
     }
     queued.sort((a, b) => a.ta - b.ta);
     const nCars = queued.filter(g => g.vt !== 4).length;
-    nQueued += nCars;
+    nQueued += nCars; qByL[L] = nCars;
+    if (G.i === focus) nQJ += nCars;
     lists.push({queued, moving, nCars});
     tint(ctx, G, nCars);
   }
@@ -383,22 +425,42 @@ function draw(S, canvas) {
     ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x0 + G.right[0] * w, y0 + G.right[1] * w); ctx.stroke();
   }
   ctx.shadowBlur = 0;
-  // pedestrians
+  // pedestrians: figures waiting at the four corners; those served this step walk across
   for (let i = 0; i < 9; i++) {
     const n = P.ped[step][i];
-    if (!n) continue;
     const r = Math.floor(i / 3), c = i % 3;
     const cx = (S.E + c * S.B) * S.s, cy = (S.E + r * S.B) * S.s;
-    const off = (r === 1 ? 3 : 2) * LW + 8;
-    ctx.fillStyle = "#a78bfa";
-    const shown = Math.min(n, 16);
-    for (let k = 0; k < shown; k++) {
-      const corner = k % 4, j = Math.floor(k / 4);
-      const sx = corner % 2 === 0 ? -1 : 1, sy = corner < 2 ? -1 : 1;
-      ctx.beginPath();
-      ctx.arc(cx + sx * (2 * LW + 7 + j * 3.2), cy + sy * off, 1.9, 0, 6.283); ctx.fill();
+    const hv = (r === 1 ? 3 : 2) * LW, hh = 2 * LW;
+    if (n) {
+      const shown = Math.min(n, 24);
+      for (let k = 0; k < shown; k++) {
+        const corner = k % 4, j = Math.floor(k / 4), row = Math.floor(j / 3), col = j % 3;
+        const sx = corner % 2 === 0 ? -1 : 1, sy = corner < 2 ? -1 : 1;
+        drawPed(ctx, cx + sx * (hh + 8 + col * 5.2 + row * 2.6), cy + sy * (hv + 9.5 + row * 9.5),
+                i * 31 + k, false);
+      }
+      if (n > 24) {
+        ctx.fillStyle = "#c4b5fd"; ctx.font = "700 8px 'JetBrains Mono', monospace";
+        ctx.fillText("+" + (n - 24), cx + hh + 8, cy + hv + 33);
+      }
     }
-    if (n > 16) { ctx.font = "700 10px 'JetBrains Mono', monospace"; ctx.fillText(String(n), cx + 2 * LW + 7, cy + off + 13); }
+    // crossing: pedestrians served in this step walk over the zebras that are green for them
+    const prev = step > 0 ? P.ped[step - 1][i] : 0;
+    const served = Math.min(8, Math.max(0, prev - n));
+    if (served > 0) {
+      const ph = P.phase[step][i], p = Math.min(1, (t - step * P.dt) / P.dt);
+      for (let k = 0; k < served; k++) {
+        const dir = k % 2 === 0 ? 1 : -1, side = k % 4 < 2 ? -1 : 1, lag = 0.12 * Math.floor(k / 4);
+        const q = Math.min(1, Math.max(0, p * 1.15 - lag));
+        if (ph === 1) {      // E-W green: walk across the avenue on the north / south zebras
+          const x = cx + dir * (-hh - 5 + q * (2 * hh + 10));
+          drawPed(ctx, x, cy + side * (hv + 4) + 2, i * 17 + k + 500, true);
+        } else {             // N-S green: walk across the street on the west / east zebras
+          const y = cy + dir * (-hv - 5 + q * (2 * hv + 10));
+          drawPed(ctx, cx + side * (hh + 4), y, i * 17 + k + 700, true);
+        }
+      }
+    }
   }
   // incident marker (pulsing)
   const inc = P.incident;
@@ -419,8 +481,67 @@ function draw(S, canvas) {
     for (let k = 0; k < 160; k++) { const x = (k * 97 + t * 40) % SIZE, y = (k * 53 + t * 90) % SIZE;
       ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x - 3, y + 9); ctx.stroke(); }
   }
+  if (focus >= 0) drawFocusInfo(ctx, S, step, qByL);
   const c = counters(S);
-  return {q: nQueued, delay: c.delay, co2: c.co2, ped: P.ped[step].reduce((a, b) => a + b, 0), ev: c.ev};
+  return {q: focus >= 0 ? nQJ : nQueued, delay: c.delay, co2: c.co2,
+          ped: focus >= 0 ? P.ped[step][focus] : P.ped[step].reduce((a, b) => a + b, 0), ev: c.ev};
+}
+
+function drawPed(ctx, x, y, seed, walking) {
+  // a small upright figure (head, torso, arms, legs), sized like the vehicles (exaggerated)
+  const skin = SKIN[seed % SKIN.length], shirt = SHIRT[(seed * 7 + 3) % SHIRT.length],
+        pants = PANTS[(seed * 3 + 1) % PANTS.length];
+  const ph = t * (walking ? 9 : 1.6) + seed * 1.7;
+  const sw = walking ? Math.sin(ph) * 0.95 : 0;                 // stride
+  const bob = walking ? Math.abs(Math.cos(ph)) * 0.25 : Math.sin(ph) * 0.12;
+  ctx.save();
+  ctx.translate(x, y - bob * PED_S);
+  ctx.scale(PED_S, PED_S);
+  ctx.fillStyle = "rgba(0,0,0,0.45)";                            // ground shadow
+  ctx.beginPath(); ctx.ellipse(0, 2.9 + bob, 1.5, 0.45, 0, 0, 6.283); ctx.fill();
+  ctx.lineCap = "round";
+  ctx.strokeStyle = pants; ctx.lineWidth = 0.85;                 // legs
+  ctx.beginPath(); ctx.moveTo(-0.35, 0.4); ctx.lineTo(-0.45 + sw * 0.7, 2.8);
+  ctx.moveTo(0.35, 0.4); ctx.lineTo(0.45 - sw * 0.7, 2.8); ctx.stroke();
+  ctx.strokeStyle = skin; ctx.lineWidth = 0.6;                   // arms
+  ctx.beginPath(); ctx.moveTo(-0.85, -1.6); ctx.lineTo(-1.15 - sw * 0.5, 0.2);
+  ctx.moveTo(0.85, -1.6); ctx.lineTo(1.15 + sw * 0.5, 0.2); ctx.stroke();
+  ctx.fillStyle = shirt;                                          // torso
+  ctx.beginPath(); ctx.roundRect(-0.95, -2.0, 1.9, 2.55, 0.7); ctx.fill();
+  ctx.fillStyle = skin;                                           // head
+  ctx.beginPath(); ctx.arc(0, -3.0, 0.82, 0, 6.283); ctx.fill();
+  ctx.fillStyle = "rgba(20,20,28,0.75)";                          // hair
+  ctx.beginPath(); ctx.arc(0, -3.25, 0.7, Math.PI * 1.05, Math.PI * 1.95); ctx.fill();
+  ctx.restore();
+}
+
+function drawFocusInfo(ctx, S, step, qByL) {
+  // labels in world units around the focused junction: queue per approach and phase
+  const i = focus, r = Math.floor(i / 3), c = i % 3;
+  const cx = (S.E + c * S.B) * S.s, cy = (S.E + r * S.B) * S.s;
+  const HN = ["N", "E", "S", "W"];
+  ctx.font = "700 5.2px 'JetBrains Mono', monospace";
+  for (let a = 0; a < 4; a++) {
+    const G = S.geom[i * 4 + a], q = qByL[i * 4 + a];
+    const lx = G.stop[0] - G.d[0] * 34 + G.right[0] * (G.lanes * LW + 6);
+    const ly = G.stop[1] - G.d[1] * 34 + G.right[1] * (G.lanes * LW + 6);
+    const txt = HN[a] + " " + q;
+    const w = ctx.measureText(txt).width + 4;
+    ctx.fillStyle = "rgba(7,11,20,0.82)"; ctx.strokeStyle = "rgba(34,211,238,0.55)"; ctx.lineWidth = 0.4;
+    ctx.beginPath(); ctx.roundRect(lx - w / 2, ly - 4, w, 6.4, 1.6); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = q > 12 ? "#ff6b7a" : (q > 5 ? "#fbbf24" : "#34d399");
+    ctx.fillText(txt, lx - w / 2 + 2, ly + 0.9);
+  }
+  // screen-space caption
+  ctx.save(); ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  const ph = S.P.phase[step][i];
+  const cap = NAMES_J[i] + "  ·  " + (ph === 0 ? "N-S green" : "E-W green") + "  ·  queue per approach";
+  ctx.font = "700 12px Inter, sans-serif";
+  const w = ctx.measureText(cap).width + 16;
+  ctx.fillStyle = "rgba(7,11,20,0.85)"; ctx.beginPath(); ctx.roundRect(8, 8, w, 22, 8); ctx.fill();
+  ctx.strokeStyle = "rgba(34,211,238,0.45)"; ctx.lineWidth = 1; ctx.stroke();
+  ctx.fillStyle = "#e8eef8"; ctx.fillText(cap, 16, 23);
+  ctx.restore();
 }
 
 function drawVeh(ctx, G, lane, along, g, moving) {
@@ -494,7 +615,8 @@ function drawVeh(ctx, G, lane, along, g, moving) {
 function drawSpark(v) {
   const cv = v.spark, ctx = cv.getContext("2d");
   const W = cv.width = cv.clientWidth * 2, H = cv.height = cv.clientHeight * 2;
-  const h = v.S.hist, mx = Math.max(1, ...v.yMax);
+  const h = focus >= 0 ? v.S.histJ[focus] : v.S.hist;
+  const mx = Math.max(1, ...(focus >= 0 ? states.map(S => Math.max(...S.histJ[focus])) : v.yMax));
   ctx.clearRect(0, 0, W, H);
   const X = j => (j / (h.length - 1)) * W, Y = q => H - 4 - (q / mx) * (H - 18);
   const col = PCOL[v.name] || "#22d3ee";
@@ -535,8 +657,33 @@ const views = states.map((S, k) => {
   sb.appendChild(sl);
   const cv = document.createElement("canvas"); cv.className = "city"; cv.width = SIZE * DPR; cv.height = SIZE * DPR;
   cell.appendChild(head); cell.appendChild(kp); cell.appendChild(sb); cell.appendChild(cv); wrap.appendChild(cell);
-  return {S, cv, tiles, spark: sp, name: NAMES[k], badge: head.querySelector(".badge"), yMax: yMaxAll};
+  cv.addEventListener("click", ev => {          // click a junction to zoom, click again to go back
+    if (focus >= 0) { setFocus(-1); return; }
+    const rc = cv.getBoundingClientRect();
+    const wx = (ev.clientX - rc.left) / rc.width * SIZE, wy = (ev.clientY - rc.top) / rc.height * SIZE;
+    let best = -1, bd = 1e9;
+    for (let i = 0; i < 9; i++) {
+      const r = Math.floor(i / 3), c = i % 3;
+      const d = Math.hypot(wx - (S.E + c * S.B) * S.s, wy - (S.E + r * S.B) * S.s);
+      if (d < bd) { bd = d; best = i; }
+    }
+    if (bd < 70) setFocus(best);
+  });
+  return {S, cv, tiles, spark: sp, sl, name: NAMES[k], badge: head.querySelector(".badge"), yMax: yMaxAll};
 });
+function setFocus(f) {
+  focus = f;
+  document.getElementById("focus").value = String(f);
+  views.forEach(v => {
+    v.cv.className = "city" + (f >= 0 ? " zoomed" : "");
+    v.sl.textContent = f >= 0 ? "Cars queued at J" + (f + 1) + " over time" : "Cars queued over time";
+    v.tiles.q.querySelector(".l").textContent = f >= 0 ? "Queued now · J" + (f + 1) : "Queued now";
+    v.tiles.ped.querySelector(".l").textContent = f >= 0 ? "Peds waiting · J" + (f + 1) : "Peds waiting";
+    v.tiles.delay.querySelector(".l").textContent = f >= 0 ? "J" + (f + 1) + " delay · veh-min" : "Queue delay · veh-min";
+    v.tiles.co2.querySelector(".l").textContent = f >= 0 ? "J" + (f + 1) + " CO₂ · kg" : "CO₂ · kg";
+  });
+  render();
+}
 const FMT = {q: v => String(Math.round(v)), delay: v => v.toFixed(1), co2: v => v.toFixed(1),
              ped: v => String(Math.round(v))};
 function render() {
@@ -574,18 +721,20 @@ document.getElementById("play").onclick = () => {
 };
 document.getElementById("reset").onclick = () => { t = 0; render(); };
 document.getElementById("speed").onchange = e => { speed = Number(e.target.value); };
+document.getElementById("focus").onchange = e => { setFocus(Number(e.target.value)); };
 document.getElementById("scrub").oninput = e => { t = Number(e.target.value); render(); };
 document.addEventListener("keydown", e => { if (e.code === "Space") { e.preventDefault(); document.getElementById("play").click(); } });
 window.addEventListener("resize", render);
 t = Math.min(__START__, tMax);
-render();
+setFocus(focus);
 if (__AUTOPLAY__) document.getElementById("play").click();
 </script></body></html>
 """
 
 
 def render_html(payloads: list[dict], names: list[str], start: float = 0.0,
-                autoplay: bool = False) -> str:
+                autoplay: bool = False, focus: int = -1) -> str:
+    """focus: junction index 0-8 to open zoomed on that junction, -1 = whole network."""
     slim = []
     for p in payloads:
         q = {k: p[k] for k in ("dt", "lost", "t_max", "block", "entry", "lanes", "up",
@@ -598,4 +747,5 @@ def render_html(payloads: list[dict], names: list[str], start: float = 0.0,
     html = html.replace("__NAMES__", json.dumps(names))
     html = html.replace("__START__", str(float(start)))
     html = html.replace("__AUTOPLAY__", "true" if autoplay else "false")
+    html = html.replace("__FOCUS__", str(int(focus) if focus is not None else -1))
     return html

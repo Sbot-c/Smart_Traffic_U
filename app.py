@@ -388,6 +388,21 @@ def _link_toggled():
             st.session_state[k] = v
 
 
+JN_LABEL = {jn: f"{jn} · {C.STREET_NAMES[k // 3].split(' (')[0]} × {C.AVENUE_NAMES[k % 3]}"
+            for k, jn in enumerate(C.JUNCTION_NAMES)}
+
+
+def _focus_changed():
+    """Point the per-view junction pickers at the focused junction."""
+    f = st.session_state.get("focus-j", "Whole network")
+    if f in C.JUNCTION_NAMES:
+        for k_ in ("trace-j", "q-j"):
+            st.session_state[k_] = f
+        st.session_state["ts-j"] = f
+    else:
+        st.session_state["ts-j"] = "All junctions"
+
+
 with st.sidebar:
     st.markdown('<div class="sbh">🚦 Traffic <span>Command</span> Centre</div>', unsafe_allow_html=True)
     st.markdown('<span class="muted">Multi-agent Q-learning & SARSA with decision-network '
@@ -395,6 +410,13 @@ with st.sidebar:
     scenario = st.selectbox("Scenario", C.SCENARIO_ORDER, format_func=lambda s: LABEL[s],
                             index=1)
     policy = st.selectbox("Control policy", POL, index=2)
+    st.selectbox("Junction focus", ["Whole network"] + C.JUNCTION_NAMES, key="focus-j",
+                 format_func=lambda j: j if j == "Whole network" else JN_LABEL[j],
+                 on_change=_focus_changed,
+                 help="Zoom every replay to one junction and show that junction's numbers "
+                      "(City Overview), its signal decisions and learned policy (RL Simulation) "
+                      "and its time series (Scenario Explorer). Inside a replay you can also "
+                      "pick a junction from the View menu or click it on the map.")
     st.markdown("**Stakeholder weights** (multi-attribute utility)")
     st.toggle("Link weights (always sum to 100)", key="w-link", on_change=_link_toggled,
               help="The weights are shares of one budget: raising one lowers the other two "
@@ -430,6 +452,8 @@ with st.sidebar:
                "city sensor feeds.")
 
 SC = C.SCENARIOS[scenario]
+FOCUS_J = st.session_state.get("focus-j", "Whole network")
+FOCUS = C.JUNCTION_NAMES.index(FOCUS_J) if FOCUS_J in C.JUNCTION_NAMES else -1
 k_sel = KPI[(KPI.scenario == scenario) & (KPI.policy == policy)]
 k_base = KPI[(KPI.scenario == scenario) & (KPI.policy == "Fixed-time")]
 
@@ -461,7 +485,8 @@ st.markdown(
        _hstat("CO₂ change", f"{_co2chg:+.0f}%", "", "good" if _co2chg < 0 else "bad"))
     + '</div></div>'
     f'<div class="ctx"><span class="pill">{SC["label"]}</span><span class="pill">{policy}</span>'
-    f'<span class="pill">{_wx}</span><span class="desc">{SC["description"]}</span></div></div>',
+    + (f'<span class="pill">🎯 {JN_LABEL[FOCUS_J]}</span>' if FOCUS >= 0 else '')
+    + f'<span class="pill">{_wx}</span><span class="desc">{SC["description"]}</span></div></div>',
     unsafe_allow_html=True)
 
 # ticker: every scenario, best package against the fixed-time plan (delay)
@@ -537,23 +562,54 @@ def pct(v, b):
 # 1. City overview
 # ======================================================================================
 if view == VIEWS[0]:
-    cols = st.columns(6)
-    tiles = [("Avg delay", "avg_delay_s", "s/veh", True, "{:.1f}"),
-             ("Throughput", "throughput_vph", "veh/h", False, "{:,.0f}"),
-             ("CO₂ emitted", "co2_kg", "kg", True, "{:,.0f}"),
-             ("Safety score", "safety_score", "/100", False, "{:.1f}"),
-             ("Bus on time", "bus_on_time_pct", "%", False, "{:.0f}"),
-             ("Pedestrian wait", "ped_avg_wait_s", "s", True, "{:.1f}")]
-    for c, (lab, col, unit, lower_better, fmt) in zip(cols, tiles):
-        v, b = mean(k_sel, col), mean(k_base, col)
-        delta = None if policy == "Fixed-time" else f"{pct(v, b):+.1f}% vs fixed"
-        c.metric(f"{lab} ({unit})", fmt.format(v), delta,
-                 delta_color="inverse" if lower_better else "normal")
-    st.caption("Policies are packages: *Actuated* = actuated signals with fixed routes; "
-               "*Q-learning* / *SARSA* = RL signals with cooperative AV routing. "
-               "Signal-versus-routing effects are separated in Policy Comparison. "
-               "Means over 8 evaluation episodes; deltas compare against the Webster "
-               "fixed-time plan with the same arrivals.")
+    if FOCUS >= 0:
+        _sim = T["sim"]
+        _jx = _sim[(_sim.scenario == scenario) & (_sim.junction == FOCUS_J)]
+
+        def _jstats(d):
+            return {"delay": d.vehicle_delay_s.sum() / 3600, "dep": d.departures.sum(),
+                    "dpv": d.vehicle_delay_s.sum() / max(1.0, d.departures.sum()),
+                    "queue": d.queue_total.mean(), "conf": d.expected_conflicts.sum(),
+                    "ped": d.ped_waiting.mean(), "co2": d.co2_g.sum() / 1000,
+                    "jay": d.jaywalks.sum(), "switch": d.phase_changes.sum()}
+        JS = {p_: _jstats(_jx[_jx.policy == p_]) for p_ in POL}
+        st.markdown(f"#### 🎯 {JN_LABEL[FOCUS_J]}")
+        cols = st.columns(6)
+        jtiles = [("Delay per vehicle", "dpv", "s/veh", True, "{:.1f}"),
+                  ("Vehicles served", "dep", "veh", False, "{:,.0f}"),
+                  ("Mean queue", "queue", "veh", True, "{:.1f}"),
+                  ("Expected conflicts", "conf", "", True, "{:.2f}"),
+                  ("Peds waiting", "ped", "mean", True, "{:.1f}"),
+                  ("CO₂ emitted", "co2", "kg", True, "{:,.0f}")]
+        for c, (lab, key_, unit, lower_better, fmt) in zip(cols, jtiles):
+            v, b = JS[policy][key_], JS["Fixed-time"][key_]
+            delta = None if policy == "Fixed-time" else f"{pct(v, b):+.1f}% vs fixed"
+            c.metric(f"{lab} ({unit})" if unit else lab, fmt.format(v), delta,
+                     delta_color="inverse" if lower_better else "normal")
+        st.caption(f"{FOCUS_J} only, over the whole 30-minute recorded evaluation episode, "
+                   "against fixed-time signals at the same junction with the same arrivals. "
+                   "Under the RL packages cooperative routing moves traffic between junctions, "
+                   "so a junction can serve more vehicles; compare delay per vehicle. "
+                   "Choose *Whole network* under Junction focus in the sidebar for the network "
+                   "KPIs (means of 8 episodes).")
+    else:
+        cols = st.columns(6)
+        tiles = [("Avg delay", "avg_delay_s", "s/veh", True, "{:.1f}"),
+                 ("Throughput", "throughput_vph", "veh/h", False, "{:,.0f}"),
+                 ("CO₂ emitted", "co2_kg", "kg", True, "{:,.0f}"),
+                 ("Safety score", "safety_score", "/100", False, "{:.1f}"),
+                 ("Bus on time", "bus_on_time_pct", "%", False, "{:.0f}"),
+                 ("Pedestrian wait", "ped_avg_wait_s", "s", True, "{:.1f}")]
+        for c, (lab, col, unit, lower_better, fmt) in zip(cols, tiles):
+            v, b = mean(k_sel, col), mean(k_base, col)
+            delta = None if policy == "Fixed-time" else f"{pct(v, b):+.1f}% vs fixed"
+            c.metric(f"{lab} ({unit})", fmt.format(v), delta,
+                     delta_color="inverse" if lower_better else "normal")
+        st.caption("Policies are packages: *Actuated* = actuated signals with fixed routes; "
+                   "*Q-learning* / *SARSA* = RL signals with cooperative AV routing. "
+                   "Signal-versus-routing effects are separated in Policy Comparison. "
+                   "Means over 8 evaluation episodes; deltas compare against the Webster "
+                   "fixed-time plan with the same arrivals.")
 
     minute = minute_slider()
     left, right = st.columns([1.25, 1])
@@ -563,7 +619,8 @@ if view == VIEWS[0]:
                    "by queue per lane (green = free, red = long queue); counters accumulate "
                    "from 00:00. Press space to play or pause.")
         embed(sim_view.render_html([anim_payload(scenario, policy)], [policy],
-                                   start=min(minute * 60, 870), autoplay=True), height=780)
+                                   start=min(minute * 60, 870), autoplay=True, focus=FOCUS),
+              height=780)
     with right:
         sim = T["sim"]
         sim_sc = sim[(sim.scenario == scenario) & (sim.policy == policy)]
@@ -576,22 +633,55 @@ if view == VIEWS[0]:
             ph[i] = 0 if r.ns_green_share >= 0.5 else 1
         show(viz.network_map(q, ph, incident=SC.get("incident") if SC.get("incident") and
                              SC["incident"]["t_start"] <= minute * 60 < SC["incident"]["t_end"]
-                             else None, height=430), key="map")
+                             else None, height=430, highlight=FOCUS), key="map")
         st.caption("Bubble size and colour = mean queue on each approach in that 30-second "
                    "window; badge = phase that held green most of the window.")
-        jt = sim_sc.groupby("junction").agg(
-            delay_veh_h=("vehicle_delay_s", lambda x: x.sum() / 3600),
-            expected_conflicts=("expected_conflicts", "sum"),
-            co2_kg=("co2_g", lambda x: x.sum() / 1000), jaywalks=("jaywalks", "sum"),
-            phase_changes=("phase_changes", "sum")).reset_index()
-        table(jt.round(2), height=360)
+        if FOCUS >= 0:
+            st.markdown(f"**All four policies at {FOCUS_J}** (same arrivals, whole episode)")
+            jp = pd.DataFrame([{"policy": p_, "delay_s_per_veh": JS[p_]["dpv"],
+                                "delay_veh_h": JS[p_]["delay"],
+                                "vehicles_served": JS[p_]["dep"],
+                                "mean_queue": JS[p_]["queue"],
+                                "expected_conflicts": JS[p_]["conf"],
+                                "peds_waiting": JS[p_]["ped"], "jaywalks": JS[p_]["jay"],
+                                "co2_kg": JS[p_]["co2"], "phase_changes": JS[p_]["switch"]}
+                               for p_ in POL])
+            table(jp.round(2), height=210)
+            jsel_ = sim_sc[sim_sc.junction == FOCUS_J]
+            appr = pd.DataFrame({"approach": ["from N", "from E", "from S", "from W"],
+                                 "mean_queue": [jsel_[c].mean() for c in
+                                                ("queue_n", "queue_e", "queue_s", "queue_w")],
+                                 "max_queue": [jsel_[c].max() for c in
+                                               ("queue_n", "queue_e", "queue_s", "queue_w")]})
+            st.markdown(f"**{policy} at {FOCUS_J}, by approach**")
+            table(appr.round(1), height=180)
+        else:
+            jt = sim_sc.groupby("junction").agg(
+                delay_veh_h=("vehicle_delay_s", lambda x: x.sum() / 3600),
+                expected_conflicts=("expected_conflicts", "sum"),
+                co2_kg=("co2_g", lambda x: x.sum() / 1000), jaywalks=("jaywalks", "sum"),
+                phase_changes=("phase_changes", "sum")).reset_index()
+            table(jt.round(2), height=360)
 
-    st.markdown("#### Network queue over the episode")
-    show(viz.timeseries(T["sim"], scenario, "queue_total",
-                        "Vehicles queued (all junctions)", height=300, agg="sum"),
-         key="ts-queue")
-    st.caption("Mean queue in each 30-second window of evaluation episode 1, summed over "
-               "the nine junctions.")
+    if FOCUS >= 0:
+        st.markdown(f"#### Queue at {FOCUS_J} over the episode")
+        q1, q2 = st.columns(2)
+        with q1:
+            show(viz.timeseries(T["sim"], scenario, "queue_total",
+                                f"Vehicles queued at {FOCUS_J}", junction=FOCUS_J, height=300,
+                                agg="sum", title="All policies"), key="ts-queue-j")
+        with q2:
+            show(viz.approach_lines(sim_sc[sim_sc.junction == FOCUS_J], height=300,
+                                    title=f"{policy}, by approach"), key="ts-appr")
+        st.caption("Mean queue in each 30-second window of evaluation episode 1.")
+    else:
+        st.markdown("#### Network queue over the episode")
+        show(viz.timeseries(T["sim"], scenario, "queue_total",
+                            "Vehicles queued (all junctions)", height=300, agg="sum"),
+             key="ts-queue")
+        st.caption("Mean queue in each 30-second window of evaluation episode 1, summed over "
+                   "the nine junctions. Pick a junction under *Junction focus* (sidebar) or "
+                   "click one in the replay to look at it on its own.")
 
 # ======================================================================================
 # 2. RL simulation
@@ -605,7 +695,8 @@ if view == VIEWS[1]:
         minute = minute_slider()
     embed(sim_view.render_html([anim_payload(scenario, left_pol),
                                 anim_payload(scenario, right_pol)],
-                               [left_pol, right_pol], start=min(minute * 60, 870)), height=740)
+                               [left_pol, right_pol], start=min(minute * 60, 870),
+                               focus=FOCUS), height=740)
     st.caption("Same arrivals, same seed, one clock: only the control policy differs. Counters "
                "accumulate from 00:00 (cars queued now, queue delay, CO₂); the right-hand tiles "
                "show the change against the left view. Space = play/pause.")
@@ -613,7 +704,8 @@ if view == VIEWS[1]:
     st.markdown("#### Agent decisions")
     d1, d2, d3 = st.tabs(["Traffic-light agents", "Bus agents", "Autonomous-vehicle routing"])
     with d1:
-        jn = st.selectbox("Junction", C.JUNCTION_NAMES, index=4, key="trace-j")
+        jn = st.selectbox("Junction", C.JUNCTION_NAMES, index=FOCUS if FOCUS >= 0 else 4,
+                          key="trace-j")
         i = C.JUNCTION_NAMES.index(jn)
         P = ANIMS[f"{scenario}|{policy}"]
         rows = []
@@ -666,7 +758,8 @@ if view == VIEWS[1]:
         st.markdown("#### Learned signal policy")
         m = X.policy_tables(MODELS, policy, scenario)["signals"]
         c = st.columns(5)
-        jn2 = c[0].selectbox("Junction", C.JUNCTION_NAMES, index=4, key="q-j")
+        jn2 = c[0].selectbox("Junction", C.JUNCTION_NAMES, index=FOCUS if FOCUS >= 0 else 4,
+                             key="q-j")
         phs = c[1].selectbox("Phase", ["NS green", "EW green"], key="q-ph")
         gb = c[2].selectbox("Green so far", A.GREEN_BINS[1:], index=1, key="q-g")
         ab = c[3].selectbox("Arrivals on green (next 6 s)", ["none", "1-2", "3+"], key="q-a")
@@ -886,7 +979,8 @@ if view == VIEWS[3]:
         show(viz.box_by_policy(ks, "co2_kg", "kg", height=300, title="CO₂ emitted"),
              key="bx3")
     c1, c2 = st.columns([1, 1])
-    jsel = c1.selectbox("Junction", ["All junctions"] + C.JUNCTION_NAMES, key="ts-j")
+    jsel = c1.selectbox("Junction", ["All junctions"] + C.JUNCTION_NAMES, key="ts-j",
+                        index=FOCUS + 1)
     msel = c2.selectbox("Measure", ["vehicle_delay_s", "queue_total", "ped_waiting",
                                     "expected_conflicts", "co2_g", "departures", "jaywalks"],
                         format_func=lambda m: MEASURE.get(m, m), key="ts-m")
@@ -1564,7 +1658,8 @@ if view == VIEWS[6]:
                   "pre-empting signals.")
     with st.spinner("Recording replays ..."):
         pls = _lab_record(items, (lp, rp))
-    embed(sim_view.render_html(pls, [lp, rp], start=0, autoplay=True), height=760)
+    embed(sim_view.render_html(pls, [lp, rp], start=0, autoplay=True, focus=FOCUS),
+          height=760)
 
     st.markdown("#### Stress test: where does each controller break?")
     sv = st.columns([1.2, 2.8])
