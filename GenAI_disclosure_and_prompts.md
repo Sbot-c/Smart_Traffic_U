@@ -19,9 +19,9 @@ differentiate your own vs GenAI content."* This file is the separate prompt reco
 
 ## Prompt log (in date order)
 
-The project was built in seven Claude chats (A-G, described below the table). Prompts marked
-**verbatim** are copied exactly from the chat. Three are still missing because the exported text
-of those chats does not include them: **P6** and the first request of **P15**.
+The project was built in eight Claude chats (A-H, described below the table). Prompts marked
+**verbatim** are copied exactly from the chat. Two are still missing because the exported text
+of those chats does not include them: **P6** and the first request of **P17**.
 
 | # | Date | Chat | Purpose | Prompt | Output |
 |---|---|---|---|---|---|
@@ -35,18 +35,20 @@ of those chats does not include them: **P6** and the first request of **P15**.
 | P8 | ≈7 Nov 2026 | D | Build the live what-if panel | verbatim, below | *Live What-If* tab (later replaced by the Simulation Lab) |
 | P9 | ≈7 Nov 2026 | D | Ask for further improvements | verbatim, below | ranked to-do list (UI fixes, side-by-side replay, pedestrian trade-off, value of time, extras) |
 | P10 | ≈7–8 Nov 2026 | F | Items 1 and 2 of the Chat D list (pasted in), with the problem statement attached | verbatim, below | only the open view drawn, projector fonts, Deploy menu hidden, readable tables, tie label, readings under value of information and the weight triangle; side-by-side replay with live counters, queue-coloured roads, minute slider |
-| P11 | ≈7–8 Nov 2026 | G | Items 1-4 of the Chat D list (pasted in), with the problem statement attached | verbatim, below | UI fixes and side-by-side replay (as P10), plus the pedestrian-weight trade-off (`ped_tradeoff.py`, `data/ped_weight_tradeoff.csv`) and value of time in AED (`value_of_time.py`, `make_figures.py`, `figures/`) |
-| P12 | ≈8 Nov 2026 | E | Finish what was left of the pedestrian trade-off work (previous status message pasted in) | verbatim, below | dashboard sections tested, trade-off figure labels fixed, paste-ready wording added to `CORRECTIONS_FOR_SPEC_AND_SLIDES.md`, README and caption updated; SARSA sweep and notebook left undone on purpose |
-| P13 | 8 Nov 2026 | B | Dashboard upgrade | verbatim, below | command-centre theme, Simulation Lab, linked sliders |
-| P14 | 8 Nov 2026 | B | Research extensions and the deck | verbatim, below | `extensions.py`, `data/ext_*.csv`, Research Extensions view, 16-slide deck |
-| P15 | 8 Nov 2026 | B | Project report and spec v2.0 PDF | first request: **paste the verbatim prompt**; two follow-ups verbatim, below | `report/Smart_Traffic_Project_Report.pdf`, `Requirement_Specification.pdf` v2.0 |
-| P16 | 10 Nov 2026 | A | Review of the submitted folder against the professor's class notes | verbatim, below | review: eight gaps, inconsistencies, likely questions |
-| P17 | 10 Nov 2026 | A | Turn the review into a document | verbatim, below | Claude doc "Group 2 Submission Review – Smart City Traffic" |
-| P18 | 12 Nov 2026 | C | Close the review's gaps | verbatim, below | the changes listed under P18 |
-| P19 | 12 Nov 2026 | C | Names and push | verbatim, below | names added; pushed to GitHub |
-| P20 | 12 Nov 2026 | C | Ownership by dashboard view | verbatim, below | slide 3 and the spec's team table reorganised by view |
-| P21 | 12 Nov 2026 | C | Dashboard: humanoid pedestrians, single-junction focus, slider fix | verbatim, below | `sim_view.py`, `app.py`, `viz.py` |
-| P22 | 12 Nov 2026 | C | Slide 16 wording and this prompt log | verbatim, below | "Our own work" column on slide 16; this log completed |
+| P11 | ≈7–8 Nov 2026 | G | Items 1-4 of the Chat D list (pasted in), with the problem statement attached | verbatim, below | an attempt at all four items (UI fixes, replay, pedestrian trade-off, value of time); the trade-off and value of time that were shipped came from Chat H |
+| P12 | ≈8 Nov 2026 | H | Items 3 and 4 of the Chat D list (pasted in), with the problem statement attached | verbatim, below | `value_of_time.py` (AED 51.8 per person-hour, U.S. DOT value × AED peg); `ped_tradeoff.py` (seven pedestrian weights × 3 training seeds) |
+| P13 | ≈8 Nov 2026 | H | Ship what is finished | verbatim, below | `smart_traffic_updated.zip` with `ped_tradeoff.py`, `value_of_time.py`, `make_figures.py`, `data/ped_weight_tradeoff.csv` (Q-learning sweep; the half-finished SARSA sweep stopped), `figures/`, two new KPI-view sections |
+| P14 | ≈8 Nov 2026 | E | Finish what was left of the Chat H work (Chat H's status message pasted in) | verbatim, below | dashboard sections tested, trade-off figure labels fixed, paste-ready wording added to `CORRECTIONS_FOR_SPEC_AND_SLIDES.md`, README and caption updated; SARSA sweep and notebook left undone on purpose |
+| P15 | 8 Nov 2026 | B | Dashboard upgrade | verbatim, below | command-centre theme, Simulation Lab, linked sliders |
+| P16 | 8 Nov 2026 | B | Research extensions and the deck | verbatim, below | `extensions.py`, `data/ext_*.csv`, Research Extensions view, 16-slide deck |
+| P17 | 8 Nov 2026 | B | Project report and spec v2.0 PDF | first request: **paste the verbatim prompt**; two follow-ups verbatim, below | `report/Smart_Traffic_Project_Report.pdf`, `Requirement_Specification.pdf` v2.0 |
+| P18 | 10 Nov 2026 | A | Review of the submitted folder against the professor's class notes | verbatim, below | review: eight gaps, inconsistencies, likely questions |
+| P19 | 10 Nov 2026 | A | Turn the review into a document | verbatim, below | Claude doc "Group 2 Submission Review – Smart City Traffic" |
+| P20 | 12 Nov 2026 | C | Close the review's gaps | verbatim, below | the changes listed under P20 |
+| P21 | 12 Nov 2026 | C | Names and push | verbatim, below | names added; pushed to GitHub |
+| P22 | 12 Nov 2026 | C | Ownership by dashboard view | verbatim, below | slide 3 and the spec's team table reorganised by view |
+| P23 | 12 Nov 2026 | C | Dashboard: humanoid pedestrians, single-junction focus, slider fix | verbatim, below | `sim_view.py`, `app.py`, `viz.py` |
+| P24 | 12 Nov 2026 | C | Slide 16 wording and this prompt log | verbatim, below | "Our own work" column on slide 16; this log completed |
 
 Listed in the order the work happened:
 
@@ -57,13 +59,15 @@ Listed in the order the work happened:
   list used in Chats F and G. *Its first request (P6) is above the exported text: scroll to the
   top of the chat (the AI's reply begins "Read the code and confirmed your numbers against the
   CSVs…").*
-- **Chats F and G** — two fresh chats, each started by pasting the Chat D to-do list: F asked
-  for items 1-2, G for items 1-4 (≈7–8 Nov).
-- **Chat E** — a short follow-up that finished the Chat G work (≈8 Nov), started from a pasted
-  copy of Chat G's status message.
+- **Chats F, G and H** — three fresh chats, each started by pasting the Chat D to-do list: F
+  asked for items 1-2 (UI fixes, side-by-side replay), G for items 1-4, H for items 3-4
+  (pedestrian trade-off, value of time) (≈7–8 Nov). The shipped trade-off and value-of-time
+  files come from H.
+- **Chat E** — a short follow-up that finished the Chat H work (≈8 Nov), started from a pasted
+  copy of Chat H's last status message.
 - **Chat B** — turned that into the submitted build (8 Nov): dashboard upgrade, research
   extensions, deck, report and spec v2.0. *The exported text skips its middle: the first report
-  request (P15) is the message just before the reply "I'll do both: build the 3–4 page report
+  request (P17) is the message just before the reply "I'll do both: build the 3–4 page report
   PDF first…".*
 - **Chat C** — the final fixes (12 Nov).
 
@@ -95,14 +99,14 @@ During this run the AI also created the requirement specification as a Claude do
 ### P5 (7–8 Nov, verbatim)
 > Yes go ahead and fix and improve
 
-### P16 (10 Nov, verbatim)
+### P18 (10 Nov, verbatim)
 > I just got to know that these are what the prof said in class
 >
 > For now I dont want you to make any changes to the project
 > I have added a new folder in that folder called smart_traffic_final this is the one we have submitted
 > I want you to go through these and get back to me
 
-### P17 (10 Nov, verbatim)
+### P19 (10 Nov, verbatim)
 > Create a Claude Doc from your last answer.
 
 ## Chat D
@@ -142,15 +146,29 @@ and CO₂, roads coloured by queue length, replay clock linked to the minute sli
 followed by the same pasted list: items 1-2 as in P10, *3. Pedestrian-weight trade-off chart*
 (retrain rush hour at several pedestrian weights, plot delay against pedestrian wait) and
 *4. Value of time in money* (convert vehicle-hours saved into currency with a cited value of
-time). Chat G's last status message (the SARSA sweep stopped, the Q-learning sweep shipped) is
+time).
+
+## Chat H
+
+### P12 (≈8 Nov, verbatim; attached: the problem statement PDF)
+> Do these changes namely(3 and 4) , I have also attached the problem statement pdf for context
+
+followed by the pasted list from item 3 onwards (*3. Pedestrian-weight trade-off chart*, *4. Value
+of time in money*, then the cheap extras and the demo items).
+
+### P13 (≈8 Nov, verbatim)
+> Just give me the changed zip whatever is left I'll do it later
+
+The AI stopped the half-finished SARSA sweep, shipped the complete Q-learning sweep and listed
+what was left (the corrections wording, the SARSA sweep, the notebook). That status message is
 the text pasted into Chat E.
 
 ## Chat E
 
-### P12 (≈8 Nov, verbatim)
+### P14 (≈8 Nov, verbatim)
 > Whatever is left in the below texts, do those changes
 
-followed by a pasted copy of the AI's previous status message (the Q-learning pedestrian-weight
+followed by a pasted copy of Chat H's last status message (the Q-learning pedestrian-weight
 sweep shipped without the SARSA half-curve; new `ped_tradeoff.py`, `value_of_time.py`,
 `make_figures.py`, `data/ped_weight_tradeoff.csv`, `figures/`; items left: the wording in
 `CORRECTIONS_FOR_SPEC_AND_SLIDES.md`, the SARSA sweep, the notebook; caveats on the US value of
@@ -158,13 +176,13 @@ time and the 64.8 vs 69 s retraining gap).
 
 ## Chat B
 
-### P13 (8 Nov, verbatim)
+### P15 (8 Nov, verbatim)
 > See if there are any caveats in the dashboard, fix them, add additional functionality if possible which is around the problem statement for the project. Also make the dashboard look amazing, it should look as if it's made to attract attention, the simulators and all, the live traffic and everything it shouldn't look like a demo project. Moreover, for the simulators, and what-if if there is any correlation possible in between the sliders add them too accordingly.
 
-### P14 (8 Nov, verbatim)
+### P16 (8 Nov, verbatim)
 > Can we fill these 5 gaps instead of making it a weakness for our project? Also for the final dashboard after making changes, I would need PPT accordingly
 
-### P15 (8 Nov)
+### P17 (8 Nov)
 First request (the one answered with *"I'll do both: build the 3–4 page report PDF first … then
 update the specification doc"*):
 > **paste the verbatim prompt**
@@ -179,10 +197,10 @@ project (v2.0) and put it in the zip with the 3-page report.
 
 ## Chat C
 
-### P18 (12 Nov, verbatim; attached: `smart_traffic_final.zip` and `Group_2_Submission_Review___Smart_City_Traffic.pdf`)
+### P20 (12 Nov, verbatim; attached: `smart_traffic_final.zip` and `Group_2_Submission_Review___Smart_City_Traffic.pdf`)
 > Read the whole thing check which gaps are needed to fill then provide the final zip with everything covered.
 
-What P18 changed:
+What P20 changed:
 - **Colab link** (open to anyone, opens the notebook straight from the public GitHub repository):
   https://colab.research.google.com/github/Sbot-c/Smart_Traffic_U/blob/main/Smart_Traffic_MARL_DecisionNetwork.ipynb
 - **Deck**: hosted dashboard and Colab links on the last slide (no "streamlit run"), wake-button
@@ -202,35 +220,35 @@ What P18 changed:
 - **UI wireframe** redrawn for the eight views (`docs/ui_wireframe.html`, `docs/dashboard_ui_diagram.png`).
 - **Notebook** findings brought in line with the deck; links added.
 
-### P19 (12 Nov, verbatim)
+### P21 (12 Nov, verbatim)
 > You can push it, I have linked the github repo anyways.
 > Names:
 > 1. Siddal 2. Shashaank 3. Sparsh 4. Aradhana 5. Shirley
 
-What P19 changed: team names on slides 1-3 and in the spec; this folder pushed to the GitHub
+What P21 changed: team names on slides 1-3 and in the spec; this folder pushed to the GitHub
 repository (live app and Colab link updated).
 
-### P20 (12 Nov, verbatim)
+### P22 (12 Nov, verbatim)
 > We have taken responsibility from dashboard tabs itself:
 > 1. City Overview - 2. RL Simulation - Shashaank 3. Decision Network Visualizer - Siddal 4. Scenario Explorer - 5. KPI & Tradeoff Analysis - Shirley 6. Policy Comparison 7. Simulation Lab 8. Research Extensions - Shashaank
 > The ones empty you can fill randomly with Sparsh and Aradhana
 
-What P20 changed: the AI assigned the empty views (City Overview and Policy Comparison to Sparsh;
+What P22 changed: the AI assigned the empty views (City Overview and Policy Comparison to Sparsh;
 Scenario Explorer and Simulation Lab to Aradhana) and rebuilt slide 3, slide 2 and the spec's team
 table around the eight views.
 
-### P21 (12 Nov, verbatim)
+### P23 (12 Nov, verbatim)
 > Change in the dashboard:
 > 1. Change the pedestrian dots into humanoid figures just like you change the cars and buses etc
 > 2. Give control over single junctions as well (meaning we can choose the junction and see things for a single junction
 >
 > One slider is overlapping here *(with a screenshot)*
 
-What P21 changed: pedestrian figures in the replay (waiting and crossing); a *Junction focus*
+What P23 changed: pedestrian figures in the replay (waiting and crossing); a *Junction focus*
 selector and click-to-zoom on the replay, with junction-level counters, KPIs, policy comparison,
 approach queues and time series; the replay's control bar wraps in narrow frames.
 
-### P22 (12 Nov, verbatim)
+### P24 (12 Nov, verbatim)
 > In ppt, what can we write for slide 16 also what is missing in the GenAI prompt md?
 >
 > This conversation contains the prompts used by my teammate: *(link to Chat A)*
@@ -247,13 +265,15 @@ approach queues and time series; the replay's control bar wraps in narrow frames
 >
 > This? *(the earlier part of Chat D, P6-P9)*
 >
-> This? *(Chat E, P12)*
+> This? *(Chat E, P14)*
 >
 > This? *(Chat G, P11)*
+>
+> This? *(Chat H, P12-P13)*
 
-What P22 changed: the AI suggested three wordings for slide 16 and the group chose option B (one
+What P24 changed: the AI suggested three wordings for slide 16 and the group chose option B (one
 line per person, based on the dashboard views each person took responsibility for); this log
-was completed from the exported text of Chats A, B, D, E, F and G (P3-P17).
+was completed from the exported text of Chats A, B, D, E, F, G and H (P3-P21).
 
 ---
 
@@ -275,7 +295,7 @@ was completed from the exported text of Chats A, B, D, E, F and G (P3-P17).
 
 ## What the group should do before submitting
 
-- Paste the two missing prompts above (P6 and the first request of P15).
+- Paste the two missing prompts above (P6 and the first request of P17).
 - Check that each person's responsibilities on slide 3 and in the spec's team table match
   what they actually did (ownership by dashboard view).
 - Each person checks that their line on slide 16 ("Our own work") is true, and removes the
