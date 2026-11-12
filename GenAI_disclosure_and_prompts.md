@@ -57,7 +57,7 @@ Listed in the order the work happened:
   and an alternative build (7–8 Nov), and the review of the submitted folder (10 Nov).
 - **Chat D** — took the 24 Oct build and the critique's priority list (≈7 Nov): fair comparison,
   model selection, course methods, corrections file, live what-if panel, and the ranked to-do
-  list used in Chats F and G. *One prompt not recoverable (see below).*
+  list used in Chats F, G and H. *One prompt not recoverable (see below).*
 - **Chats F, G and H** — three fresh chats, each started by pasting the Chat D to-do list: F
   asked for items 1-2 (UI fixes, side-by-side replay), G for items 1-4, H for items 3-4
   (pedestrian trade-off, value of time) (≈7–8 Nov). The shipped trade-off and value-of-time
