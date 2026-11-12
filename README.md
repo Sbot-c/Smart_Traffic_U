@@ -35,6 +35,10 @@ compared; an eight-view **Streamlit dashboard** shows everything as a live simul
 
 ## Dashboard additions, 12 Nov 2026 (evening)
 
+* **Full 30-minute replays.** The replays used to stop at minute 15, before the policies pull
+  apart. They now cover the whole episode (re-recorded from the same runs: the simulation log,
+  agent decisions, signal and queue timelines are unchanged). Rush hour, minute 25: about 535
+  cars queued under fixed timing vs about 220 under Q-learning.
 * **Pedestrians as people.** The replay draws pedestrians as small walking figures (varied skin
   tones and clothing) instead of dots: they wait at the four corners of each junction, and those
   served in a signal step walk across the zebra crossings that are green for them.
@@ -48,7 +52,7 @@ compared; an eight-view **Streamlit dashboard** shows everything as a live simul
 
 **Before presenting:** complete the prompt-log rows marked *paste the verbatim prompt*; check the
 responsibilities and slide numbers on slide 3; open the live app a few minutes early; rehearse the rush-hour
-demo at minutes 12–15 (about 510 cars queued under fixed timing vs about 124 under Q-learning).
+demo in RL Simulation: Rush hour, Fixed-time left and Q-learning right, minute slider at 20, Play (by minute 25 about 535 cars queued under fixed timing vs about 220 under Q-learning).
 
 ## Deliverables (Blackboard, 8 Nov 2026, 10 pm)
 

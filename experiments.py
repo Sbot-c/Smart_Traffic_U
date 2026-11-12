@@ -335,7 +335,7 @@ def animation_payload(env, scenario, policy, t_max=None) -> dict:
     )
 
 
-def record_runs(models, scenarios=None, seed=0, out_dir=None, anim_minutes=15):
+def record_runs(models, scenarios=None, seed=0, out_dir=None, anim_minutes=30):
     scenarios = scenarios or C.SCENARIO_ORDER
     plan = A.webster_plan("normal")
     frames, anims, decisions = [], {}, []

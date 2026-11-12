@@ -532,8 +532,9 @@ if st.session_state.get("view") == "Live What-If":          # old name in a save
 view = st.radio("View", VIEWS, horizontal=True, label_visibility="collapsed", key="view",
                 format_func=lambda v: f"{ICONS[v]}  {v}")
 
-MINUTE_HELP = ("Moves the replay to this minute and sets the network snapshot. The animated "
-               "replay holds the first 15 minutes; later minutes park it at 14:30.")
+MINUTE_HELP = ("Moves the replay to this minute and sets the network snapshot. The replay "
+               "covers the whole 30-minute episode; the gap between policies grows after "
+               "minute 15 in rush hour and the event surge.")
 
 
 def minute_slider():
@@ -615,11 +616,11 @@ if view == VIEWS[0]:
     left, right = st.columns([1.25, 1])
     with left:
         st.markdown("#### Real-time traffic flow")
-        st.caption("Replay of evaluation episode 1 (first 15 minutes). Roads are coloured "
+        st.caption("Replay of evaluation episode 1 (whole 30 minutes). Roads are coloured "
                    "by queue per lane (green = free, red = long queue); counters accumulate "
                    "from 00:00. Press space to play or pause.")
         embed(sim_view.render_html([anim_payload(scenario, policy)], [policy],
-                                   start=min(minute * 60, 870), autoplay=True, focus=FOCUS),
+                                   start=min(minute * 60, 1770), autoplay=True, focus=FOCUS),
               height=780)
     with right:
         sim = T["sim"]
@@ -695,7 +696,7 @@ if view == VIEWS[1]:
         minute = minute_slider()
     embed(sim_view.render_html([anim_payload(scenario, left_pol),
                                 anim_payload(scenario, right_pol)],
-                               [left_pol, right_pol], start=min(minute * 60, 870),
+                               [left_pol, right_pol], start=min(minute * 60, 1770),
                                focus=FOCUS), height=740)
     st.caption("Same arrivals, same seed, one clock: only the control policy differs. Counters "
                "accumulate from 00:00 (cars queued now, queue delay, CO₂); the right-hand tiles "
@@ -722,7 +723,7 @@ if view == VIEWS[1]:
                                  queue_N=P["queues"][s][i][0], queue_E=P["queues"][s][i][1],
                                  queue_S=P["queues"][s][i][2], queue_W=P["queues"][s][i][3]))
         st.caption(f"{policy} at {jn}: every 5-second step where the agent asked to change "
-                   "phase, the phase changed, or the safety shield intervened (first 15 min).")
+                   "phase, the phase changed, or the safety shield intervened (whole episode).")
         table(pd.DataFrame(rows), height=320)
     with d2:
         dec = T["dec"]
