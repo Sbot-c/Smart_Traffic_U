@@ -28,7 +28,10 @@ TEMPLATE = r"""
   body { margin:0; padding:0 4px; box-sizing:border-box; overflow:hidden;
          font-family: Inter, -apple-system, Segoe UI, Roboto, sans-serif; background:transparent;
          color:var(--ink); }
-  .bar { display:flex; gap:10px; align-items:center; flex-wrap:nowrap; padding:4px 2px 10px 2px; }
+  .bar { display:flex; gap:10px; align-items:center; flex-wrap:wrap; row-gap:8px;
+         padding:4px 2px 10px 2px; }
+  .grp { display:flex; gap:8px; align-items:center; flex:0 0 auto; }
+  .seek { display:flex; gap:10px; align-items:center; flex:1 1 260px; min-width:0; }
   button { border:1px solid var(--line); background:rgba(255,255,255,0.04); color:var(--ink);
            padding:7px 16px; border-radius:10px; font-size:15px; font-weight:600; cursor:pointer;
            white-space:nowrap; transition:all .15s; font-family:inherit; }
@@ -37,7 +40,7 @@ TEMPLATE = r"""
                    box-shadow:0 0 18px rgba(34,211,238,0.35); }
   select { padding:6px 8px; border-radius:8px; border:1px solid var(--line); font-size:14px;
            background:#0e1524; color:var(--ink); font-family:inherit; }
-  input[type=range] { flex:1; min-width:120px; accent-color:var(--cyan); }
+  input[type=range] { flex:1 1 auto; min-width:0; width:100%; accent-color:var(--cyan); }
   .clock { font-family:'JetBrains Mono', monospace; font-weight:700; font-size:21px; min-width:74px;
            color:var(--cyan); text-shadow:0 0 12px rgba(34,211,238,0.6); }
   .lbl { font-size:12px; color:var(--muted); letter-spacing:.06em; text-transform:uppercase; }
@@ -85,21 +88,23 @@ TEMPLATE = r"""
 <div class="bar">
   <button id="play" class="primary">&#9654; Play</button>
   <button id="reset">&#8634;</button>
-  <span class="lbl">Speed</span>
+  <span class="grp"><span class="lbl">Speed</span>
   <select id="speed">
     <option value="1">1&times;</option><option value="4">4&times;</option>
     <option value="10" selected>10&times;</option><option value="30">30&times;</option>
     <option value="60">60&times;</option>
-  </select>
-  <span class="lbl">View</span>
+  </select></span>
+  <span class="grp"><span class="lbl">View</span>
   <select id="focus" title="Zoom to one junction (or click a junction on the map)">
     <option value="-1">Whole network</option>
     <option value="0">J1</option><option value="1">J2</option><option value="2">J3</option>
     <option value="3">J4</option><option value="4">J5</option><option value="5">J6</option>
     <option value="6">J7</option><option value="7">J8</option><option value="8">J9</option>
-  </select>
-  <input id="scrub" type="range" min="0" max="900" step="1" value="0">
-  <span class="clock" id="clock">00:00</span>
+  </select></span>
+  <div class="seek">
+    <input id="scrub" type="range" min="0" max="900" step="1" value="0">
+    <span class="clock" id="clock">00:00</span>
+  </div>
 </div>
 <div class="wrap" id="wrap"></div>
 <div class="legend">
@@ -724,9 +729,17 @@ document.getElementById("speed").onchange = e => { speed = Number(e.target.value
 document.getElementById("focus").onchange = e => { setFocus(Number(e.target.value)); };
 document.getElementById("scrub").oninput = e => { t = Number(e.target.value); render(); };
 document.addEventListener("keydown", e => { if (e.code === "Space") { e.preventDefault(); document.getElementById("play").click(); } });
-window.addEventListener("resize", render);
+function fitChrome() {
+  // height of everything except the map, so the square map always fits the frame
+  const cv = views[0].cv;
+  const other = document.documentElement.scrollHeight - cv.getBoundingClientRect().height;
+  document.documentElement.style.setProperty("--chrome", Math.ceil(other + 6) + "px");
+}
+window.addEventListener("resize", () => { fitChrome(); render(); });
 t = Math.min(__START__, tMax);
+fitChrome();
 setFocus(focus);
+requestAnimationFrame(() => { fitChrome(); render(); });
 if (__AUTOPLAY__) document.getElementById("play").click();
 </script></body></html>
 """
