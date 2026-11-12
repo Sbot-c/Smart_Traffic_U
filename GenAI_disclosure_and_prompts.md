@@ -20,8 +20,9 @@ differentiate your own vs GenAI content."* This file is the separate prompt reco
 ## Prompt log (in date order)
 
 The project was built in eight Claude chats (A-H, described below the table). Prompts marked
-**verbatim** are copied exactly from the chat. Two are still missing because the exported text
-of those chats does not include them: **P6** and the first request of **P17**.
+**verbatim** are copied exactly from the chat. Two prompts could not be recovered (the chats no
+longer show them): **P6** and the first request of **P17**. For those two the log gives a
+summary of the request, taken from the AI's reply, and marks it as *not verbatim*.
 
 | # | Date | Chat | Purpose | Prompt | Output |
 |---|---|---|---|---|---|
@@ -30,7 +31,7 @@ of those chats does not include them: **P6** and the first request of **P17**.
 | P3 | 24 Oct 2026 | A | Continue | verbatim, below | rest of the 24 Oct build, and the requirement specification drafted as a Claude doc (no separate prompt) |
 | P4 | 7 Nov 2026 | A | Critique against the subject outline (section 3.2) and class decks | verbatim, below | review from several roles: fair comparison, model selection, course techniques, UI |
 | P5 | 7–8 Nov 2026 | A | Apply the critique | verbatim, below | an alternative 8 Nov build and a revised Claude-doc spec (**not** the submitted build) |
-| P6 | ≈7 Nov 2026 | D | Fix the three priority items from the critique | **paste the verbatim prompt** | validation-based model selection; fair signal-vs-routing comparison in the notebook, README and Policy Comparison; `course_methods.py` (uncertainty criteria, risk-averse utility, MDP table, price of anarchy, AHP, TOPSIS); `CORRECTIONS_FOR_SPEC_AND_SLIDES.md` |
+| P6 | ≈7 Nov 2026 | D | Fix the three priority items from the critique | **not recoverable** (summary below) | validation-based model selection; fair signal-vs-routing comparison in the notebook, README and Policy Comparison; `course_methods.py` (uncertainty criteria, risk-averse utility, MDP table, price of anarchy, AHP, TOPSIS); `CORRECTIONS_FOR_SPEC_AND_SLIDES.md` |
 | P7 | ≈7 Nov 2026 | D | Acknowledge | verbatim, below | AI suggested next steps |
 | P8 | ≈7 Nov 2026 | D | Build the live what-if panel | verbatim, below | *Live What-If* tab (later replaced by the Simulation Lab) |
 | P9 | ≈7 Nov 2026 | D | Ask for further improvements | verbatim, below | ranked to-do list (UI fixes, side-by-side replay, pedestrian trade-off, value of time, extras) |
@@ -41,7 +42,7 @@ of those chats does not include them: **P6** and the first request of **P17**.
 | P14 | ≈8 Nov 2026 | E | Finish what was left of the Chat H work (Chat H's status message pasted in) | verbatim, below | dashboard sections tested, trade-off figure labels fixed, paste-ready wording added to `CORRECTIONS_FOR_SPEC_AND_SLIDES.md`, README and caption updated; SARSA sweep and notebook left undone on purpose |
 | P15 | 8 Nov 2026 | B | Dashboard upgrade | verbatim, below | command-centre theme, Simulation Lab, linked sliders |
 | P16 | 8 Nov 2026 | B | Research extensions and the deck | verbatim, below | `extensions.py`, `data/ext_*.csv`, Research Extensions view, 16-slide deck |
-| P17 | 8 Nov 2026 | B | Project report and spec v2.0 PDF | first request: **paste the verbatim prompt**; two follow-ups verbatim, below | `report/Smart_Traffic_Project_Report.pdf`, `Requirement_Specification.pdf` v2.0 |
+| P17 | 8 Nov 2026 | B | Project report and spec v2.0 PDF | first request **not recoverable** (summary below); two follow-ups verbatim, below | `report/Smart_Traffic_Project_Report.pdf`, `Requirement_Specification.pdf` v2.0 |
 | P18 | 10 Nov 2026 | A | Review of the submitted folder against the professor's class notes | verbatim, below | review: eight gaps, inconsistencies, likely questions |
 | P19 | 10 Nov 2026 | A | Turn the review into a document | verbatim, below | Claude doc "Group 2 Submission Review – Smart City Traffic" |
 | P20 | 12 Nov 2026 | C | Close the review's gaps | verbatim, below | the changes listed under P20 |
@@ -56,9 +57,7 @@ Listed in the order the work happened:
   and an alternative build (7–8 Nov), and the review of the submitted folder (10 Nov).
 - **Chat D** — took the 24 Oct build and the critique's priority list (≈7 Nov): fair comparison,
   model selection, course methods, corrections file, live what-if panel, and the ranked to-do
-  list used in Chats F and G. *Its first request (P6) is above the exported text: scroll to the
-  top of the chat (the AI's reply begins "Read the code and confirmed your numbers against the
-  CSVs…").*
+  list used in Chats F and G. *One prompt not recoverable (see below).*
 - **Chats F, G and H** — three fresh chats, each started by pasting the Chat D to-do list: F
   asked for items 1-2 (UI fixes, side-by-side replay), G for items 1-4, H for items 3-4
   (pedestrian trade-off, value of time) (≈7–8 Nov). The shipped trade-off and value-of-time
@@ -66,9 +65,7 @@ Listed in the order the work happened:
 - **Chat E** — a short follow-up that finished the Chat H work (≈8 Nov), started from a pasted
   copy of Chat H's last status message.
 - **Chat B** — turned that into the submitted build (8 Nov): dashboard upgrade, research
-  extensions, deck, report and spec v2.0. *The exported text skips its middle: the first report
-  request (P17) is the message just before the reply "I'll do both: build the 3–4 page report
-  PDF first…".*
+  extensions, deck, report and spec v2.0. *One prompt not recoverable (see below).*
 - **Chat C** — the final fixes (12 Nov).
 
 ---
@@ -111,10 +108,12 @@ During this run the AI also created the requirement specification as a Claude do
 
 ## Chat D
 
-### P6 (≈7 Nov)
-> **paste the verbatim prompt** (the first message of Chat D, which passed on the critique's
-> three priority fixes: compare packages fairly, choose tables on validation runs, cover more
-> course sessions)
+### P6 (≈7 Nov) — not recoverable
+*Summary, not verbatim (from the AI's reply):* the first message of Chat D passed on the three
+priority fixes from the Chat A critique — compare signal controllers with the same routing,
+choose between general and scenario-adapted tables on separate validation runs, and cover more
+of the course sessions. The AI's reply begins "Read the code and confirmed your numbers against
+the CSVs…".
 
 ### P7 (≈7 Nov, verbatim)
 > Ok
@@ -183,9 +182,10 @@ time and the 64.8 vs 69 s retraining gap).
 > Can we fill these 5 gaps instead of making it a weakness for our project? Also for the final dashboard after making changes, I would need PPT accordingly
 
 ### P17 (8 Nov)
-First request (the one answered with *"I'll do both: build the 3–4 page report PDF first … then
-update the specification doc"*):
-> **paste the verbatim prompt**
+First request — not recoverable. *Summary, not verbatim (from the AI's reply):* build a 3–4
+page project report PDF for the zip and update the requirement specification with the corrections
+and the research extensions. The AI's reply begins "I'll do both: build the 3–4 page report PDF
+first…".
 
 Follow-ups (verbatim):
 > so everything is in the zip now?
@@ -295,7 +295,6 @@ was completed from the exported text of Chats A, B, D, E, F, G and H (P3-P21).
 
 ## What the group should do before submitting
 
-- Paste the two missing prompts above (P6 and the first request of P17).
 - Check that each person's responsibilities on slide 3 and in the spec's team table match
   what they actually did (ownership by dashboard view).
 - Each person checks that their line on slide 16 ("Our own work") is true, and removes the
