@@ -20,7 +20,7 @@ differentiate your own vs GenAI content."* This file is the separate prompt reco
 ## Prompt log (in date order)
 
 The project was built in three Claude chats. Prompts marked **verbatim** are copied exactly from
-the chat. Only P8-P10 are still missing (see the note under Chat B).
+the chat. Still missing: P8, P9 and the first request of P10 (see the note under Chat B).
 
 | # | Date | Chat | Purpose | Prompt | Output |
 |---|---|---|---|---|---|
@@ -33,7 +33,7 @@ the chat. Only P8-P10 are still missing (see the note under Chat B).
 | P7 | 8 Nov 2026 | B | Research extensions and the deck | verbatim, below | `extensions.py`, `data/ext_*.csv`, Research Extensions view, 16-slide deck |
 | P8 | ≈7–8 Nov 2026 | B | Pedestrian trade-off and value of time | **paste the verbatim prompt** | `ped_tradeoff.py`, `value_of_time.py`, `make_figures.py`, `figures/`, two KPI-view sections |
 | P9 | ≈7–8 Nov 2026 | B | Corrections wording for the spec and slides | **paste the verbatim prompt** | `CORRECTIONS_FOR_SPEC_AND_SLIDES.md` |
-| P10 | 8 Nov 2026 | B | Project report and spec v2.0 PDF | **paste the verbatim prompt** | `report/Smart_Traffic_Project_Report.pdf`, `Requirement_Specification.pdf` v2.0 |
+| P10 | 8 Nov 2026 | B | Project report and spec v2.0 PDF | first request: **paste the verbatim prompt**; two follow-ups verbatim, below | `report/Smart_Traffic_Project_Report.pdf`, `Requirement_Specification.pdf` v2.0 |
 | P11 | 10 Nov 2026 | A | Review of the submitted folder against the professor's class notes | verbatim, below | review: eight gaps, inconsistencies, likely questions |
 | P12 | 10 Nov 2026 | A | Turn the review into a document | verbatim, below | Claude doc "Group 2 Submission Review – Smart City Traffic" |
 | P13 | 12 Nov 2026 | C | Close the review's gaps | verbatim, below | the changes listed under P13 |
@@ -46,7 +46,8 @@ the chat. Only P8-P10 are still missing (see the note under Chat B).
 an alternative build (7–8 Nov), and the review of the submitted folder (10 Nov).
 **Chat B** — the chat that turned the 24 Oct build into the submitted build (8 Nov): dashboard
 upgrade, research extensions, deck, pedestrian trade-off, value of time, corrections, report and
-spec v2.0. *P8-P10 are in this chat: whoever ran it should paste those three prompts here.*
+spec v2.0. *The exported text of this chat skips its middle part: whoever ran it should paste
+P8, P9 and the first request of P10 here.*
 **Chat C** — the final fixes (12 Nov).
 
 ---
@@ -95,9 +96,22 @@ During this run the AI also created the requirement specification as a Claude do
 ### P7 (8 Nov, verbatim)
 > Can we fill these 5 gaps instead of making it a weakness for our project? Also for the final dashboard after making changes, I would need PPT accordingly
 
-### P8-P10 (≈7-8 Nov)
-> **paste the verbatim prompts** for the pedestrian trade-off and value of time (P8), the
-> corrections file (P9), and the report and spec v2.0 (P10) from Chat B.
+### P8, P9 (≈7-8 Nov)
+> **paste the verbatim prompts** for the pedestrian trade-off and value of time (P8) and the
+> corrections file (P9) from Chat B.
+
+### P10 (8 Nov)
+First request (the one answered with *"I'll do both: build the 3–4 page report PDF first … then
+update the specification doc"*):
+> **paste the verbatim prompt**
+
+Follow-ups (verbatim):
+> so everything is in the zip now?
+
+> Do it then keep it in the zip only
+
+The AI could not open the Claude-doc spec from Chat B, so it wrote a new specification from the
+project (v2.0) and put it in the zip with the 3-page report.
 
 ## Chat C
 
@@ -162,10 +176,13 @@ approach queues and time series; the replay's control bar wraps in narrow frames
 > B
 >
 > This is the whole chat: *(Chat A attached as text)*
+>
+> Is this the one? *(Chat B attached as text)*
 
 What P17 changed: the AI suggested three wordings for slide 16 and the group chose option B (one
 line per person, based on the dashboard views each person took responsibility for); this log
-was completed with the Chat A prompts (P3-P5, P11, P12).
+was completed with the Chat A prompts (P3-P5, P11, P12) and the Chat B prompts that the exported
+text shows (P6 and the P10 follow-ups).
 
 ---
 
@@ -185,7 +202,7 @@ was completed with the Chat A prompts (P3-P5, P11, P12).
 
 ## What the group should do before submitting
 
-- Paste the three Chat B prompts (P8-P10) above.
+- Paste the remaining Chat B prompts above (P8, P9 and the first request of P10).
 - Check that each person's responsibilities on slide 3 and in the spec's team table match
   what they actually did (ownership by dashboard view).
 - Each person checks that their line on slide 16 ("Our own work") is true, and removes the
