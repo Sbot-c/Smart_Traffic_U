@@ -37,6 +37,7 @@ see earlier chats) before submitting, so the log is complete.
 | P10 | 10 Nov 2026 | Submission review (Claude doc "Group 2 Submission Review – Smart City Traffic") | **paste the verbatim prompt** | review document listing eight gaps |
 | P11 | 12 Nov 2026 | Close the review's gaps | verbatim, below | the changes listed under P11 |
 | P12 | 12 Nov 2026 | Names and push | verbatim, below | names added; pushed to GitHub |
+| P13 | 12 Nov 2026 | Ownership by dashboard view | verbatim, below | slide 3 and the spec's team table reorganised by view |
 
 ### P1 (24 Oct, verbatim)
 > There is a folder in this called group project I need you to go through it and help me build it
@@ -97,7 +98,7 @@ What P11 changed:
 ## What the group should do before submitting
 
 - Check that each person's responsibilities on slide 3 and in the spec's team table match
-  what they actually did (team: Siddal, Shashaank, Sparsh, Aradhana, Shirley).
+  what they actually did (ownership by dashboard view; see slide 3).
 - Complete the rows above marked **paste the verbatim prompt**.
 - On slide 16, replace the amber line with what the group wrote or rewrote itself, and remove
   the amber frame from any slide the group rewrote in its own words.
@@ -109,3 +110,10 @@ What P11 changed:
 > 1. Siddal 2. Shashaank 3. Sparsh 4. Aradhana 5. Shirley
 
 What P12 changed: team names on slides 1-3 and in the spec; this folder pushed to the GitHub repository (live app and Colab link updated).
+
+### P13 (12 Nov, verbatim)
+> We have taken responsibility from dashboard tabs itself:
+> 1. City Overview - 2. RL Simulation - Shashaank 3. Decision Network Visualizer - Siddal 4. Scenario Explorer - 5. KPI & Tradeoff Analysis - Shirley 6. Policy Comparison 7. Simulation Lab 8. Research Extensions - Shashaank
+> The ones empty you can fill randomly with Sparsh and Aradhana
+
+What P13 changed: the AI assigned the empty views (City Overview and Policy Comparison to Sparsh; Scenario Explorer and Simulation Lab to Aradhana) and rebuilt slide 3, slide 2 and the spec's team table around the eight views.

@@ -20,7 +20,7 @@ compared; an eight-view **Streamlit dashboard** shows everything as a live simul
 | 1. No Colab link | The notebook opens in Colab straight from the public repository (link above); it is on the last slide, in the spec, the README and the dashboard sidebar. |
 | 2. Deck's last slide said "streamlit run app.py" | Last slide now lists the hosted dashboard, Colab and GitHub links, plus the wake-button note; the dashboard slide carries the link too. |
 | 3. App goes to sleep | Wake-button note on the last slide, slide 13, here and in `DASHBOARD_LINK.md`. Open it a few minutes before the session. |
-| 4. No names or roles | Slide 2 shows a lead per part; new slide 3 "Who did what"; team table in the spec: 1 Multi-agent system — Siddal, 2 Reinforcement learning — Shashaank, 3 Decision network — Sparsh, 4 Scenario experiments — Aradhana, 5 Command dashboard — Shirley. Adjust the responsibilities on slide 3 to what each person actually did. |
+| 4. No names or roles | Ownership by dashboard view (slide 3 and the spec's team table): City Overview — Sparsh; RL Simulation — Shashaank; Decision Network Visualizer — Siddal; Scenario Explorer — Aradhana; KPI & Trade-off Analysis — Shirley; Policy Comparison — Sparsh; Simulation Lab — Aradhana; Research Extensions — Shashaank. |
 | 5. GenAI not circled, prompt log incomplete | Amber dashed frames + GenAI tag on every AI-drafted slide and spec section; GenAI slide 16; prompt log restructured with every session (rows still needing the verbatim prompt are marked). |
 | 6. Which spec? | `Requirement_Specification.pdf` **v2.1** replaces both versions: five headings (problem and requirements; data and data sources; algorithms; required libraries; UI wireframe), reference article cited, matches this build. Source: `docs/spec_source/`. |
 | 7. Phones-per-person uncertainty | New experiment `sensing.py`: agents see queue counts biased 0.5–2× (e.g. two phones per person) and noisy. RL-vs-actuated verdict unchanged in 86 % of 84 conditions; RL more sensitive than actuated (event surge 2×: 46.6 → 60.2 s, still ahead of actuated 65.5 s). In the dashboard (Simulation Lab control + Research Extensions study 6), the notebook (§6b), slide 12 and the spec (§3.6). |
@@ -34,7 +34,7 @@ compared; an eight-view **Streamlit dashboard** shows everything as a live simul
 | Reference article not cited | Wairagade, Ugale & Waghmare (2025) cited on slide 2 and in the spec. |
 
 **Before presenting:** complete the prompt-log rows marked *paste the verbatim prompt*; check the
-responsibilities on slide 3; open the live app a few minutes early; rehearse the rush-hour
+responsibilities and slide numbers on slide 3; open the live app a few minutes early; rehearse the rush-hour
 demo at minutes 12–15 (about 510 cars queued under fixed timing vs about 124 under Q-learning).
 
 ## Deliverables (Blackboard, 8 Nov 2026, 10 pm)

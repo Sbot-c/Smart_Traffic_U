@@ -40,7 +40,7 @@ DASH_URL = "https://smarttrafficu-mmzjikh5bg8frby3adzdc2.streamlit.app/"
 COLAB_URL = ("https://colab.research.google.com/github/Sbot-c/Smart_Traffic_U/blob/main/"
              "Smart_Traffic_MARL_DecisionNetwork.ipynb")
 GH_URL = "https://github.com/Sbot-c/Smart_Traffic_U"
-TEAM = ["Siddal", "Shashaank", "Sparsh", "Aradhana", "Shirley"]
+TEAM = ["Siddal", "Shashaank", "Sparsh", "Aradhana", "Shirley"]   # owners: see the team table
 
 ss = dict(
     title=ParagraphStyle("t", fontName="DVB", fontSize=15.5, leading=19, textColor=INK),
@@ -129,17 +129,23 @@ story += [P("Requirement Specification: Smart City Traffic Management", "title")
             f'Code and data: <link href="{GH_URL}" color="#1f5fae">github.com/Sbot-c/'
             f'Smart_Traffic_U</link>', "sub"), Spacer(1, 4)]
 
-story.append(tbl([["Part of the brief", "Lead", "Responsible for"],
-                  ["1 Multi-agent system", TEAM[0], "agent design (states, actions, rewards), "
-                   "simulator and safety shield"],
-                  ["2 Reinforcement learning", TEAM[1], "Q-learning and SARSA training, model "
-                   "selection, tuned baseline"],
-                  ["3 Decision network", TEAM[2], "influence diagram, expected utility, value of "
-                   "information, sensing uncertainty"],
-                  ["4 Scenario experiments", TEAM[3], "seven scenarios, KPIs, statistics, AV and "
-                   "bus studies, data CSV"],
-                  ["5 Command dashboard", TEAM[4], "Streamlit dashboard, replay, Simulation Lab, "
-                   "deployment"]], [0.25, 0.2, 0.55]))
+story.append(tbl([["Dashboard view", "Owner", "Responsible for"],
+                  ["1 City Overview", "Sparsh", "multi-agent system on the map: live-simulation "
+                   "replay, KPIs vs fixed-time"],
+                  ["2 RL Simulation", "Shashaank", "Q-learning and SARSA agents: decisions, "
+                   "learned policies, training"],
+                  ["3 Decision Network Visualizer", "Siddal", "influence diagram, expected "
+                   "utility, value of information"],
+                  ["4 Scenario Explorer", "Aradhana", "seven scenarios, parameters and outcome "
+                   "distributions"],
+                  ["5 KPI & Trade-off Analysis", "Shirley", "improvement heatmaps, delay vs "
+                   "safety, course techniques"],
+                  ["6 Policy Comparison", "Sparsh", "signals vs routing, tuned baseline, paired "
+                   "statistics"],
+                  ["7 Simulation Lab", "Aradhana", "live what-if with linked conditions and "
+                   "sensing bias"],
+                  ["8 Research Extensions", "Shashaank", "AV speed and lanes, bus loads, safety "
+                   "guard, sensing uncertainty"]], [0.3, 0.16, 0.54]))
 story.append(P("Team table written by the group. Every section inside "
                "an amber dashed frame was drafted with GenAI and then checked and edited by the "
                "group; the prompts are in <i>GenAI_disclosure_and_prompts.md</i>.", "cap"))
