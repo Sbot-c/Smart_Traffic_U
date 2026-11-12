@@ -19,9 +19,9 @@ differentiate your own vs GenAI content."* This file is the separate prompt reco
 
 ## Prompt log (in date order)
 
-The project was built in five Claude chats (A-E, described below the table). Prompts marked
+The project was built in seven Claude chats (A-G, described below the table). Prompts marked
 **verbatim** are copied exactly from the chat. Three are still missing because the exported text
-of those chats does not include them: **P6**, **P11** and the first request of **P15**.
+of those chats does not include them: **P6** and the first request of **P15**.
 
 | # | Date | Chat | Purpose | Prompt | Output |
 |---|---|---|---|---|---|
@@ -34,8 +34,8 @@ of those chats does not include them: **P6**, **P11** and the first request of *
 | P7 | ≈7 Nov 2026 | D | Acknowledge | verbatim, below | AI suggested next steps |
 | P8 | ≈7 Nov 2026 | D | Build the live what-if panel | verbatim, below | *Live What-If* tab (later replaced by the Simulation Lab) |
 | P9 | ≈7 Nov 2026 | D | Ask for further improvements | verbatim, below | ranked to-do list (UI fixes, side-by-side replay, pedestrian trade-off, value of time, extras) |
-| P10 | ≈7–8 Nov 2026 | D | Items 1 and 2 of that list, with the problem statement attached | verbatim, below | only the open view drawn, projector fonts, Deploy menu hidden, readable tables, tie label, readings under value of information and the weight triangle; side-by-side replay with live counters, queue-coloured roads, minute slider |
-| P11 | ≈8 Nov 2026 | D (probably) | Pedestrian trade-off and value of time (items 3 and 4 of that list) | **paste the verbatim prompt** | `ped_tradeoff.py`, `value_of_time.py`, `make_figures.py`, `figures/`, two KPI-view sections, additions to the corrections file |
+| P10 | ≈7–8 Nov 2026 | F | Items 1 and 2 of the Chat D list (pasted in), with the problem statement attached | verbatim, below | only the open view drawn, projector fonts, Deploy menu hidden, readable tables, tie label, readings under value of information and the weight triangle; side-by-side replay with live counters, queue-coloured roads, minute slider |
+| P11 | ≈7–8 Nov 2026 | G | Items 1-4 of the Chat D list (pasted in), with the problem statement attached | verbatim, below | UI fixes and side-by-side replay (as P10), plus the pedestrian-weight trade-off (`ped_tradeoff.py`, `data/ped_weight_tradeoff.csv`) and value of time in AED (`value_of_time.py`, `make_figures.py`, `figures/`) |
 | P12 | ≈8 Nov 2026 | E | Finish what was left of the pedestrian trade-off work (previous status message pasted in) | verbatim, below | dashboard sections tested, trade-off figure labels fixed, paste-ready wording added to `CORRECTIONS_FOR_SPEC_AND_SLIDES.md`, README and caption updated; SARSA sweep and notebook left undone on purpose |
 | P13 | 8 Nov 2026 | B | Dashboard upgrade | verbatim, below | command-centre theme, Simulation Lab, linked sliders |
 | P14 | 8 Nov 2026 | B | Research extensions and the deck | verbatim, below | `extensions.py`, `data/ext_*.csv`, Research Extensions view, 16-slide deck |
@@ -48,22 +48,24 @@ of those chats does not include them: **P6**, **P11** and the first request of *
 | P21 | 12 Nov 2026 | C | Dashboard: humanoid pedestrians, single-junction focus, slider fix | verbatim, below | `sim_view.py`, `app.py`, `viz.py` |
 | P22 | 12 Nov 2026 | C | Slide 16 wording and this prompt log | verbatim, below | "Our own work" column on slide 16; this log completed |
 
-**Chat A** — a teammate's chat (shared with the group): the first build (24 Oct), a critique and
-an alternative build (7–8 Nov), and the review of the submitted folder (10 Nov).
-**Chat D** — took the 24 Oct build and the critique's priority list (≈7–8 Nov): fair comparison,
-model selection, course methods, corrections file, live what-if panel, UI fixes, side-by-side
-replay. Its changes are in the submitted build. *Its first request (P6) is above the exported
-text: scroll to the top of the chat.*
-**Chat B** — turned that into the submitted build (8 Nov): dashboard upgrade, research
-extensions, deck, report and spec v2.0. *The exported text skips its middle: the first report
-request (P15) is the message just before the reply "I'll do both: build the 3–4 page report PDF
-first…".*
-**Chat C** — the final fixes (12 Nov).
-**Chat E** — a short follow-up that finished the pedestrian trade-off and value-of-time work
-(≈8 Nov), started from a pasted copy of the previous chat's status message.
-*P11 (the request that started the pedestrian trade-off and value of time) is in the chat
-whose reply begins "The SARSA sweep is only partly done and would show a misleading
-half-curve…": the user message just above that reply.*
+Listed in the order the work happened:
+
+- **Chat A** — a teammate's chat (shared with the group): the first build (24 Oct), a critique
+  and an alternative build (7–8 Nov), and the review of the submitted folder (10 Nov).
+- **Chat D** — took the 24 Oct build and the critique's priority list (≈7 Nov): fair comparison,
+  model selection, course methods, corrections file, live what-if panel, and the ranked to-do
+  list used in Chats F and G. *Its first request (P6) is above the exported text: scroll to the
+  top of the chat (the AI's reply begins "Read the code and confirmed your numbers against the
+  CSVs…").*
+- **Chats F and G** — two fresh chats, each started by pasting the Chat D to-do list: F asked
+  for items 1-2, G for items 1-4 (≈7–8 Nov).
+- **Chat E** — a short follow-up that finished the Chat G work (≈8 Nov), started from a pasted
+  copy of Chat G's status message.
+- **Chat B** — turned that into the submitted build (8 Nov): dashboard upgrade, research
+  extensions, deck, report and spec v2.0. *The exported text skips its middle: the first report
+  request (P15) is the message just before the reply "I'll do both: build the 3–4 page report
+  PDF first…".*
+- **Chat C** — the final fixes (12 Nov).
 
 ---
 
@@ -121,19 +123,27 @@ During this run the AI also created the requirement specification as a Claude do
 ### P9 (≈7 Nov, verbatim)
 > what else can we improvise in this
 
+## Chat F
+
 ### P10 (≈7–8 Nov, verbatim; attached: the problem statement PDF)
 > Do these changes namely(1,2) , I have also attached the problem statement pdf for context
 
-Items 1 and 2 of the AI's list in reply to P9: *1. UI fixes* (draw only the open tab, bigger
+Items 1 and 2 of the AI's list in reply to P9, pasted into this new chat below the request: *1. UI fixes* (draw only the open tab, bigger
 fonts, hide the Deploy menu, round table numbers and readable column names, fix the "best" label
 on a weighted-sum tie, one-line readings under the value-of-information chart and the weight
 triangle) and *2. Side-by-side replay* (fit to the screen, live counters for queued cars, delay
 and CO₂, roads coloured by queue length, replay clock linked to the minute slider).
 
-### P11 (≈8 Nov)
-> **paste the verbatim prompt** that started the pedestrian trade-off and value of time (items 3
-> and 4 of the list in reply to P9): the user message just above the reply that begins "The SARSA
-> sweep is only partly done and would show a misleading half-curve…".
+## Chat G
+
+### P11 (≈7–8 Nov, verbatim; attached: the problem statement PDF)
+> Do these changes namely(1,2,3 and 4) , I have also attached the problem statement pdf for context
+
+followed by the same pasted list: items 1-2 as in P10, *3. Pedestrian-weight trade-off chart*
+(retrain rush hour at several pedestrian weights, plot delay against pedestrian wait) and
+*4. Value of time in money* (convert vehicle-hours saved into currency with a cited value of
+time). Chat G's last status message (the SARSA sweep stopped, the Q-learning sweep shipped) is
+the text pasted into Chat E.
 
 ## Chat E
 
@@ -233,15 +243,17 @@ approach queues and time series; the replay's control bar wraps in narrow frames
 >
 > Is this the one? *(Chat B attached as text)*
 >
-> This: *(a Chat D prompt, P10)*
+> This: *(Chat F, P10)*
 >
 > This? *(the earlier part of Chat D, P6-P9)*
 >
 > This? *(Chat E, P12)*
+>
+> This? *(Chat G, P11)*
 
 What P22 changed: the AI suggested three wordings for slide 16 and the group chose option B (one
 line per person, based on the dashboard views each person took responsibility for); this log
-was completed from the exported text of Chats A, B, D and E (P3-P17).
+was completed from the exported text of Chats A, B, D, E, F and G (P3-P17).
 
 ---
 
@@ -263,7 +275,7 @@ was completed from the exported text of Chats A, B, D and E (P3-P17).
 
 ## What the group should do before submitting
 
-- Paste the three missing prompts above (P6, P11 and the first request of P15).
+- Paste the two missing prompts above (P6 and the first request of P15).
 - Check that each person's responsibilities on slide 3 and in the spec's team table match
   what they actually did (ownership by dashboard view).
 - Each person checks that their line on slide 16 ("Our own work") is true, and removes the
